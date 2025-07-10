@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1004683858944",
+    "project_id": "yuva-1263",
+    "storage_bucket": "yuva-1263.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1004683858944:android:8f4e193687d965037274e5",
+        "android_client_info": {
+          "package_name": "com.example.yuva"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDIGRhEK4ZO4HFV37t9iKY1R2g3zVOUDPA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

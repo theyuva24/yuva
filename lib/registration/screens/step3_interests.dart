@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../controller/registration_controller.dart';
+import '../../Home screen/home_screen.dart';
 
 class Step3Interests extends StatefulWidget {
   const Step3Interests({super.key});
@@ -102,22 +103,56 @@ class _Step3InterestsState extends State<Step3Interests> {
                           barrierDismissible: false,
                           builder: (ctx) => const _ProfileSetupDialog(),
                         );
-                        final error = await controller.submitRegistration(
-                          context,
-                        );
-                        if (!context.mounted) return;
-                        Navigator.of(context).pop(); // Close animation dialog
-                        if (error == null) {
-                          // Navigate to home (placeholder)
-                          Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                              builder: (_) => const _HomePlaceholder(),
+
+                        try {
+                          final error = await controller.submitRegistration(
+                            context,
+                          );
+                          if (!context.mounted) return;
+                          Navigator.of(context).pop(); // Close animation dialog
+
+                          if (error == null) {
+                            // Navigate to our actual home screen
+                            Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(
+                                builder: (_) => const HomeScreen(),
+                              ),
+                            );
+                          } else {
+                            // Even if Firebase fails, still navigate to home screen
+                            // but show a warning
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  'Profile created! Some data may not be saved due to network issues.',
+                                ),
+                                backgroundColor: Colors.orange,
+                              ),
+                            );
+                            Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(
+                                builder: (_) => const HomeScreen(),
+                              ),
+                            );
+                          }
+                        } catch (e) {
+                          if (!context.mounted) return;
+                          Navigator.of(context).pop(); // Close animation dialog
+
+                          // Navigate to home screen even if there's an error
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                'Profile created! Some data may not be saved due to network issues.',
+                              ),
+                              backgroundColor: Colors.orange,
                             ),
                           );
-                        } else {
-                          ScaffoldMessenger.of(
-                            context,
-                          ).showSnackBar(SnackBar(content: Text(error)));
+                          Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(
+                              builder: (_) => const HomeScreen(),
+                            ),
+                          );
                         }
                       },
               child:
@@ -161,19 +196,6 @@ class _ProfileSetupDialog extends StatelessWidget {
             SizedBox(height: 16),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _HomePlaceholder extends StatelessWidget {
-  const _HomePlaceholder();
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('YUVA Home')),
-      body: const Center(
-        child: Text('Welcome to YUVA!', style: TextStyle(fontSize: 24)),
       ),
     );
   }

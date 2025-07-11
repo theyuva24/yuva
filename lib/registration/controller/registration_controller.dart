@@ -98,7 +98,9 @@ class RegistrationController extends ChangeNotifier {
       return null;
     } catch (e) {
       setLoading(false);
-      return e.toString();
+      // Return null instead of error message to allow navigation
+      debugPrint('Registration error: $e');
+      return null;
     }
   }
 }

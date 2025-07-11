@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'phone_input_screen.dart';
+import '../../../registration/screens/registration_flow.dart';
 
 class OnboardingScreen extends StatefulWidget {
-  const OnboardingScreen({Key? key}) : super(key: key);
+  const OnboardingScreen({super.key});
 
   @override
   State<OnboardingScreen> createState() => _OnboardingScreenState();
@@ -50,7 +50,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           width: 180,
                           height: 180,
                           decoration: BoxDecoration(
-                            color: const Color(0xFF6C63FF).withOpacity(0.1),
+                            color: Color(0x1A6C63FF),
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
@@ -117,7 +117,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => const PhoneInputScreen(),
+                        builder: (_) => const RegistrationFlow(),
                       ),
                     );
                   },

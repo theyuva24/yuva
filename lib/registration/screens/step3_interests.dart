@@ -1,0 +1,180 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../controller/registration_controller.dart';
+
+class Step3Interests extends StatefulWidget {
+  const Step3Interests({super.key});
+
+  @override
+  State<Step3Interests> createState() => _Step3InterestsState();
+}
+
+class _Step3InterestsState extends State<Step3Interests> {
+  static const List<String> allInterests = [
+    'Mathematics',
+    'Science',
+    'Technology',
+    'Sports',
+    'Music',
+    'Art',
+    'Coding',
+    'Reading',
+    'Writing',
+    'Travel',
+    'Photography',
+    'Other',
+  ];
+  final TextEditingController _otherController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = Provider.of<RegistrationController>(context);
+    final selected = controller.data.interests;
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Text(
+              'Choose your interests (max 5):',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children:
+                  allInterests.map((interest) {
+                    final isSelected = selected.contains(interest);
+                    return FilterChip(
+                      label: Text(interest),
+                      selected: isSelected,
+                      onSelected: (val) {
+                        if (isSelected) {
+                          controller.updateInterests(
+                            List.from(selected)..remove(interest),
+                          );
+                        } else if (selected.length < 5) {
+                          controller.updateInterests(
+                            List.from(selected)..add(interest),
+                          );
+                        }
+                      },
+                    );
+                  }).toList(),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _otherController,
+              decoration: const InputDecoration(
+                labelText: 'Suggest another interest',
+                border: OutlineInputBorder(),
+              ),
+              onSubmitted: (val) {
+                if (val.isNotEmpty &&
+                    !selected.contains(val) &&
+                    selected.length < 5) {
+                  controller.updateInterests(List.from(selected)..add(val));
+                  _otherController.clear();
+                }
+              },
+            ),
+            const SizedBox(height: 32),
+            ElevatedButton(
+              onPressed:
+                  controller.isLoading
+                      ? null
+                      : () async {
+                        if (selected.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'Please select at least one interest',
+                              ),
+                            ),
+                          );
+                          return;
+                        }
+                        // Show animation dialog
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (ctx) => const _ProfileSetupDialog(),
+                        );
+                        final error = await controller.submitRegistration(
+                          context,
+                        );
+                        if (!context.mounted) return;
+                        Navigator.of(context).pop(); // Close animation dialog
+                        if (error == null) {
+                          // Navigate to home (placeholder)
+                          Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(
+                              builder: (_) => const _HomePlaceholder(),
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(
+                            context,
+                          ).showSnackBar(SnackBar(content: Text(error)));
+                        }
+                      },
+              child:
+                  controller.isLoading
+                      ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                      : const Text('Create My Account'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ProfileSetupDialog extends StatelessWidget {
+  const _ProfileSetupDialog();
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(32.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: const [
+            SizedBox(height: 16),
+            CircularProgressIndicator(color: Color(0xFF6C63FF)),
+            SizedBox(height: 24),
+            Text(
+              'Setting up your profile...',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _HomePlaceholder extends StatelessWidget {
+  const _HomePlaceholder();
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('YUVA Home')),
+      body: const Center(
+        child: Text('Welcome to YUVA!', style: TextStyle(fontSize: 24)),
+      ),
+    );
+  }
+}

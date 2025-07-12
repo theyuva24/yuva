@@ -19,6 +19,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   List<Hub> _allHubs = [];
   List<Hub> _filteredHubs = [];
   bool _showDropdown = false;
+  Hub? _selectedHub;
 
   @override
   void initState() {
@@ -39,6 +40,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       setState(() {
         _filteredHubs = [];
         _showDropdown = false;
+        _selectedHub = null;
       });
       return;
     }
@@ -49,6 +51,10 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               .toList();
       print('Filtered hubs: ${_filteredHubs.map((h) => h.name).toList()}');
       _showDropdown = _filteredHubs.isNotEmpty;
+      // If the input matches a hub exactly, set _selectedHub
+      final match =
+          _allHubs.where((hub) => hub.name.toLowerCase() == input).toList();
+      _selectedHub = match.isNotEmpty ? match.first : null;
     });
   }
 
@@ -67,10 +73,12 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       return;
     }
 
-    if (_hubController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Please enter hub name')));
+    if (_selectedHub == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select a valid hub from the dropdown'),
+        ),
+      );
       return;
     }
 
@@ -80,7 +88,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
     try {
       await _postService.createPost(
-        hubName: _hubController.text.trim(),
+        hubId: _selectedHub!.id,
+        hubName: _selectedHub!.name,
         postContent: _contentController.text.trim(),
       );
 
@@ -152,6 +161,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                                   _hubController.text = hub.name;
                                   setState(() {
                                     _showDropdown = false;
+                                    _selectedHub = hub;
                                   });
                                 },
                               );

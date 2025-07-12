@@ -21,13 +21,20 @@ class PostService {
 
       // Get user data from Firestore
       final userDoc = await firestore.collection('users').doc(user.uid).get();
-      final userName = userDoc.data()?['userName'] ?? 'Anonymous User';
+      final userName = userDoc.data()?['fullName'] ?? 'Anonymous User';
+      final userProfileImage = userDoc.data()?['profilePicUrl'] ?? '';
+
+      // Get hub data from Firestore
+      final hubDoc = await firestore.collection('Hubs').doc(hubId).get();
+      final hubProfileImage = hubDoc.data()?['imageUrl'] ?? '';
 
       final postData = {
         'userId': user.uid,
         'userName': userName,
+        'userProfileImage': userProfileImage,
         'hubId': hubId,
         'hubName': hubName,
+        'hubProfileImage': hubProfileImage,
         'postContent': postContent,
         'postingTime': FieldValue.serverTimestamp(),
         'upvotes': 0,
@@ -79,48 +86,72 @@ class PostService {
 
   // Vote on a post
   Future<void> voteOnPost(String postId, String voteType) async {
-    try {
-      final user = _auth.currentUser;
-      if (user == null) throw Exception('User not authenticated');
+    final user = _auth.currentUser;
+    if (user == null) throw Exception('User not authenticated');
 
-      final voteRef = firestore
-          .collection('posts')
-          .doc(postId)
-          .collection('voteInteractions')
-          .doc(user.uid);
+    final postRef = firestore.collection('posts').doc(postId);
+    final voteRef = postRef.collection('voteInteractions').doc(user.uid);
 
-      final voteDoc = await voteRef.get();
-      final postRef = firestore.collection('posts').doc(postId);
+    await firestore.runTransaction((transaction) async {
+      final voteSnapshot = await transaction.get(voteRef);
+      final postSnapshot = await transaction.get(postRef);
 
-      if (voteDoc.exists) {
-        // User has already voted
-        final currentVote = voteDoc.data()?['voteType'];
+      if (!postSnapshot.exists) throw Exception('Post does not exist');
 
+      int upvotes = postSnapshot['upvotes'] ?? 0;
+      int downvotes = postSnapshot['downvotes'] ?? 0;
+      int score = postSnapshot['score'] ?? 0;
+
+      if (voteSnapshot.exists) {
+        final currentVote = voteSnapshot['voteType'];
         if (currentVote == voteType) {
           // Remove vote
-          await voteRef.delete();
-          await _updatePostVotes(postRef, voteType, -1);
+          transaction.delete(voteRef);
+          if (voteType == 'upvote') {
+            upvotes -= 1;
+            score -= 1;
+          } else if (voteType == 'downvote') {
+            downvotes -= 1;
+            score += 1;
+          }
         } else {
           // Change vote
-          await voteRef.update({
+          transaction.update(voteRef, {
             'voteType': voteType,
             'voteTime': FieldValue.serverTimestamp(),
           });
-          await _updatePostVotes(postRef, currentVote, -1);
-          await _updatePostVotes(postRef, voteType, 1);
+          if (currentVote == 'upvote' && voteType == 'downvote') {
+            upvotes -= 1;
+            downvotes += 1;
+            score -= 2;
+          } else if (currentVote == 'downvote' && voteType == 'upvote') {
+            downvotes -= 1;
+            upvotes += 1;
+            score += 2;
+          }
         }
       } else {
         // New vote
-        await voteRef.set({
+        transaction.set(voteRef, {
           'userId': user.uid,
           'voteType': voteType,
           'voteTime': FieldValue.serverTimestamp(),
         });
-        await _updatePostVotes(postRef, voteType, 1);
+        if (voteType == 'upvote') {
+          upvotes += 1;
+          score += 1;
+        } else if (voteType == 'downvote') {
+          downvotes += 1;
+          score -= 1;
+        }
       }
-    } catch (e) {
-      throw Exception('Failed to vote: $e');
-    }
+
+      transaction.update(postRef, {
+        'upvotes': upvotes,
+        'downvotes': downvotes,
+        'score': score,
+      });
+    });
   }
 
   // Update post vote counts
@@ -271,6 +302,84 @@ class PostService {
     } catch (e) {
       throw Exception('Failed to vote on poll: $e');
     }
+  }
+
+  // Upvote or downvote a comment
+  Future<void> voteOnComment(
+    String postId,
+    String commentId,
+    String voteType,
+  ) async {
+    final user = _auth.currentUser;
+    if (user == null) throw Exception('User not authenticated');
+
+    final commentRef = firestore
+        .collection('posts')
+        .doc(postId)
+        .collection('comments')
+        .doc(commentId);
+    final voteRef = commentRef.collection('voteInteractions').doc(user.uid);
+
+    await firestore.runTransaction((transaction) async {
+      final voteSnapshot = await transaction.get(voteRef);
+      final commentSnapshot = await transaction.get(commentRef);
+
+      if (!commentSnapshot.exists) throw Exception('Comment does not exist');
+
+      int upvotes = commentSnapshot['upvotes'] ?? 0;
+      int downvotes = commentSnapshot['downvotes'] ?? 0;
+      int score = commentSnapshot['score'] ?? 0;
+
+      if (voteSnapshot.exists) {
+        final currentVote = voteSnapshot['voteType'];
+        if (currentVote == voteType) {
+          // Remove vote
+          transaction.delete(voteRef);
+          if (voteType == 'upvote') {
+            upvotes -= 1;
+            score -= 1;
+          } else if (voteType == 'downvote') {
+            downvotes -= 1;
+            score += 1;
+          }
+        } else {
+          // Change vote
+          transaction.update(voteRef, {
+            'voteType': voteType,
+            'voteTime': FieldValue.serverTimestamp(),
+          });
+          if (currentVote == 'upvote' && voteType == 'downvote') {
+            upvotes -= 1;
+            downvotes += 1;
+            score -= 2;
+          } else if (currentVote == 'downvote' && voteType == 'upvote') {
+            downvotes -= 1;
+            upvotes += 1;
+            score += 2;
+          }
+        }
+      } else {
+        // New vote
+        transaction.set(voteRef, {
+          'userId': user.uid,
+          'voteType': voteType,
+          'voteTime': FieldValue.serverTimestamp(),
+        });
+        if (voteType == 'upvote') {
+          upvotes += 1;
+          score += 1;
+        } else if (voteType == 'downvote') {
+          downvotes += 1;
+          score -= 1;
+        }
+      }
+
+      transaction.update(commentRef, {
+        'upvotes': upvotes,
+        'downvotes': downvotes,
+        'score': score,
+      });
+    });
   }
 
   // Report a post

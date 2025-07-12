@@ -121,24 +121,7 @@ class _ChallengesPageState extends State<ChallengesPage> {
           },
         ),
       ),
-      floatingActionButton: _buildFAB(),
-    );
-  }
-
-  Widget? _buildFAB() {
-    // TODO: Only show for admins if needed
-    return FloatingActionButton(
-      onPressed: () {
-        // TODO: Implement add challenge flow
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Add Challenge (admin only) coming soon!'),
-          ),
-        );
-      },
-      backgroundColor: Colors.deepPurple,
-      child: const Icon(Icons.add),
-      tooltip: 'Add Challenge',
+      // FAB removed
     );
   }
 }

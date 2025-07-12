@@ -8,6 +8,12 @@ class Challenge {
   final Timestamp deadline;
   final String prize;
   final String createdBy;
+  final String skills;
+  final String postType;
+  final String whoCanWin;
+  final String startDate;
+  final String endDate;
+  final String link;
 
   Challenge({
     required this.id,
@@ -17,6 +23,12 @@ class Challenge {
     required this.deadline,
     required this.prize,
     required this.createdBy,
+    required this.skills,
+    required this.postType,
+    required this.whoCanWin,
+    required this.startDate,
+    required this.endDate,
+    required this.link,
   });
 
   factory Challenge.fromDocument(DocumentSnapshot doc) {
@@ -29,6 +41,12 @@ class Challenge {
       deadline: data['deadline'] ?? Timestamp.now(),
       prize: data['prize'] ?? '',
       createdBy: data['createdBy'] ?? '',
+      skills: data['skills'] ?? '',
+      postType: data['postType'] ?? '',
+      whoCanWin: data['whoCanWin'] ?? '',
+      startDate: data['startDate'] ?? '',
+      endDate: data['endDate'] ?? '',
+      link: data['link'] ?? '',
     );
   }
 
@@ -40,6 +58,12 @@ class Challenge {
       'deadline': deadline,
       'prize': prize,
       'createdBy': createdBy,
+      'skills': skills,
+      'postType': postType,
+      'whoCanWin': whoCanWin,
+      'startDate': startDate,
+      'endDate': endDate,
+      'link': link,
     };
   }
 }

@@ -9,6 +9,8 @@ import 'widgets/personal_info_card.dart';
 import 'widgets/education_info_card.dart';
 import 'widgets/interests_card.dart';
 // Achievements and SocialActivity cards are omitted for now as not in data
+import '../core/services/auth_service.dart';
+import '../admin/admin_page.dart';
 
 class ProfilePage extends StatelessWidget {
   final String uid;
@@ -172,12 +174,32 @@ class ProfilePage extends StatelessWidget {
                     InterestsCard(interests: profile.interests),
                     Padding(
                       padding: const EdgeInsets.all(16.0),
-                      child: ElevatedButton.icon(
-                        icon: Icon(Icons.logout),
-                        label: Text('Logout'),
-                        onPressed: () {
-                          // TODO: Implement logout logic
-                        },
+                      child: Column(
+                        children: [
+                          if (AuthService().currentUser?.phoneNumber ==
+                              '+919876543210')
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 8.0),
+                              child: ElevatedButton.icon(
+                                icon: Icon(Icons.admin_panel_settings),
+                                label: Text('Admin'),
+                                onPressed: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) => AdminPage(),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ElevatedButton.icon(
+                            icon: Icon(Icons.logout),
+                            label: Text('Logout'),
+                            onPressed: () {
+                              // TODO: Implement logout logic
+                            },
+                          ),
+                        ],
                       ),
                     ),
                   ],

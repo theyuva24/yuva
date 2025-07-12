@@ -140,7 +140,7 @@ class _ConnectPageState extends State<ConnectPage>
                         final posts =
                             (snapshot.data ?? [])
                                 .where(
-                                  (post) => _joinedHubs.contains(post.hubName),
+                                  (post) => _joinedHubs.contains(post.hubId),
                                 )
                                 .toList();
                         if (posts.isEmpty) {

@@ -21,6 +21,14 @@ class ChallengeService {
   }
 
   Future<void> addChallenge(Challenge challenge) async {
-    await _challenges.add(challenge.toMap());
+    if (challenge.id.isNotEmpty) {
+      await _challenges.doc(challenge.id).set(challenge.toMap());
+    } else {
+      await _challenges.add(challenge.toMap());
+    }
+  }
+
+  Future<void> updateChallenge(Challenge challenge) async {
+    await _challenges.doc(challenge.id).update(challenge.toMap());
   }
 }

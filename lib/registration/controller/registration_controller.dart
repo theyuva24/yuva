@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import '../models/registration_data.dart';
 import '../service/registration_service.dart';
+import '../../core/services/auth_service.dart';
 
 class RegistrationController extends ChangeNotifier {
   RegistrationData data = RegistrationData();
   int currentStep = 0;
   bool isLoading = false;
   final RegistrationService _service = RegistrationService();
+  final AuthService _authService = AuthService();
 
   void updateProfilePic(String? path) {
     data.profilePicPath = path;
@@ -84,16 +86,37 @@ class RegistrationController extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Load existing user data if available
+  Future<void> loadExistingUserData() async {
+    try {
+      final user = _authService.currentUser;
+      if (user != null) {
+        // This would require adding a method to RegistrationService to load user data
+        // For now, we'll just check if user exists and set appropriate step
+        // You can implement this later if needed
+      }
+    } catch (e) {
+      debugPrint('Error loading existing user data: $e');
+    }
+  }
+
   Future<String?> submitRegistration(BuildContext context) async {
     setLoading(true);
+    debugPrint('RegistrationController: Starting registration submission');
     try {
       final profileUrl = await _service.uploadProfileImage(data.profilePicPath);
+      debugPrint('RegistrationController: Profile image uploaded: $profileUrl');
+
       final idCardUrl = await _service.uploadIdCard(data.idCardPath);
+      debugPrint('RegistrationController: ID card uploaded: $idCardUrl');
+
       await _service.saveUserData(
         data,
         profileUrl: profileUrl,
         idCardUrl: idCardUrl,
       );
+
+      debugPrint('RegistrationController: Registration completed successfully');
       setLoading(false);
       return null;
     } catch (e) {

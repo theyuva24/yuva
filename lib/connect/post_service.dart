@@ -8,6 +8,7 @@ class PostService {
 
   // Create a new post
   Future<String> createPost({
+    required String hubId,
     required String hubName,
     required String postContent,
     String? postImageUrl,
@@ -25,6 +26,7 @@ class PostService {
       final postData = {
         'userId': user.uid,
         'userName': userName,
+        'hubId': hubId,
         'hubName': hubName,
         'postContent': postContent,
         'postingTime': FieldValue.serverTimestamp(),
@@ -59,6 +61,7 @@ class PostService {
               id: doc.id,
               userName: data['userName'] ?? 'Anonymous',
               userProfileImage: data['userProfileImage'] ?? '',
+              hubId: data['hubId'] ?? '',
               hubName: data['hubName'] ?? '',
               hubProfileImage: data['hubProfileImage'] ?? '',
               postContent: data['postContent'] ?? '',

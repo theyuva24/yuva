@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'onboarding_screen.dart';
 import '../../../../Home screen/home_screen.dart';
+import '../../../../core/services/auth_service.dart';
 
 class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
@@ -12,21 +13,46 @@ class SplashScreen extends StatelessWidget {
     Future.delayed(const Duration(seconds: 2), () async {
       if (!context.mounted) return;
 
-      // Check if user is already authenticated
-      final user = FirebaseAuth.instance.currentUser;
+      try {
+        // Ensure user is authenticated (anonymous for now)
+        if (FirebaseAuth.instance.currentUser == null) {
+          await FirebaseAuth.instance.signInAnonymously();
+        }
 
-      if (user != null) {
-        // User is already registered, go to home screen
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const HomeScreen()),
-        );
-      } else {
-        // User is not registered, go to onboarding
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const OnboardingScreen()),
-        );
+        final authService = AuthService();
+
+        debugPrint('SplashScreen: Starting authentication check');
+        authService.debugAuthState();
+
+        // Check if user is fully registered (authenticated + has data in Firestore)
+        final isFullyRegistered = await authService.isUserFullyRegistered();
+
+        debugPrint('SplashScreen: isFullyRegistered = $isFullyRegistered');
+
+        if (!context.mounted) return;
+
+        if (isFullyRegistered) {
+          debugPrint('SplashScreen: Navigating to HomeScreen');
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const HomeScreen()),
+          );
+        } else {
+          debugPrint('SplashScreen: Navigating to OnboardingScreen');
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const OnboardingScreen()),
+          );
+        }
+      } catch (e) {
+        debugPrint('SplashScreen: Error during authentication: $e');
+        // If authentication fails, still navigate to onboarding
+        if (context.mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const OnboardingScreen()),
+          );
+        }
       }
     });
 

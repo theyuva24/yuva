@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
-import 'pages/challenges_page.dart';
-import 'pages/connect_page.dart';
+import 'package:yuva/challenge/page/challenges_page.dart';
+import '../connect/connect_page.dart';
 import 'pages/post_page.dart';
 import 'pages/chat_page.dart';
 import 'pages/notification_page.dart';
+import '../connect/hubs/page/hubs_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:yuva/profile/profile_page.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -35,26 +38,39 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          onPressed: () {
+            final user = FirebaseAuth.instance.currentUser;
+            if (user != null) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ProfilePage(uid: user.uid),
+                ),
+              );
+            }
+          },
+          icon: const CircleAvatar(
+            backgroundColor: Color(0xFF6C63FF),
+            child: Icon(Icons.person, color: Colors.white, size: 24),
+          ),
+        ),
         title: Text(
           _pageTitles[_currentIndex],
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         actions: [
-          IconButton(
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Profile page coming soon!'),
-                  duration: Duration(seconds: 2),
-                ),
-              );
-            },
-            icon: const CircleAvatar(
-              backgroundColor: Color(0xFF6C63FF),
-              child: Icon(Icons.person, color: Colors.white, size: 24),
+          if (_currentIndex == 1)
+            IconButton(
+              icon: const Icon(Icons.groups),
+              tooltip: 'Hubs',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const HubsPage()),
+                );
+              },
             ),
-          ),
-          const SizedBox(width: 16),
         ],
       ),
       body: _pages[_currentIndex],

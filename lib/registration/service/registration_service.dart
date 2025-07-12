@@ -49,20 +49,52 @@ class RegistrationService {
       final uid = _auth.currentUser?.uid;
       final phone = _auth.currentUser?.phoneNumber;
       if (uid == null) throw Exception('User not logged in');
-      await _firestore.collection('users').doc(uid).set({
-        'profilePicUrl': profileUrl,
-        'fullName': data.fullName,
-        'dob': data.dob?.toIso8601String(),
-        'gender': data.gender,
-        'location': data.location,
-        'college': data.college,
-        'year': data.year,
-        'idCardUrl': idCardUrl,
-        'course': data.course,
-        'interests': data.interests,
-        'phone': phone,
-        'createdAt': FieldValue.serverTimestamp(),
-      });
+
+      debugPrint('RegistrationService: Saving data for user $uid');
+      debugPrint(
+        'RegistrationService: Data to save: ${data.fullName}, ${data.college}, ${data.interests}',
+      );
+
+      // Check if user data already exists
+      final existingDoc = await _firestore.collection('users').doc(uid).get();
+
+      if (existingDoc.exists) {
+        debugPrint('RegistrationService: Updating existing user data');
+        // Update existing user data
+        await _firestore.collection('users').doc(uid).update({
+          'profilePicUrl': profileUrl ?? existingDoc.data()?['profilePicUrl'],
+          'fullName': data.fullName,
+          'dob': data.dob?.toIso8601String(),
+          'gender': data.gender,
+          'location': data.location,
+          'college': data.college,
+          'year': data.year,
+          'idCardUrl': idCardUrl ?? existingDoc.data()?['idCardUrl'],
+          'course': data.course,
+          'interests': data.interests,
+          'phone': phone,
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+      } else {
+        debugPrint('RegistrationService: Creating new user data');
+        // Create new user data
+        await _firestore.collection('users').doc(uid).set({
+          'profilePicUrl': profileUrl,
+          'fullName': data.fullName,
+          'dob': data.dob?.toIso8601String(),
+          'gender': data.gender,
+          'location': data.location,
+          'college': data.college,
+          'year': data.year,
+          'idCardUrl': idCardUrl,
+          'course': data.course,
+          'interests': data.interests,
+          'phone': phone,
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+      }
+
+      debugPrint('RegistrationService: User data saved successfully');
     } catch (e) {
       // Log the error but don't throw
       debugPrint('Failed to save user data: $e');

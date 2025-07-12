@@ -192,19 +192,21 @@ class _PostCardState extends State<PostCard> {
               ElevatedButton(
                 onPressed: () async {
                   if (commentController.text.trim().isNotEmpty) {
+                    final navigator = Navigator.of(context);
+                    final scaffoldMessenger = ScaffoldMessenger.of(context);
                     try {
                       await _postService.addComment(
                         widget.postId,
                         commentController.text.trim(),
                       );
-                      Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(
+                      navigator.pop();
+                      scaffoldMessenger.showSnackBar(
                         const SnackBar(
                           content: Text('Comment added successfully!'),
                         ),
                       );
                     } catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(
+                      scaffoldMessenger.showSnackBar(
                         SnackBar(content: Text('Failed to add comment: $e')),
                       );
                     }
@@ -371,6 +373,7 @@ class _PostCardState extends State<PostCard> {
       },
     ).then((result) async {
       if (result != null && result['reason'] != null) {
+        final scaffoldMessenger = ScaffoldMessenger.of(context);
         try {
           await _postService.reportPost(
             postId: widget.postId,
@@ -381,22 +384,18 @@ class _PostCardState extends State<PostCard> {
             postOwnerName: widget.userName,
           );
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
+            scaffoldMessenger.showSnackBar(
               const SnackBar(
                 content: Text(
                   'Thank you for reporting. Our team will review this post.',
                 ),
-                backgroundColor: Colors.green,
               ),
             );
           }
         } catch (e) {
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Failed to report post: $e'),
-                backgroundColor: Colors.red,
-              ),
+            scaffoldMessenger.showSnackBar(
+              SnackBar(content: Text('Failed to report post: $e')),
             );
           }
         }

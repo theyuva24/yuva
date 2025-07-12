@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'post_service.dart';
+import 'hubs/service/hub_service.dart';
+import 'hubs/model/hub_model.dart';
 
 class CreatePostScreen extends StatefulWidget {
   const CreatePostScreen({super.key});
@@ -10,9 +12,45 @@ class CreatePostScreen extends StatefulWidget {
 
 class _CreatePostScreenState extends State<CreatePostScreen> {
   final PostService _postService = PostService();
+  final HubService _hubService = HubService();
   final TextEditingController _contentController = TextEditingController();
   final TextEditingController _hubController = TextEditingController();
   bool _isLoading = false;
+  List<Hub> _allHubs = [];
+  List<Hub> _filteredHubs = [];
+  bool _showDropdown = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _hubService.getHubsStream().listen((hubs) {
+      print('Fetched hubs: ${hubs.map((h) => h.name).toList()}');
+      setState(() {
+        _allHubs = hubs;
+      });
+    });
+    _hubController.addListener(_onHubTextChanged);
+  }
+
+  void _onHubTextChanged() {
+    final input = _hubController.text.trim().toLowerCase();
+    print('User typed: ${input}');
+    if (input.isEmpty) {
+      setState(() {
+        _filteredHubs = [];
+        _showDropdown = false;
+      });
+      return;
+    }
+    setState(() {
+      _filteredHubs =
+          _allHubs
+              .where((hub) => hub.name.toLowerCase().startsWith(input))
+              .toList();
+      print('Filtered hubs: ${_filteredHubs.map((h) => h.name).toList()}');
+      _showDropdown = _filteredHubs.isNotEmpty;
+    });
+  }
 
   @override
   void dispose() {
@@ -80,12 +118,49 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            TextField(
-              controller: _hubController,
-              decoration: const InputDecoration(
-                labelText: 'Hub Name',
-                hintText: 'Enter the hub where you want to post',
-                border: OutlineInputBorder(),
+            SizedBox(
+              height: 120, // enough space for the dropdown
+              child: Stack(
+                children: [
+                  TextField(
+                    controller: _hubController,
+                    decoration: const InputDecoration(
+                      labelText: 'Hub Name',
+                      hintText: 'Enter the hub where you want to post',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  if (_showDropdown)
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      top: 60,
+                      child: Material(
+                        elevation: 2,
+                        borderRadius: BorderRadius.circular(8),
+                        child: SizedBox(
+                          height: 60, // or more for more items
+                          child: ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: _filteredHubs.length,
+                            itemBuilder: (context, index) {
+                              final hub = _filteredHubs[index];
+                              return ListTile(
+                                title: Text(hub.name),
+                                subtitle: Text(hub.description),
+                                onTap: () {
+                                  _hubController.text = hub.name;
+                                  setState(() {
+                                    _showDropdown = false;
+                                  });
+                                },
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
             const SizedBox(height: 16),

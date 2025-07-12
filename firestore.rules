@@ -1,1 +1,39 @@
- 
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allow users to read and write their own data
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Allow authenticated users to read all user data (for now)
+    // You can make this more restrictive later
+    match /users/{document=**} {
+      allow read: if request.auth != null;
+    }
+
+    // Allow authenticated users to read and create hubs
+    match /Hubs/{hubId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      // Optionally, restrict update/delete further
+    }
+
+    // Challenges: anyone can read, only authenticated users can create
+    match /challenges/{challengeId} {
+      allow read: if true;
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null && request.auth.uid == resource.data.createdBy;
+    }
+    // Submissions: anyone can read, only authenticated users can create
+    match /submissions/{submissionId} {
+      allow read: if true;
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if request.auth != null && request.auth.uid == resource.data.userId;
+    }
+
+    match /profiles/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+} 

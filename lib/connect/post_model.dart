@@ -2,6 +2,7 @@ class Post {
   final String id;
   final String userName;
   final String userProfileImage;
+  final String hubId;
   final String hubName;
   final String hubProfileImage;
   final String postContent;
@@ -17,6 +18,7 @@ class Post {
     required this.id,
     required this.userName,
     required this.userProfileImage,
+    required this.hubId,
     required this.hubName,
     required this.hubProfileImage,
     required this.postContent,

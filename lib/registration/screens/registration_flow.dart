@@ -4,19 +4,28 @@ import '../controller/registration_controller.dart';
 import 'step1_personal_info.dart';
 import 'step2_education_info.dart';
 import 'step3_interests.dart';
+import '../../core/services/auth_service.dart';
 
+/// Registration flow after phone auth
 class RegistrationFlow extends StatelessWidget {
-  const RegistrationFlow({super.key});
+  final dynamic userDetails; // dynamic to avoid Pigeon crash
+
+  const RegistrationFlow({super.key, this.userDetails});
 
   @override
   Widget build(BuildContext context) {
+    final authService = AuthService();
+    final isAuthenticated = authService.isUserAuthenticated();
+
     return ChangeNotifierProvider(
       create: (_) => RegistrationController(),
       child: Consumer<RegistrationController>(
         builder: (context, controller, _) {
           return Scaffold(
             appBar: AppBar(
-              title: const Text('Create Account'),
+              title: Text(
+                isAuthenticated ? 'Complete Registration' : 'Create Account',
+              ),
               centerTitle: true,
               elevation: 0,
             ),
@@ -58,8 +67,9 @@ class _StepProgress extends StatelessWidget {
           width: 32,
           height: 8,
           decoration: BoxDecoration(
-            color:
-                i <= currentStep ? const Color(0xFF6C63FF) : Colors.grey[300],
+            color: i <= currentStep
+                ? const Color(0xFF6C63FF)
+                : Colors.grey[300],
             borderRadius: BorderRadius.circular(4),
           ),
         );

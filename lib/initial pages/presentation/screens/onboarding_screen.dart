@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../registration/screens/registration_flow.dart';
+import '../../../core/services/auth_service.dart';
+import '../../features/auth/phone/phone_auth_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -11,6 +12,7 @@ class OnboardingScreen extends StatefulWidget {
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _controller = PageController();
   int _currentPage = 0;
+  final AuthService _authService = AuthService();
 
   final List<Map<String, String>> _pages = [
     {
@@ -29,6 +31,21 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Check if user is authenticated but not fully registered
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final isAuthenticatedButNotRegistered =
+          await _authService.isUserAuthenticatedButNotRegistered();
+      if (isAuthenticatedButNotRegistered && mounted) {
+        // Show a message that they need to complete registration
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please complete your registration to continue'),
+            duration: Duration(seconds: 3),
+          ),
+        );
+      }
+    });
+
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -117,7 +134,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => const RegistrationFlow(),
+                        builder: (_) => const PhoneAuthScreen(),
                       ),
                     );
                   },

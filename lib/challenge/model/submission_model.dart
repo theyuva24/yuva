@@ -4,7 +4,7 @@ class Submission {
   final String id;
   final String challengeId;
   final String userId;
-  final String mediaUrl;
+  final String? mediaUrl;
   final String caption;
   final Timestamp timestamp;
   final String status;
@@ -25,7 +25,7 @@ class Submission {
       id: doc.id,
       challengeId: data['challengeId'] ?? '',
       userId: data['userId'] ?? '',
-      mediaUrl: data['mediaUrl'] ?? '',
+      mediaUrl: data['mediaUrl'],
       caption: data['caption'] ?? '',
       timestamp: data['timestamp'] ?? Timestamp.now(),
       status: data['status'] ?? 'pending',

@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'post_model.dart';
+import 'hubs/service/hub_service.dart';
+import 'hubs/model/hub_model.dart';
 
 class PostService {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -19,22 +21,10 @@ class PostService {
       final user = _auth.currentUser;
       if (user == null) throw Exception('User not authenticated');
 
-      // Get user data from Firestore
-      final userDoc = await firestore.collection('users').doc(user.uid).get();
-      final userName = userDoc.data()?['fullName'] ?? 'Anonymous User';
-      final userProfileImage = userDoc.data()?['profilePicUrl'] ?? '';
-
-      // Get hub data from Firestore
-      final hubDoc = await firestore.collection('Hubs').doc(hubId).get();
-      final hubProfileImage = hubDoc.data()?['imageUrl'] ?? '';
-
       final postData = {
         'userId': user.uid,
-        'userName': userName,
-        'userProfileImage': userProfileImage,
         'hubId': hubId,
         'hubName': hubName,
-        'hubProfileImage': hubProfileImage,
         'postContent': postContent,
         'postingTime': FieldValue.serverTimestamp(),
         'upvotes': 0,
@@ -57,119 +47,160 @@ class PostService {
 
   // Get all posts with real-time updates
   Stream<List<Post>> getPostsStream() {
+    final hubService = HubService();
     return firestore
         .collection('posts')
         .orderBy('postingTime', descending: true)
         .snapshots()
-        .map((snapshot) {
-          return snapshot.docs.map((doc) {
+        .asyncMap((snapshot) async {
+          final posts = <Post>[];
+          // Collect all unique hubIds from posts
+          final hubIds =
+              snapshot.docs
+                  .map((doc) => doc.data()['hubId'] as String?)
+                  .whereType<String>()
+                  .toSet();
+          // Fetch all hubs in one go
+          final hubsMap = <String, Hub>{};
+          if (hubIds.isNotEmpty) {
+            final hubsSnap =
+                await firestore
+                    .collection('Hubs')
+                    .where(FieldPath.documentId, whereIn: hubIds.toList())
+                    .get();
+            for (final doc in hubsSnap.docs) {
+              final data = doc.data();
+              hubsMap[doc.id] = Hub(
+                id: doc.id,
+                name: data['name'] ?? '',
+                description: data['description'] ?? '',
+                imageUrl: data['imageUrl'] ?? '',
+              );
+            }
+          }
+          for (final doc in snapshot.docs) {
             final data = doc.data();
-            return Post(
-              id: doc.id,
-              userName: data['userName'] ?? 'Anonymous',
-              userProfileImage: data['userProfileImage'] ?? '',
-              hubId: data['hubId'] ?? '',
-              hubName: data['hubName'] ?? '',
-              hubProfileImage: data['hubProfileImage'] ?? '',
-              postContent: data['postContent'] ?? '',
-              timestamp: _formatTimestamp(data['postingTime']),
-              upvotes: data['upvotes'] ?? 0,
-              downvotes: data['downvotes'] ?? 0,
-              commentCount: data['commentCount'] ?? 0,
-              shareCount: data['shareCount'] ?? 0,
-              postImage: data['postImageUrl'],
-              postOwnerId: data['userId'] ?? '',
+            final userId = data['userId'] as String?;
+            String userName = 'Anonymous';
+            String userProfileImage = '';
+            if (userId != null) {
+              try {
+                final userDoc =
+                    await firestore.collection('users').doc(userId).get();
+                if (userDoc.exists) {
+                  final userData = userDoc.data()!;
+                  userName = userData['fullName'] ?? 'Anonymous';
+                  userProfileImage = userData['profilePicUrl'] ?? '';
+                }
+              } catch (e) {
+                print('Failed to fetch user data for $userId: $e');
+              }
+            }
+            // Fetch latest hub info
+            final hubId = data['hubId'] as String? ?? '';
+            final hub = hubsMap[hubId];
+            final hubName = hub?.name ?? data['hubName'] ?? '';
+            final hubProfileImage =
+                hub?.imageUrl ?? data['hubProfileImage'] ?? '';
+            posts.add(
+              Post(
+                id: doc.id,
+                userName: userName,
+                userProfileImage: userProfileImage,
+                hubId: hubId,
+                hubName: hubName,
+                hubProfileImage: hubProfileImage,
+                postContent: data['postContent'] ?? '',
+                timestamp: _formatTimestamp(data['postingTime']),
+                upvotes: data['upvotes'] ?? 0,
+                downvotes: data['downvotes'] ?? 0,
+                commentCount: data['commentCount'] ?? 0,
+                shareCount: data['shareCount'] ?? 0,
+                postImage: data['postImageUrl'],
+                postOwnerId: data['userId'] ?? '',
+              ),
             );
-          }).toList();
+          }
+          return posts;
         });
   }
 
   // Vote on a post
   Future<void> voteOnPost(String postId, String voteType) async {
-    final user = _auth.currentUser;
-    if (user == null) throw Exception('User not authenticated');
+    try {
+      final user = _auth.currentUser;
+      if (user == null) throw Exception('User not authenticated');
 
-    final postRef = firestore.collection('posts').doc(postId);
-    final voteRef = postRef.collection('voteInteractions').doc(user.uid);
+      final postRef = firestore.collection('posts').doc(postId);
+      final voteRef = postRef.collection('voteInteractions').doc(user.uid);
 
-    await firestore.runTransaction((transaction) async {
-      final voteSnapshot = await transaction.get(voteRef);
-      final postSnapshot = await transaction.get(postRef);
+      await firestore.runTransaction((transaction) async {
+        final voteSnapshot = await transaction.get(voteRef);
+        final postSnapshot = await transaction.get(postRef);
+        if (!postSnapshot.exists) {
+          throw Exception('Post does not exist');
+        }
+        final postData = postSnapshot.data() as Map<String, dynamic>;
+        int upvotes = postData['upvotes'] ?? 0;
+        int downvotes = postData['downvotes'] ?? 0;
+        int score = postData['score'] ?? 0;
 
-      if (!postSnapshot.exists) throw Exception('Post does not exist');
-
-      int upvotes = postSnapshot['upvotes'] ?? 0;
-      int downvotes = postSnapshot['downvotes'] ?? 0;
-      int score = postSnapshot['score'] ?? 0;
-
-      if (voteSnapshot.exists) {
-        final currentVote = voteSnapshot['voteType'];
-        if (currentVote == voteType) {
-          // Remove vote
-          transaction.delete(voteRef);
-          if (voteType == 'upvote') {
-            upvotes -= 1;
-            score -= 1;
-          } else if (voteType == 'downvote') {
-            downvotes -= 1;
-            score += 1;
+        if (voteSnapshot.exists) {
+          final currentVote = voteSnapshot.data()?['voteType'];
+          if (currentVote == voteType) {
+            // Remove vote
+            transaction.delete(voteRef);
+            if (voteType == 'upvote') {
+              upvotes -= 1;
+              score -= 1;
+            } else if (voteType == 'downvote') {
+              downvotes -= 1;
+              score += 1;
+            }
+          } else {
+            // Change vote
+            transaction.update(voteRef, {
+              'voteType': voteType,
+              'voteTime': FieldValue.serverTimestamp(),
+            });
+            if (currentVote == 'upvote') {
+              upvotes -= 1;
+              score -= 1;
+            } else if (currentVote == 'downvote') {
+              downvotes -= 1;
+              score += 1;
+            }
+            if (voteType == 'upvote') {
+              upvotes += 1;
+              score += 1;
+            } else if (voteType == 'downvote') {
+              downvotes += 1;
+              score -= 1;
+            }
           }
         } else {
-          // Change vote
-          transaction.update(voteRef, {
+          // New vote
+          transaction.set(voteRef, {
+            'userId': user.uid,
             'voteType': voteType,
             'voteTime': FieldValue.serverTimestamp(),
           });
-          if (currentVote == 'upvote' && voteType == 'downvote') {
-            upvotes -= 1;
-            downvotes += 1;
-            score -= 2;
-          } else if (currentVote == 'downvote' && voteType == 'upvote') {
-            downvotes -= 1;
+          if (voteType == 'upvote') {
             upvotes += 1;
-            score += 2;
+            score += 1;
+          } else if (voteType == 'downvote') {
+            downvotes += 1;
+            score -= 1;
           }
         }
-      } else {
-        // New vote
-        transaction.set(voteRef, {
-          'userId': user.uid,
-          'voteType': voteType,
-          'voteTime': FieldValue.serverTimestamp(),
+        transaction.update(postRef, {
+          'upvotes': upvotes,
+          'downvotes': downvotes,
+          'score': score,
         });
-        if (voteType == 'upvote') {
-          upvotes += 1;
-          score += 1;
-        } else if (voteType == 'downvote') {
-          downvotes += 1;
-          score -= 1;
-        }
-      }
-
-      transaction.update(postRef, {
-        'upvotes': upvotes,
-        'downvotes': downvotes,
-        'score': score,
       });
-    });
-  }
-
-  // Update post vote counts
-  Future<void> _updatePostVotes(
-    DocumentReference postRef,
-    String? voteType,
-    int change,
-  ) async {
-    if (voteType == 'upvote') {
-      await postRef.update({
-        'upvotes': FieldValue.increment(change),
-        'score': FieldValue.increment(change),
-      });
-    } else if (voteType == 'downvote') {
-      await postRef.update({
-        'downvotes': FieldValue.increment(change),
-        'score': FieldValue.increment(-change),
-      });
+    } catch (e) {
+      throw Exception('Failed to vote: $e');
     }
   }
 
@@ -183,13 +214,8 @@ class PostService {
       final user = _auth.currentUser;
       if (user == null) throw Exception('User not authenticated');
 
-      // Get user data
-      final userDoc = await firestore.collection('users').doc(user.uid).get();
-      final userName = userDoc.data()?['userName'] ?? 'Anonymous User';
-
       final commentData = {
         'userId': user.uid,
-        'userName': userName,
         'commentContent': commentContent,
         'commentTime': FieldValue.serverTimestamp(),
         'upvotes': 0,
@@ -304,84 +330,6 @@ class PostService {
     }
   }
 
-  // Upvote or downvote a comment
-  Future<void> voteOnComment(
-    String postId,
-    String commentId,
-    String voteType,
-  ) async {
-    final user = _auth.currentUser;
-    if (user == null) throw Exception('User not authenticated');
-
-    final commentRef = firestore
-        .collection('posts')
-        .doc(postId)
-        .collection('comments')
-        .doc(commentId);
-    final voteRef = commentRef.collection('voteInteractions').doc(user.uid);
-
-    await firestore.runTransaction((transaction) async {
-      final voteSnapshot = await transaction.get(voteRef);
-      final commentSnapshot = await transaction.get(commentRef);
-
-      if (!commentSnapshot.exists) throw Exception('Comment does not exist');
-
-      int upvotes = commentSnapshot['upvotes'] ?? 0;
-      int downvotes = commentSnapshot['downvotes'] ?? 0;
-      int score = commentSnapshot['score'] ?? 0;
-
-      if (voteSnapshot.exists) {
-        final currentVote = voteSnapshot['voteType'];
-        if (currentVote == voteType) {
-          // Remove vote
-          transaction.delete(voteRef);
-          if (voteType == 'upvote') {
-            upvotes -= 1;
-            score -= 1;
-          } else if (voteType == 'downvote') {
-            downvotes -= 1;
-            score += 1;
-          }
-        } else {
-          // Change vote
-          transaction.update(voteRef, {
-            'voteType': voteType,
-            'voteTime': FieldValue.serverTimestamp(),
-          });
-          if (currentVote == 'upvote' && voteType == 'downvote') {
-            upvotes -= 1;
-            downvotes += 1;
-            score -= 2;
-          } else if (currentVote == 'downvote' && voteType == 'upvote') {
-            downvotes -= 1;
-            upvotes += 1;
-            score += 2;
-          }
-        }
-      } else {
-        // New vote
-        transaction.set(voteRef, {
-          'userId': user.uid,
-          'voteType': voteType,
-          'voteTime': FieldValue.serverTimestamp(),
-        });
-        if (voteType == 'upvote') {
-          upvotes += 1;
-          score += 1;
-        } else if (voteType == 'downvote') {
-          downvotes += 1;
-          score -= 1;
-        }
-      }
-
-      transaction.update(commentRef, {
-        'upvotes': upvotes,
-        'downvotes': downvotes,
-        'score': score,
-      });
-    });
-  }
-
   // Report a post
   Future<void> reportPost({
     required String postId,
@@ -406,6 +354,33 @@ class PostService {
       });
     } catch (e) {
       throw Exception('Failed to report post: $e');
+    }
+  }
+
+  /// Maintenance: Recount and repair vote counts for all posts
+  Future<void> recountAllPostVotes() async {
+    final postsSnap = await firestore.collection('posts').get();
+    for (final postDoc in postsSnap.docs) {
+      final postId = postDoc.id;
+      final voteInteractionsSnap =
+          await firestore
+              .collection('posts')
+              .doc(postId)
+              .collection('voteInteractions')
+              .get();
+      int upvotes = 0;
+      int downvotes = 0;
+      for (final voteDoc in voteInteractionsSnap.docs) {
+        final voteType = voteDoc.data()['voteType'];
+        if (voteType == 'upvote') upvotes++;
+        if (voteType == 'downvote') downvotes++;
+      }
+      final score = upvotes - downvotes;
+      await firestore.collection('posts').doc(postId).update({
+        'upvotes': upvotes,
+        'downvotes': downvotes,
+        'score': score,
+      });
     }
   }
 

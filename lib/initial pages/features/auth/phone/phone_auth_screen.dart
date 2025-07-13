@@ -118,14 +118,19 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
     String formattedPhone = _formatPhoneNumber(phone);
     _currentPhoneNumber = formattedPhone;
 
-    // Start user existence check in parallel
-    final userExistenceFuture = FirebaseFirestore.instance
-        .collection('users')
-        .where('phone', isEqualTo: formattedPhone)
-        .limit(1)
-        .get()
-        .then((snapshot) => snapshot.docs.isNotEmpty)
-        .catchError((_) => false);
+    if (kDebugMode) {
+      print('Phone number formatting:');
+      print('  - Input: $phone');
+      print('  - Formatted: $formattedPhone');
+      print('  - Expected in DB: +919876543210');
+      print('  - Match: ${formattedPhone == "+919876543210"}');
+    }
+
+    // Start user existence check in parallel using AuthService
+    final authService = AuthService();
+    final userExistenceFuture = authService.doesUserExistByPhone(
+      formattedPhone,
+    );
 
     setState(() {
       _loading = true;
@@ -238,13 +243,10 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
           _showSnackBar('Phone number verified successfully!', Colors.green);
           // Ensure user existence check is complete
           if (_isExistingUser == null) {
-            _isExistingUser = await FirebaseFirestore.instance
-                .collection('users')
-                .where('phone', isEqualTo: _currentPhoneNumber)
-                .limit(1)
-                .get()
-                .then((snapshot) => snapshot.docs.isNotEmpty)
-                .catchError((_) => false);
+            final authService = AuthService();
+            _isExistingUser = await authService.doesUserExistByPhone(
+              _currentPhoneNumber,
+            );
             if (kDebugMode)
               print('User existence check (post-OTP): $_isExistingUser');
           }
@@ -325,14 +327,20 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
   }
 
   void _navigateToNextScreen() {
-    if (kDebugMode) print('Navigating to next screen at ${DateTime.now()}');
+    if (kDebugMode) {
+      print('Navigating to next screen at ${DateTime.now()}');
+      print('  - _isExistingUser: $_isExistingUser');
+      print('  - _currentPhoneNumber: $_currentPhoneNumber');
+    }
     if (mounted) {
       if (_isExistingUser == true) {
+        if (kDebugMode) print('  - Navigating to HomeScreen (existing user)');
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (_) => const HomeScreen()),
         );
       } else {
+        if (kDebugMode) print('  - Navigating to RegistrationFlow (new user)');
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (_) => const RegistrationFlow()),

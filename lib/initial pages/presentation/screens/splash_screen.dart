@@ -14,11 +14,6 @@ class SplashScreen extends StatelessWidget {
       if (!context.mounted) return;
 
       try {
-        // Ensure user is authenticated (anonymous for now)
-        if (FirebaseAuth.instance.currentUser == null) {
-          await FirebaseAuth.instance.signInAnonymously();
-        }
-
         final authService = AuthService();
 
         debugPrint('SplashScreen: Starting authentication check');

@@ -140,7 +140,11 @@ class HubsPage extends StatelessWidget {
           );
         },
       ),
-      // FAB removed
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showCreateHubDialog(context, hubService),
+        child: const Icon(Icons.add),
+        tooltip: 'Create Hub',
+      ),
     );
   }
 }

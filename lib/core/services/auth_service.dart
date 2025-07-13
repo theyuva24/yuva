@@ -33,6 +33,36 @@ class AuthService {
     }
   }
 
+  // Check if a user exists by phone number
+  Future<bool> doesUserExistByPhone(String phoneNumber) async {
+    try {
+      debugPrint(
+        'AuthService: Checking if user exists with phone: $phoneNumber',
+      );
+
+      final querySnapshot =
+          await _firestore
+              .collection('users')
+              .where('phone', isEqualTo: phoneNumber)
+              .limit(1)
+              .get();
+
+      final exists = querySnapshot.docs.isNotEmpty;
+      debugPrint('AuthService: User exists with phone $phoneNumber: $exists');
+
+      if (exists) {
+        debugPrint(
+          'AuthService: Found user data: ${querySnapshot.docs.first.data()}',
+        );
+      }
+
+      return exists;
+    } catch (e) {
+      debugPrint('AuthService: Error checking user existence by phone: $e');
+      return false;
+    }
+  }
+
   // Get current user
   User? get currentUser => _auth.currentUser;
 

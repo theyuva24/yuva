@@ -2,476 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:share_plus/share_plus.dart';
 import 'post_service.dart';
-import 'hubs/model/hub_model.dart';
+import '../profile/profile_page.dart';
 import 'hubs/page/hub_details_page.dart';
-import 'page/comments_page.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'dart:math';
-
-// Bottom sheet for comments (Reddit style)
-class PostCommentsBottomSheet extends StatefulWidget {
-  final String postId;
-  final String postOwnerId;
-  const PostCommentsBottomSheet({
-    Key? key,
-    required this.postId,
-    required this.postOwnerId,
-  }) : super(key: key);
-
-  @override
-  State<PostCommentsBottomSheet> createState() =>
-      _PostCommentsBottomSheetState();
-}
-
-class _PostCommentsBottomSheetState extends State<PostCommentsBottomSheet> {
-  final PostService _postService = PostService();
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final TextEditingController _commentController = TextEditingController();
-
-  @override
-  void dispose() {
-    _commentController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _addComment({String? parentCommentId}) async {
-    if (_commentController.text.trim().isEmpty) return;
-    await _postService.addComment(
-      widget.postId,
-      _commentController.text.trim(),
-      parentCommentId: parentCommentId,
-    );
-    _commentController.clear();
-    setState(() {});
-  }
-
-  // Add color palette for nesting bars
-  static const List<Color> _nestingColors = [
-    Color(0xFFff4500), // Reddit orange
-    Color(0xFF46a1ff), // Blue
-    Color(0xFF46d160), // Green
-    Color(0xFFb36aff), // Purple
-    Color(0xFFffb347), // Yellow
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return DraggableScrollableSheet(
-      expand: false,
-      initialChildSize: 0.7,
-      minChildSize: 0.4,
-      maxChildSize: 0.95,
-      builder: (context, scrollController) {
-        return Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-          ),
-          child: Column(
-            children: [
-              Container(
-                height: 4,
-                width: 40,
-                margin: const EdgeInsets.symmetric(vertical: 8),
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              Expanded(
-                child: StreamBuilder<QuerySnapshot>(
-                  stream:
-                      FirebaseFirestore.instance
-                          .collection('posts')
-                          .doc(widget.postId)
-                          .collection('comments')
-                          .orderBy('commentTime', descending: false)
-                          .snapshots(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-                    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                      return const Center(child: Text('No comments yet.'));
-                    }
-                    final comments = snapshot.data!.docs;
-                    // Build a map of parentId -> list of replies
-                    Map<String?, List<QueryDocumentSnapshot>> replies = {};
-                    for (var doc in comments) {
-                      final parentId = doc['parentCommentId'];
-                      replies.putIfAbsent(parentId, () => []).add(doc);
-                    }
-                    // Recursive builder
-                    List<Widget> buildComments(String? parentId, int depth) {
-                      return (replies[parentId] ?? []).map((doc) {
-                        final commentId = doc.id;
-                        final hasReplies =
-                            (replies[commentId]?.isNotEmpty ?? false);
-                        final isCollapsed = _collapsedComments.contains(
-                          commentId,
-                        );
-                        final nestingColor =
-                            _nestingColors[depth % _nestingColors.length];
-                        final data = doc.data() as Map<String, dynamic>?;
-                        return Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Colored nesting bar
-                            if (depth > 0)
-                              Container(
-                                width: 4,
-                                height: isCollapsed ? 36 : null,
-                                margin: EdgeInsets.only(
-                                  right: 8,
-                                  left: max(0, depth - 1) * 2.0,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: nestingColor.withOpacity(0.7),
-                                  borderRadius: BorderRadius.circular(2),
-                                ),
-                              ),
-                            Expanded(
-                              child: Container(
-                                margin: const EdgeInsets.symmetric(vertical: 4),
-                                padding: const EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[100],
-                                  borderRadius: BorderRadius.circular(10),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.03),
-                                      blurRadius: 2,
-                                      offset: const Offset(0, 1),
-                                    ),
-                                  ],
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        CircleAvatar(
-                                          radius: 14,
-                                          backgroundImage:
-                                              (data != null &&
-                                                      data.containsKey(
-                                                        'userProfileImage',
-                                                      ) &&
-                                                      (doc['userProfileImage'] ??
-                                                              '')
-                                                          .isNotEmpty)
-                                                  ? NetworkImage(
-                                                    doc['userProfileImage'],
-                                                  )
-                                                  : null,
-                                          child:
-                                              (data == null ||
-                                                      !data.containsKey(
-                                                        'userProfileImage',
-                                                      ) ||
-                                                      (doc['userProfileImage'] ??
-                                                              '')
-                                                          .isEmpty)
-                                                  ? const Icon(
-                                                    Icons.person,
-                                                    size: 16,
-                                                  )
-                                                  : null,
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          doc['userName'] ?? 'Anonymous User',
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          _formatTimestamp(doc['commentTime']),
-                                        ),
-                                        const Spacer(),
-                                        if (hasReplies)
-                                          IconButton(
-                                            icon: Icon(
-                                              isCollapsed
-                                                  ? Icons.chevron_right
-                                                  : Icons.expand_more,
-                                              size: 18,
-                                            ),
-                                            onPressed: () {
-                                              setState(() {
-                                                if (isCollapsed) {
-                                                  _collapsedComments.remove(
-                                                    commentId,
-                                                  );
-                                                } else {
-                                                  _collapsedComments.add(
-                                                    commentId,
-                                                  );
-                                                }
-                                              });
-                                            },
-                                            tooltip:
-                                                isCollapsed
-                                                    ? 'Expand replies'
-                                                    : 'Collapse replies',
-                                          ),
-                                        PopupMenuButton<String>(
-                                          onSelected: (value) {
-                                            // TODO: Implement actions (edit, delete, report, copy link)
-                                          },
-                                          itemBuilder:
-                                              (context) => [
-                                                if (doc['userId'] ==
-                                                    _auth.currentUser?.uid)
-                                                  const PopupMenuItem(
-                                                    value: 'edit',
-                                                    child: Text('Edit'),
-                                                  ),
-                                                if (doc['userId'] ==
-                                                    _auth.currentUser?.uid)
-                                                  const PopupMenuItem(
-                                                    value: 'delete',
-                                                    child: Text('Delete'),
-                                                  ),
-                                                const PopupMenuItem(
-                                                  value: 'report',
-                                                  child: Text('Report'),
-                                                ),
-                                                const PopupMenuItem(
-                                                  value: 'copy',
-                                                  child: Text('Copy Link'),
-                                                ),
-                                              ],
-                                          icon: const Icon(
-                                            Icons.more_vert,
-                                            size: 18,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        // Reddit-style vertical upvote/downvote
-                                        Column(
-                                          children: [
-                                            IconButton(
-                                              icon: Icon(
-                                                Icons.arrow_upward,
-                                                color:
-                                                    _userVote(commentId) ==
-                                                            'upvote'
-                                                        ? Colors.orange
-                                                        : Colors.grey,
-                                                size: 20,
-                                              ),
-                                              onPressed: () async {
-                                                await _postService
-                                                    .voteOnComment(
-                                                      widget.postId,
-                                                      commentId,
-                                                      'upvote',
-                                                    );
-                                              },
-                                              padding: EdgeInsets.zero,
-                                              constraints: const BoxConstraints(
-                                                minWidth: 32,
-                                                minHeight: 32,
-                                              ),
-                                            ),
-                                            Text(
-                                              '${doc['score'] ?? 0}',
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                color: _scoreColor(
-                                                  doc['score'] ?? 0,
-                                                  commentId,
-                                                ),
-                                              ),
-                                            ),
-                                            IconButton(
-                                              icon: Icon(
-                                                Icons.arrow_downward,
-                                                color:
-                                                    _userVote(commentId) ==
-                                                            'downvote'
-                                                        ? Colors.blue
-                                                        : Colors.grey,
-                                                size: 20,
-                                              ),
-                                              onPressed: () async {
-                                                await _postService
-                                                    .voteOnComment(
-                                                      widget.postId,
-                                                      commentId,
-                                                      'downvote',
-                                                    );
-                                              },
-                                              padding: EdgeInsets.zero,
-                                              constraints: const BoxConstraints(
-                                                minWidth: 32,
-                                                minHeight: 32,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              if (isCollapsed)
-                                                Text(
-                                                  'Replies hidden (${replies[commentId]?.length ?? 0})',
-                                                  style: TextStyle(
-                                                    color: Colors.grey[600],
-                                                    fontStyle: FontStyle.italic,
-                                                  ),
-                                                ),
-                                              if (!isCollapsed) ...[
-                                                Text(
-                                                  doc['commentContent'] ?? '',
-                                                ),
-                                                Row(
-                                                  children: [
-                                                    TextButton(
-                                                      onPressed: () {
-                                                        showDialog(
-                                                          context: context,
-                                                          builder:
-                                                              (
-                                                                context,
-                                                              ) => AlertDialog(
-                                                                title:
-                                                                    const Text(
-                                                                      'Reply',
-                                                                    ),
-                                                                content: TextField(
-                                                                  controller:
-                                                                      _commentController,
-                                                                  decoration:
-                                                                      const InputDecoration(
-                                                                        hintText:
-                                                                            'Write a reply...',
-                                                                      ),
-                                                                ),
-                                                                actions: [
-                                                                  TextButton(
-                                                                    onPressed:
-                                                                        () => Navigator.pop(
-                                                                          context,
-                                                                        ),
-                                                                    child: const Text(
-                                                                      'Cancel',
-                                                                    ),
-                                                                  ),
-                                                                  ElevatedButton(
-                                                                    onPressed: () async {
-                                                                      await _addComment(
-                                                                        parentCommentId:
-                                                                            commentId,
-                                                                      );
-                                                                      Navigator.pop(
-                                                                        context,
-                                                                      );
-                                                                    },
-                                                                    child:
-                                                                        const Text(
-                                                                          'Reply',
-                                                                        ),
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                        );
-                                                      },
-                                                      child: const Text(
-                                                        'Reply',
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                                ...buildComments(
-                                                  commentId,
-                                                  min(depth + 1, 4),
-                                                ),
-                                              ],
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        );
-                      }).toList();
-                    }
-
-                    return ListView(
-                      controller: scrollController,
-                      padding: const EdgeInsets.all(12),
-                      children: buildComments(null, 0),
-                    );
-                  },
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _commentController,
-                        decoration: const InputDecoration(
-                          hintText: 'Add a comment...',
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.send),
-                      onPressed: () => _addComment(),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  String _formatTimestamp(Timestamp? timestamp) {
-    if (timestamp == null) return '';
-    final date = timestamp.toDate();
-    final now = DateTime.now();
-    final diff = now.difference(date);
-    if (diff.inMinutes < 1) return 'just now';
-    if (diff.inMinutes < 60) return '${diff.inMinutes} min ago';
-    if (diff.inHours < 24) return '${diff.inHours} hr ago';
-    return '${date.day}/${date.month}/${date.year}';
-  }
-
-  // Add state for collapsed comments and user votes
-  Set<String> _collapsedComments = {};
-  Map<String, String> _commentVotes = {};
-
-  // Helper to get user vote for a comment
-  String? _userVote(String commentId) => _commentVotes[commentId];
-
-  // Helper to color score
-  Color _scoreColor(int score, String commentId) {
-    if (_userVote(commentId) == 'upvote') return Colors.orange;
-    if (_userVote(commentId) == 'downvote') return Colors.blue;
-    return Colors.grey[800]!;
-  }
-}
+import 'hubs/model/hub_model.dart';
 
 class PostCard extends StatefulWidget {
   final String postId;
@@ -517,21 +50,28 @@ class _PostCardState extends State<PostCard> {
   bool _isDownvoted = false;
   bool _isVoting = false;
   bool _isSharing = false;
+  String? _voteError; // For persistent error feedback
+  DateTime? _lastVoteTime; // For debounce
 
-  int _upvotes = 0;
-  int _downvotes = 0;
-  int _score = 0;
+  // Optimistic vote counts - updated immediately for UI
+  late int _optimisticUpvotes;
+  late int _optimisticDownvotes;
+  late int _optimisticScore;
 
   @override
   void initState() {
     super.initState();
-    _fetchVoteState();
+    _optimisticUpvotes = widget.upvotes;
+    _optimisticDownvotes = widget.downvotes;
+    _optimisticScore = widget.upvotes - widget.downvotes;
+    _checkUserVote();
   }
 
-  Future<void> _fetchVoteState() async {
+  Future<void> _checkUserVote() async {
     try {
       final user = _auth.currentUser;
       if (user == null) return;
+
       final voteDoc =
           await _postService.firestore
               .collection('posts')
@@ -539,29 +79,12 @@ class _PostCardState extends State<PostCard> {
               .collection('voteInteractions')
               .doc(user.uid)
               .get();
+
       if (voteDoc.exists) {
         final voteType = voteDoc.data()?['voteType'];
         setState(() {
           _isUpvoted = voteType == 'upvote';
           _isDownvoted = voteType == 'downvote';
-        });
-      } else {
-        setState(() {
-          _isUpvoted = false;
-          _isDownvoted = false;
-        });
-      }
-      // Fetch latest post counts
-      final postDoc =
-          await _postService.firestore
-              .collection('posts')
-              .doc(widget.postId)
-              .get();
-      if (postDoc.exists) {
-        setState(() {
-          _upvotes = postDoc.data()?['upvotes'] ?? 0;
-          _downvotes = postDoc.data()?['downvotes'] ?? 0;
-          _score = postDoc.data()?['score'] ?? 0;
         });
       }
     } catch (e) {
@@ -570,57 +93,84 @@ class _PostCardState extends State<PostCard> {
   }
 
   Future<void> _handleVote(String voteType) async {
+    // Debounce: ignore if last vote was <500ms ago
+    final now = DateTime.now();
+    if (_lastVoteTime != null &&
+        now.difference(_lastVoteTime!) < const Duration(milliseconds: 500)) {
+      return;
+    }
+    _lastVoteTime = now;
     if (_isVoting) return;
+
     setState(() {
       _isVoting = true;
+      _voteError = null;
     });
 
     // Store previous state for rollback if needed
-    final prevUpvoted = _isUpvoted;
-    final prevDownvoted = _isDownvoted;
-    final prevScore = _score;
+    final previousUpvoted = _isUpvoted;
+    final previousDownvoted = _isDownvoted;
+    final previousUpvotes = _optimisticUpvotes;
+    final previousDownvotes = _optimisticDownvotes;
+    final previousScore = _optimisticScore;
 
-    // Optimistically update UI
+    // Optimistic UI update - immediate response
     setState(() {
       if (voteType == 'upvote') {
         if (_isUpvoted) {
+          // Remove upvote
           _isUpvoted = false;
-          _score -= 1;
+          _optimisticUpvotes--;
+          _optimisticScore--;
         } else {
+          // Add upvote
           _isUpvoted = true;
+          _isDownvoted = false;
+          _optimisticUpvotes++;
           if (_isDownvoted) {
-            _isDownvoted = false;
-            _score += 2;
+            _optimisticDownvotes--;
+            _optimisticScore += 2; // Remove downvote + add upvote
           } else {
-            _score += 1;
+            _optimisticScore++;
           }
         }
-      } else if (voteType == 'downvote') {
+      } else {
         if (_isDownvoted) {
+          // Remove downvote
           _isDownvoted = false;
-          _score += 1;
+          _optimisticDownvotes--;
+          _optimisticScore++;
         } else {
+          // Add downvote
           _isDownvoted = true;
+          _isUpvoted = false;
+          _optimisticDownvotes++;
           if (_isUpvoted) {
-            _isUpvoted = false;
-            _score -= 2;
+            _optimisticUpvotes--;
+            _optimisticScore -= 2; // Remove upvote + add downvote
           } else {
-            _score -= 1;
+            _optimisticScore--;
           }
         }
       }
+      _isVoting = false;
     });
 
+    // Firestore operation in background
     try {
       await _postService.voteOnPost(widget.postId, voteType);
-      await _fetchVoteState();
     } catch (e) {
-      // Revert UI on error
+      // Rollback optimistic update on error
       setState(() {
-        _isUpvoted = prevUpvoted;
-        _isDownvoted = prevDownvoted;
-        _score = prevScore;
+        _isUpvoted = previousUpvoted;
+        _isDownvoted = previousDownvoted;
+        _optimisticUpvotes = previousUpvotes;
+        _optimisticDownvotes = previousDownvotes;
+        _optimisticScore = previousScore;
+        _voteError = 'Failed to vote. Tap to retry.';
       });
+
+      // Show error message
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -630,11 +180,9 @@ class _PostCardState extends State<PostCard> {
         );
       }
     } finally {
-      if (mounted) {
-        setState(() {
-          _isVoting = false;
-        });
-      }
+      setState(() {
+        _isVoting = false;
+      });
     }
   }
 
@@ -889,21 +437,19 @@ class _PostCardState extends State<PostCard> {
               children: [
                 // User profile section
                 Expanded(
-                  child: Row(
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder:
-                                  (context) => UserProfilePlaceholderPage(
-                                    userId: widget.postOwnerId,
-                                  ),
-                            ),
-                          );
-                        },
-                        child: CircleAvatar(
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder:
+                              (context) => ProfilePage(uid: widget.postOwnerId),
+                        ),
+                      );
+                    },
+                    child: Row(
+                      children: [
+                        CircleAvatar(
                           radius: 18,
                           backgroundImage: NetworkImage(
                             widget.userProfileImage,
@@ -920,25 +466,12 @@ class _PostCardState extends State<PostCard> {
                                   )
                                   : null,
                         ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder:
-                                        (context) => UserProfilePlaceholderPage(
-                                          userId: widget.postOwnerId,
-                                        ),
-                                  ),
-                                );
-                              },
-                              child: Text(
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
                                 widget.userName,
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
@@ -947,20 +480,20 @@ class _PostCardState extends State<PostCard> {
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
                               ),
-                            ),
-                            Text(
-                              widget.timestamp,
-                              style: TextStyle(
-                                color: Colors.grey[600],
-                                fontSize: 11,
+                              Text(
+                                widget.timestamp,
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 11,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
                               ),
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -975,10 +508,10 @@ class _PostCardState extends State<PostCard> {
                               hub: Hub(
                                 id:
                                     widget
-                                        .hubName, // fallback if id not available
+                                        .postId, // Assuming postId is the hubId for now
                                 name: widget.hubName,
                                 description:
-                                    '', // No description in post, so leave blank
+                                    '', // If you have description, pass it here
                                 imageUrl: widget.hubProfileImage,
                               ),
                             ),
@@ -1044,167 +577,152 @@ class _PostCardState extends State<PostCard> {
             const SizedBox(height: 12),
 
             // Engagement section
-            Row(
-              children: [
-                // Voting buttons
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    AnimatedScale(
-                      scale: _isUpvoted ? 1.2 : 1.0,
-                      duration: const Duration(milliseconds: 150),
-                      child: IconButton(
-                        onPressed:
-                            _isVoting ? null : () => _handleVote('upvote'),
-                        icon: Icon(
-                          Icons.keyboard_arrow_up,
-                          color:
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Semantics(
+                        label: _isUpvoted ? 'Upvoted' : 'Upvote',
+                        selected: _isUpvoted,
+                        child: IconButton(
+                          onPressed:
+                              _isVoting ? null : () => _handleVote('upvote'),
+                          icon:
                               _isUpvoted
-                                  ? const Color(0xFF6C63FF)
-                                  : Colors.grey[600],
-                        ),
-                        iconSize: 24,
-                        padding: const EdgeInsets.all(4),
-                        constraints: const BoxConstraints(
-                          minWidth: 32,
-                          minHeight: 32,
-                        ),
-                      ),
-                    ),
-                    Text(
-                      '$_score',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                      ),
-                    ),
-                    AnimatedScale(
-                      scale: _isDownvoted ? 1.2 : 1.0,
-                      duration: const Duration(milliseconds: 150),
-                      child: IconButton(
-                        onPressed:
-                            _isVoting ? null : () => _handleVote('downvote'),
-                        icon: Icon(
-                          Icons.keyboard_arrow_down,
-                          color: _isDownvoted ? Colors.red : Colors.grey[600],
-                        ),
-                        iconSize: 24,
-                        padding: const EdgeInsets.all(4),
-                        constraints: const BoxConstraints(
-                          minWidth: 32,
-                          minHeight: 32,
+                                  ? const Icon(
+                                    Icons.arrow_upward,
+                                    color: Color(0xFF6C63FF),
+                                    size: 22,
+                                  )
+                                  : const Icon(
+                                    Icons.arrow_upward_outlined,
+                                    color: Colors.grey,
+                                    size: 22,
+                                  ),
+                          tooltip: _isUpvoted ? 'You upvoted' : 'Upvote',
+                          padding: EdgeInsets.zero,
+                          constraints: BoxConstraints(),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(width: 12),
-
-                // Comment button
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      onPressed: () {
-                        showModalBottomSheet(
-                          context: context,
-                          isScrollControlled: true,
-                          backgroundColor: Colors.transparent,
-                          builder:
-                              (context) => PostCommentsBottomSheet(
-                                postId: widget.postId,
-                                postOwnerId: widget.postOwnerId,
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 2.0),
+                        child: Text(
+                          '$_optimisticScore',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                          ),
+                        ),
+                      ),
+                      Semantics(
+                        label: _isDownvoted ? 'Downvoted' : 'Downvote',
+                        selected: _isDownvoted,
+                        child: IconButton(
+                          onPressed:
+                              _isVoting ? null : () => _handleVote('downvote'),
+                          icon:
+                              _isDownvoted
+                                  ? const Icon(
+                                    Icons.arrow_downward,
+                                    color: Color(0xFF6C63FF),
+                                    size: 22,
+                                  )
+                                  : const Icon(
+                                    Icons.arrow_downward_outlined,
+                                    color: Colors.grey,
+                                    size: 22,
+                                  ),
+                          tooltip: _isDownvoted ? 'You downvoted' : 'Downvote',
+                          padding: EdgeInsets.zero,
+                          constraints: BoxConstraints(),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(width: 8),
+                  // Comment button section
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        onPressed: _handleComment,
+                        icon: const Icon(Icons.chat_bubble_outline),
+                        color: Colors.grey[600],
+                        iconSize: 18,
+                        padding: EdgeInsets.zero,
+                        constraints: BoxConstraints(),
+                      ),
+                      Text(
+                        '${widget.commentCount}',
+                        style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(width: 8),
+                  // Share button
+                  IconButton(
+                    onPressed: _isSharing ? null : _handleShare,
+                    icon:
+                        _isSharing
+                            ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Color(0xFF6C63FF),
                               ),
-                        );
-                      },
-                      icon: const Icon(Icons.chat_bubble_outline),
-                      color: Colors.grey[600],
-                      iconSize: 18,
-                      padding: const EdgeInsets.all(4),
-                      constraints: const BoxConstraints(
-                        minWidth: 32,
-                        minHeight: 32,
+                            )
+                            : const Icon(Icons.share_outlined),
+                    color: Colors.grey[600],
+                    iconSize: 18,
+                    padding: EdgeInsets.zero,
+                    constraints: BoxConstraints(),
+                  ),
+                  const SizedBox(width: 8),
+                  // Report button
+                  IconButton(
+                    onPressed: _handleReport,
+                    icon: const Icon(Icons.more_horiz),
+                    color: Colors.grey[600],
+                    iconSize: 18,
+                    padding: EdgeInsets.zero,
+                    constraints: BoxConstraints(),
+                  ),
+                  if (_voteError != null)
+                    GestureDetector(
+                      onTap:
+                          () => _handleVote(_isUpvoted ? 'upvote' : 'downvote'),
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 8.0),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.error,
+                              color: Colors.red,
+                              size: 18,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              _voteError!,
+                              style: const TextStyle(
+                                color: Colors.red,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                    Text(
-                      '${widget.commentCount}',
-                      style: TextStyle(color: Colors.grey[600], fontSize: 12),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(width: 12),
-
-                // Share button
-                IconButton(
-                  onPressed: _isSharing ? null : _handleShare,
-                  icon:
-                      _isSharing
-                          ? const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Color(0xFF6C63FF),
-                            ),
-                          )
-                          : const Icon(Icons.share_outlined),
-                  color: Colors.grey[600],
-                  iconSize: 18,
-                  padding: const EdgeInsets.all(4),
-                  constraints: const BoxConstraints(
-                    minWidth: 32,
-                    minHeight: 32,
-                  ),
-                ),
-
-                const Spacer(),
-
-                // Report button
-                IconButton(
-                  onPressed: _handleReport,
-                  icon: const Icon(Icons.more_horiz),
-                  color: Colors.grey[600],
-                  iconSize: 18,
-                  padding: const EdgeInsets.all(4),
-                  constraints: const BoxConstraints(
-                    minWidth: 32,
-                    minHeight: 32,
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ),
       ),
-    );
-  }
-}
-
-// Add placeholder pages for navigation
-class UserProfilePlaceholderPage extends StatelessWidget {
-  final String userId;
-  const UserProfilePlaceholderPage({Key? key, required this.userId})
-    : super(key: key);
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('User Profile')),
-      body: Center(child: Text('User profile for: ' + userId)),
-    );
-  }
-}
-
-class HubDetailsPlaceholderPage extends StatelessWidget {
-  final String hubName;
-  const HubDetailsPlaceholderPage({Key? key, required this.hubName})
-    : super(key: key);
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Hub Details')),
-      body: Center(child: Text('Hub details for: ' + hubName)),
     );
   }
 }

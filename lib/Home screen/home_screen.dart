@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:yuva/challenge/page/challenges_page.dart';
 import '../connect/connect_page.dart';
 import 'pages/post_page.dart';
-import 'pages/chat_page.dart';
 import 'pages/notification_page.dart';
 import '../connect/hubs/page/hubs_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -12,17 +11,26 @@ class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<HomeScreen> createState() => HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
+
+  // Getter to access current index
+  int get currentIndex => _currentIndex;
+
+  // Method to switch tabs
+  void switchToTab(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+  }
 
   final List<Widget> _pages = [
     const ChallengesPage(),
     const ConnectPage(),
     const PostPage(),
-    const ChatPage(),
     const NotificationPage(),
   ];
 
@@ -30,7 +38,6 @@ class _HomeScreenState extends State<HomeScreen> {
     'Challenges',
     'Connect',
     'Post',
-    'Chat',
     'Notifications',
   ];
 
@@ -95,10 +102,6 @@ class _HomeScreenState extends State<HomeScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.add_circle_outline),
             label: 'Post',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.chat_bubble_outline),
-            label: 'Chat',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.notifications_outlined),

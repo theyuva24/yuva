@@ -11,6 +11,7 @@ import 'widgets/interests_card.dart';
 // Achievements and SocialActivity cards are omitted for now as not in data
 import '../core/services/auth_service.dart';
 import '../admin/admin_page.dart';
+import '../initial pages/presentation/screens/splash_screen.dart';
 
 class ProfilePage extends StatelessWidget {
   final String uid;
@@ -192,11 +193,119 @@ class ProfilePage extends StatelessWidget {
                                 },
                               ),
                             ),
+                          if (AuthService().currentUser?.uid != uid)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 8.0),
+                              child: ElevatedButton.icon(
+                                icon: Icon(Icons.message),
+                                label: Text('Message'),
+                                onPressed: () {
+                                  // Removed ChatPage navigation
+                                },
+                              ),
+                            ),
                           ElevatedButton.icon(
                             icon: Icon(Icons.logout),
                             label: Text('Logout'),
-                            onPressed: () {
-                              // TODO: Implement logout logic
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                              foregroundColor: Colors.white,
+                            ),
+                            onPressed: () async {
+                              // Show confirmation dialog
+                              final shouldLogout = await showDialog<bool>(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: Text('Logout'),
+                                    content: Text(
+                                      'Are you sure you want to logout?',
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed:
+                                            () => Navigator.of(
+                                              context,
+                                            ).pop(false),
+                                        child: Text('Cancel'),
+                                      ),
+                                      TextButton(
+                                        onPressed:
+                                            () =>
+                                                Navigator.of(context).pop(true),
+                                        child: Text('Logout'),
+                                        style: TextButton.styleFrom(
+                                          foregroundColor: Colors.red,
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+
+                              if (shouldLogout == true) {
+                                try {
+                                  // Show loading indicator
+                                  showDialog(
+                                    context: context,
+                                    barrierDismissible: false,
+                                    builder: (BuildContext context) {
+                                      return Center(
+                                        child: CircularProgressIndicator(),
+                                      );
+                                    },
+                                  );
+
+                                  // Sign out from Firebase
+                                  await AuthService().signOut();
+
+                                  // Close loading dialog
+                                  if (context.mounted) {
+                                    Navigator.of(context).pop();
+                                  }
+
+                                  // Navigate to splash screen and clear navigation stack
+                                  if (context.mounted) {
+                                    Navigator.of(context).pushAndRemoveUntil(
+                                      MaterialPageRoute(
+                                        builder:
+                                            (context) => const SplashScreen(),
+                                      ),
+                                      (route) => false,
+                                    );
+                                  }
+                                } catch (e) {
+                                  // Close loading dialog
+                                  if (context.mounted) {
+                                    Navigator.of(context).pop();
+                                  }
+
+                                  // Show error dialog
+                                  if (context.mounted) {
+                                    showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          title: Text('Error'),
+                                          content: Text(
+                                            'Failed to logout. Please try again.',
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                              onPressed:
+                                                  () =>
+                                                      Navigator.of(
+                                                        context,
+                                                      ).pop(),
+                                              child: Text('OK'),
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    );
+                                  }
+                                }
+                              }
                             },
                           ),
                         ],

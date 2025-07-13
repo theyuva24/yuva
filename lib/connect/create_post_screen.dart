@@ -40,7 +40,6 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       setState(() {
         _filteredHubs = [];
         _showDropdown = false;
-        _selectedHub = null;
       });
       return;
     }
@@ -51,10 +50,6 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               .toList();
       print('Filtered hubs: ${_filteredHubs.map((h) => h.name).toList()}');
       _showDropdown = _filteredHubs.isNotEmpty;
-      // If the input matches a hub exactly, set _selectedHub
-      final match =
-          _allHubs.where((hub) => hub.name.toLowerCase() == input).toList();
-      _selectedHub = match.isNotEmpty ? match.first : null;
     });
   }
 
@@ -75,9 +70,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
     if (_selectedHub == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please select a valid hub from the dropdown'),
-        ),
+        const SnackBar(content: Text('Please select a hub from the dropdown')),
       );
       return;
     }
@@ -159,9 +152,9 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                                 subtitle: Text(hub.description),
                                 onTap: () {
                                   _hubController.text = hub.name;
+                                  _selectedHub = hub;
                                   setState(() {
                                     _showDropdown = false;
-                                    _selectedHub = hub;
                                   });
                                 },
                               );

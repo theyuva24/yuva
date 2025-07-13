@@ -11,12 +11,12 @@ class SubmissionCard extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: ListTile(
         leading: Image.network(
-          submission.mediaUrl,
+          submission.mediaUrl ?? '',
           width: 56,
           height: 56,
           fit: BoxFit.cover,
         ),
-        title: Text(submission.caption),
+        title: Text(submission.caption ?? ''),
         subtitle: Text('By: \\${submission.userId}'),
       ),
     );

@@ -1,50 +1,30 @@
 import 'package:flutter/material.dart';
 import '../../connect/create_post_screen.dart';
+import '../home_screen.dart';
 
 class PostPage extends StatelessWidget {
   const PostPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.add_circle_outline, size: 64, color: Colors.grey[400]),
-          const SizedBox(height: 16),
-          Text(
-            'Create a New Post',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.grey[600],
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Share your thoughts with the community',
-            style: TextStyle(fontSize: 16, color: Colors.grey[500]),
-          ),
-          const SizedBox(height: 32),
-          ElevatedButton.icon(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const CreatePostScreen(),
-                ),
-              );
-            },
-            icon: const Icon(Icons.add),
-            label: const Text('Create Post'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF6C63FF),
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            ),
-          ),
-        ],
-      ),
-    );
+    // Navigate to CreatePostScreen and return to Connect tab when done
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const CreatePostScreen()),
+      ).then((_) {
+        // When CreatePostScreen is closed, switch to Connect tab
+        if (context.mounted) {
+          // Find the HomeScreen and switch to Connect tab (index 1)
+          final homeScreen = context.findAncestorStateOfType<HomeScreenState>();
+          if (homeScreen != null) {
+            homeScreen.switchToTab(1); // Switch to Connect tab
+          }
+        }
+      });
+    });
+
+    // Return a loading screen while navigating
+    return const Scaffold(body: Center(child: CircularProgressIndicator()));
   }
 }

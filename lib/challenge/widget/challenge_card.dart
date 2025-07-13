@@ -136,23 +136,7 @@ class ChallengeCard extends StatelessWidget {
                     const SizedBox(height: 10),
                     Row(
                       children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                          decoration: BoxDecoration(
-                            color: isExpired ? Colors.grey : Colors.deepPurple,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            isExpired ? 'View' : 'Join',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
+                        // Removed View/Join button
                         const Spacer(),
                         Text(
                           dateStr,

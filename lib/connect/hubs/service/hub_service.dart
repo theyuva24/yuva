@@ -2,10 +2,12 @@ import '../model/hub_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 
 class HubService {
   final CollectionReference hubsCollection = FirebaseFirestore.instance
       .collection('Hubs');
+  final FirebaseStorage _storage = FirebaseStorage.instance;
 
   Stream<List<Hub>> getHubsStream() {
     return hubsCollection.snapshots().map((snapshot) {
@@ -26,13 +28,24 @@ class HubService {
     required String description,
     required String imageUrl,
   }) async {
-    final docRef = await hubsCollection.add({
+    await hubsCollection.add({
       'name': name,
       'description': description,
       'imageUrl': imageUrl,
     });
-    // Save the hub id as a field in the document
-    await docRef.update({'id': docRef.id});
+  }
+
+  Future<String?> uploadHubImage(String? path, String hubId) async {
+    if (path == null) return null;
+    try {
+      final ref = _storage.ref().child('hubs/$hubId/hub_image.jpg');
+      await ref.putFile(File(path));
+      return await ref.getDownloadURL();
+    } catch (e) {
+      // Return null if upload fails, but don't throw
+      debugPrint('Failed to upload hub image: $e');
+      return null;
+    }
   }
 
   Future<void> updateHub({
@@ -45,19 +58,6 @@ class HubService {
       'name': name,
       'description': description,
       'imageUrl': imageUrl,
-      'id': id,
     });
-  }
-
-  Future<String?> uploadHubImage(String? path, String hubId) async {
-    if (path == null) return null;
-    try {
-      final ref = FirebaseStorage.instance.ref().child('hubs/$hubId/image.jpg');
-      await ref.putFile(File(path));
-      return await ref.getDownloadURL();
-    } catch (e) {
-      print('Failed to upload hub image: $e');
-      return null;
-    }
   }
 }

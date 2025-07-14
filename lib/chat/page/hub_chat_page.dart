@@ -20,6 +20,7 @@ class _HubChatPageState extends State<HubChatPage> {
         .collection('hubs')
         .doc(widget.hubId)
         .collection('messages')
+        .where('timestamp', isGreaterThan: Timestamp(0, 0))
         .orderBy('timestamp', descending: false)
         .snapshots();
   }

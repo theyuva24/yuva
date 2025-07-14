@@ -15,17 +15,35 @@ class ChatsPage extends StatelessWidget {
     return doc.data();
   }
 
-  Future<List<Map<String, dynamic>>> fetchUserHubs(String userId) async {
+  Future<List<Map<String, dynamic>>> fetchUnifiedChats(String userId) async {
+    // Fetch direct chats
+    final directChats = await ChatService().getUserChats(userId).first;
+    final List<Map<String, dynamic>> unified = [];
+    for (final chat in directChats) {
+      final otherUserId = chat.participants.firstWhere(
+        (id) => id != userId,
+        orElse: () => userId,
+      );
+      final userProfile = await fetchUserProfile(otherUserId);
+      unified.add({
+        'type': 'direct',
+        'id': chat.id,
+        'name': userProfile?['fullName'] ?? 'Unknown',
+        'imageUrl': userProfile?['profilePicUrl'] ?? '',
+        'lastMsg': chat.lastMessage,
+        'lastMsgTime': chat.lastMessageTime,
+        'otherUserId': otherUserId,
+      });
+    }
+    // Fetch hub chats
     final userDoc =
         await FirebaseFirestore.instance.collection('users').doc(userId).get();
     final joinedHubs = List<String>.from(userDoc.data()?['joinedHubs'] ?? []);
-    final List<Map<String, dynamic>> hubs = [];
     for (final hubId in joinedHubs) {
       final hubDoc =
           await FirebaseFirestore.instance.collection('hubs').doc(hubId).get();
       if (!hubDoc.exists) continue;
       final hubData = hubDoc.data()!;
-      // Fetch last message
       final lastMsgQuery =
           await FirebaseFirestore.instance
               .collection('hubs')
@@ -35,20 +53,30 @@ class ChatsPage extends StatelessWidget {
               .limit(1)
               .get();
       String lastMsg = '';
-      Timestamp? lastMsgTime;
+      DateTime? lastMsgTime;
       if (lastMsgQuery.docs.isNotEmpty) {
         lastMsg = lastMsgQuery.docs.first['text'] ?? '';
-        lastMsgTime = lastMsgQuery.docs.first['timestamp'] as Timestamp?;
+        final ts = lastMsgQuery.docs.first['timestamp'];
+        if (ts is Timestamp) lastMsgTime = ts.toDate();
       }
-      hubs.add({
-        'hubId': hubId,
+      unified.add({
+        'type': 'hub',
+        'id': hubId,
         'name': hubData['name'] ?? 'Hub',
         'imageUrl': hubData['imageUrl'] ?? '',
         'lastMsg': lastMsg,
         'lastMsgTime': lastMsgTime,
       });
     }
-    return hubs;
+    // Remove chats with no lastMsgTime (optional)
+    unified.removeWhere((c) => c['lastMsgTime'] == null);
+    // Sort by lastMsgTime descending
+    unified.sort(
+      (a, b) => (b['lastMsgTime'] as DateTime).compareTo(
+        a['lastMsgTime'] as DateTime,
+      ),
+    );
+    return unified;
   }
 
   @override
@@ -59,146 +87,82 @@ class ChatsPage extends StatelessWidget {
     }
     return Scaffold(
       body: FutureBuilder<List<Map<String, dynamic>>>(
-        future: fetchUserHubs(user.uid),
-        builder: (context, hubSnapshot) {
-          return StreamBuilder<List<ChatModel>>(
-            stream: ChatService().getUserChats(user.uid),
-            builder: (context, chatSnapshot) {
-              if (hubSnapshot.connectionState == ConnectionState.waiting ||
-                  !chatSnapshot.hasData) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              final hubChats = hubSnapshot.data ?? [];
-              final chats = chatSnapshot.data ?? [];
-              return ListView(
-                children: [
-                  if (hubChats.isNotEmpty) ...[
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 24, 0, 8),
-                      child: Text(
-                        'Hub Chats',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.deepPurple,
+        future: fetchUnifiedChats(user.uid),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          final chats = snapshot.data!;
+          if (chats.isEmpty) {
+            return const Center(
+              child: Padding(
+                padding: EdgeInsets.only(top: 64),
+                child: Text(
+                  'No chats yet',
+                  style: TextStyle(fontSize: 18, color: Colors.grey),
+                ),
+              ),
+            );
+          }
+          return ListView.builder(
+            itemCount: chats.length,
+            itemBuilder: (context, index) {
+              final chat = chats[index];
+              return ListTile(
+                leading:
+                    chat['imageUrl'].isNotEmpty
+                        ? CircleAvatar(
+                          backgroundImage: NetworkImage(chat['imageUrl']),
+                        )
+                        : CircleAvatar(
+                          child: Icon(
+                            chat['type'] == 'hub' ? Icons.groups : Icons.person,
+                          ),
                         ),
-                      ),
-                    ),
-                    ...hubChats.map(
-                      (hub) => ListTile(
-                        leading:
-                            hub['imageUrl'].isNotEmpty
-                                ? CircleAvatar(
-                                  backgroundImage: NetworkImage(
-                                    hub['imageUrl'],
-                                  ),
-                                )
-                                : const CircleAvatar(child: Icon(Icons.groups)),
-                        title: Text(
-                          hub['name'],
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        subtitle: Text(
-                          hub['lastMsg'] ?? '',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        trailing:
-                            hub['lastMsgTime'] != null
-                                ? Text(
-                                  TimeOfDay.fromDateTime(
-                                    (hub['lastMsgTime'] as Timestamp).toDate(),
-                                  ).format(context),
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey,
-                                  ),
-                                )
-                                : null,
-                        onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder:
-                                  (context) => HubChatPage(
-                                    hubId: hub['hubId'],
-                                    hubName: hub['name'],
-                                  ),
+                title: Text(
+                  chat['name'],
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                subtitle: Text(
+                  chat['lastMsg'] ?? '',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                trailing:
+                    chat['lastMsgTime'] != null
+                        ? Text(
+                          TimeOfDay.fromDateTime(
+                            chat['lastMsgTime'],
+                          ).format(context),
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
+                        )
+                        : null,
+                onTap: () {
+                  if (chat['type'] == 'hub') {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder:
+                            (context) => HubChatPage(
+                              hubId: chat['id'],
+                              hubName: chat['name'],
                             ),
-                          );
-                        },
                       ),
-                    ),
-                  ],
-                  if (chats.isNotEmpty) ...[
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 24, 0, 8),
-                      child: Text(
-                        'Direct Messages',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.deepPurple,
-                        ),
+                    );
+                  } else {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder:
+                            (context) => ChatPage(
+                              chatId: chat['id'],
+                              otherUserId: chat['otherUserId'],
+                            ),
                       ),
-                    ),
-                    ...List.generate(chats.length, (index) {
-                      final chat = chats[index];
-                      final otherUserId = chat.participants.firstWhere(
-                        (id) => id != user.uid,
-                      );
-                      return FutureBuilder<Map<String, dynamic>?>(
-                        future: fetchUserProfile(otherUserId),
-                        builder: (context, userSnapshot) {
-                          if (!userSnapshot.hasData) {
-                            return ListTile(
-                              leading: const CircleAvatar(
-                                child: Icon(Icons.person),
-                              ),
-                              title: Text('Loading...'),
-                              subtitle: Text(chat.lastMessage),
-                            );
-                          }
-                          final userData = userSnapshot.data!;
-                          final name = userData['fullName'] ?? 'Unknown';
-                          final profilePic = userData['profilePicUrl'] ?? '';
-                          return ListTile(
-                            leading:
-                                profilePic.isNotEmpty
-                                    ? CircleAvatar(
-                                      backgroundImage: NetworkImage(profilePic),
-                                    )
-                                    : const CircleAvatar(
-                                      child: Icon(Icons.person),
-                                    ),
-                            title: Text(name),
-                            subtitle: Text(chat.lastMessage),
-                            onTap: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder:
-                                      (context) => ChatPage(
-                                        chatId: chat.id,
-                                        otherUserId: otherUserId,
-                                      ),
-                                ),
-                              );
-                            },
-                          );
-                        },
-                      );
-                    }),
-                  ],
-                  if (hubChats.isEmpty && chats.isEmpty)
-                    const Center(
-                      child: Padding(
-                        padding: EdgeInsets.only(top: 64),
-                        child: Text(
-                          'No chats yet',
-                          style: TextStyle(fontSize: 18, color: Colors.grey),
-                        ),
-                      ),
-                    ),
-                ],
+                    );
+                  }
+                },
               );
             },
           );

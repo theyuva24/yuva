@@ -12,21 +12,65 @@ class VerificationStatusCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      color: const Color(0xFF181C23),
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(18),
+        side: const BorderSide(color: Color(0xFF00F6FF), width: 1.5),
+      ),
+      elevation: 6,
+      shadowColor: Color(0xFF00F6FF).withOpacity(0.15),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
             Icon(
-              idVerified ? Icons.verified : Icons.verified_outlined,
-              color: idVerified ? Colors.green : Colors.grey,
+              idVerified ? Icons.verified : Icons.error_outline,
+              color: Color(0xFF00F6FF),
+              size: 28,
             ),
-            const SizedBox(width: 8),
-            Text(idVerified ? 'ID Verified' : 'ID Not Verified'),
-            const Spacer(),
-            Icon(Icons.location_on, color: Colors.blue),
-            const SizedBox(width: 4),
-            Text(location),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Verification Status',
+                    style: TextStyle(
+                      color: Color(0xFF00F6FF),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                      letterSpacing: 1.1,
+                      shadows: [
+                        Shadow(
+                          blurRadius: 8,
+                          color: Color(0xFF00F6FF),
+                          offset: Offset(0, 0),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    idVerified ? 'ID Verified' : 'ID Not Verified',
+                    style: TextStyle(
+                      color: idVerified ? Color(0xFF00F6FF) : Colors.redAccent,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                    ),
+                  ),
+                  if (location != null && location!.isNotEmpty)
+                    Text(
+                      'Location: $location',
+                      style: TextStyle(
+                        color: Color(0xFF00F6FF),
+                        fontWeight: FontWeight.w400,
+                        fontSize: 14,
+                      ),
+                    ),
+                ],
+              ),
+            ),
           ],
         ),
       ),

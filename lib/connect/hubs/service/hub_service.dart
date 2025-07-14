@@ -7,7 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class HubService {
   final CollectionReference hubsCollection = FirebaseFirestore.instance
-      .collection('Hubs');
+      .collection('hubs');
   final FirebaseStorage _storage = FirebaseStorage.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;

@@ -7,7 +7,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../../chat/page/hub_chat_page.dart'; // Import HubChatPage
 import '../service/hub_service.dart';
-import '../../post/page/post_details_page.dart'; // Import PostDetailsPage
+import '../../post_details_page.dart'; // Import PostDetailsPage
 
 class HubDetailsPage extends StatefulWidget {
   final Hub hub;
@@ -122,21 +122,22 @@ class _HubDetailsPageState extends State<HubDetailsPage> {
                       ),
                       child: Text(_isJoined ? 'Leave' : 'Join'),
                     ),
-                ElevatedButton.icon(
-                  icon: Icon(Icons.message),
-                  label: Text('Message'),
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder:
-                            (context) => HubChatPage(
-                              hubId: widget.hub.id,
-                              hubName: widget.hub.name,
-                            ),
-                      ),
-                    );
-                  },
-                ),
+                if (_isJoined)
+                  ElevatedButton.icon(
+                    icon: Icon(Icons.message),
+                    label: Text('Message'),
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder:
+                              (context) => HubChatPage(
+                                hubId: widget.hub.id,
+                                hubName: widget.hub.name,
+                              ),
+                        ),
+                      );
+                    },
+                  ),
               ],
             ),
           ),

@@ -42,28 +42,66 @@ class ProfilePage extends StatelessWidget {
         builder: (context, controller, _) {
           if (controller.isLoading || controller.profile == null) {
             return Scaffold(
-              appBar: AppBar(title: Text('Profile')),
-              body: Center(child: CircularProgressIndicator()),
+              appBar: AppBar(
+                backgroundColor: const Color(0xFF181C23),
+                title: Text(
+                  'Profile',
+                  style: TextStyle(
+                    color: Color(0xFF00F6FF),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 24,
+                    letterSpacing: 2,
+                    shadows: [
+                      Shadow(
+                        blurRadius: 16,
+                        color: Color(0xFF00F6FF),
+                        offset: Offset(0, 0),
+                      ),
+                    ],
+                  ),
+                ),
+                iconTheme: const IconThemeData(color: Color(0xFF00F6FF)),
+              ),
+              backgroundColor: const Color(0xFF0A0E17),
+              body: const Center(child: CircularProgressIndicator()),
             );
           }
           final profile = controller.profile!;
           final completeness = _calculateCompleteness(profile);
           return Scaffold(
             appBar: AppBar(
-              title: Text('Profile'),
+              backgroundColor: const Color(0xFF181C23),
+              title: Text(
+                'Profile',
+                style: TextStyle(
+                  color: Color(0xFF00F6FF),
+                  fontWeight: FontWeight.bold,
+                  fontSize: 24,
+                  letterSpacing: 2,
+                  shadows: [
+                    Shadow(
+                      blurRadius: 16,
+                      color: Color(0xFF00F6FF),
+                      offset: Offset(0, 0),
+                    ),
+                  ],
+                ),
+              ),
+              iconTheme: const IconThemeData(color: Color(0xFF00F6FF)),
               actions: [
                 if (!controller.isEditing)
                   IconButton(
-                    icon: Icon(Icons.edit),
+                    icon: const Icon(Icons.edit, color: Color(0xFF00F6FF)),
                     onPressed: () => controller.setEditing(true),
                   ),
                 if (controller.isEditing)
                   IconButton(
-                    icon: Icon(Icons.close),
+                    icon: const Icon(Icons.close, color: Color(0xFF00F6FF)),
                     onPressed: () => controller.setEditing(false),
                   ),
               ],
             ),
+            backgroundColor: const Color(0xFF0A0E17),
             body: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -86,23 +124,108 @@ class ProfilePage extends StatelessWidget {
                         children: [
                           TextFormField(
                             controller: controller.fullNameController,
-                            decoration: InputDecoration(labelText: 'Full Name'),
+                            decoration: InputDecoration(
+                              labelText: 'Full Name',
+                              labelStyle: TextStyle(color: Color(0xFF00F6FF)),
+                              prefixIcon: Icon(
+                                Icons.person,
+                                color: Color(0xFF00F6FF),
+                              ),
+                              filled: true,
+                              fillColor: Color(0xFF181C23),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: BorderSide(
+                                  color: Color(0xFF00F6FF),
+                                  width: 1.2,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: BorderSide(
+                                  color: Color(0xFF00F6FF),
+                                  width: 2,
+                                ),
+                              ),
+                            ),
+                            style: TextStyle(color: Colors.white, fontSize: 18),
                           ),
+                          const SizedBox(height: 12),
                           TextFormField(
                             controller: controller.phoneController,
-                            decoration: InputDecoration(labelText: 'Phone'),
+                            decoration: InputDecoration(
+                              labelText: 'Phone',
+                              labelStyle: TextStyle(color: Color(0xFF00F6FF)),
+                              prefixIcon: Icon(
+                                Icons.phone,
+                                color: Color(0xFF00F6FF),
+                              ),
+                              filled: true,
+                              fillColor: Color(0xFF181C23),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: BorderSide(
+                                  color: Color(0xFF00F6FF),
+                                  width: 1.2,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: BorderSide(
+                                  color: Color(0xFF00F6FF),
+                                  width: 2,
+                                ),
+                              ),
+                            ),
+                            style: TextStyle(color: Colors.white, fontSize: 18),
                           ),
+                          const SizedBox(height: 12),
                           TextFormField(
                             controller: controller.genderController,
-                            decoration: InputDecoration(labelText: 'Gender'),
+                            decoration: InputDecoration(
+                              labelText: 'Gender',
+                              labelStyle: TextStyle(color: Color(0xFF00F6FF)),
+                              prefixIcon: Icon(
+                                Icons.person_outline,
+                                color: Color(0xFF00F6FF),
+                              ),
+                              filled: true,
+                              fillColor: Color(0xFF181C23),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: BorderSide(
+                                  color: Color(0xFF00F6FF),
+                                  width: 1.2,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: BorderSide(
+                                  color: Color(0xFF00F6FF),
+                                  width: 2,
+                                ),
+                              ),
+                            ),
+                            style: TextStyle(color: Colors.white, fontSize: 18),
                           ),
+                          const SizedBox(height: 12),
                           Row(
                             children: [
-                              Text('DOB: '),
+                              Icon(Icons.cake, color: Color(0xFF00F6FF)),
+                              const SizedBox(width: 8),
+                              Text(
+                                'DOB:',
+                                style: TextStyle(
+                                  color: Color(0xFF00F6FF),
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
                               Text(
                                 controller.dob != null
                                     ? '${controller.dob!.day}/${controller.dob!.month}/${controller.dob!.year}'
                                     : 'Not set',
+                                style: TextStyle(color: Colors.white),
                               ),
                               TextButton(
                                 onPressed: () async {
@@ -112,47 +235,228 @@ class ProfilePage extends StatelessWidget {
                                         controller.dob ?? DateTime(2000),
                                     firstDate: DateTime(1900),
                                     lastDate: DateTime.now(),
+                                    builder: (context, child) {
+                                      return Theme(
+                                        data: ThemeData.dark().copyWith(
+                                          colorScheme: ColorScheme.dark(
+                                            primary: Color(0xFF00F6FF),
+                                            onPrimary: Colors.black,
+                                            surface: Color(0xFF181C23),
+                                            onSurface: Colors.white,
+                                          ),
+                                          dialogBackgroundColor: Color(
+                                            0xFF181C23,
+                                          ),
+                                        ),
+                                        child: child!,
+                                      );
+                                    },
                                   );
                                   if (picked != null) {
                                     controller.dob = picked;
                                     controller.notifyListeners();
                                   }
                                 },
-                                child: Text('Pick'),
+                                child: Text(
+                                  'Pick',
+                                  style: TextStyle(color: Color(0xFF00F6FF)),
+                                ),
                               ),
                             ],
                           ),
+                          const SizedBox(height: 12),
                           TextFormField(
                             controller: controller.collegeController,
-                            decoration: InputDecoration(labelText: 'College'),
+                            decoration: InputDecoration(
+                              labelText: 'College',
+                              labelStyle: TextStyle(color: Color(0xFF00F6FF)),
+                              prefixIcon: Icon(
+                                Icons.school,
+                                color: Color(0xFF00F6FF),
+                              ),
+                              filled: true,
+                              fillColor: Color(0xFF181C23),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: BorderSide(
+                                  color: Color(0xFF00F6FF),
+                                  width: 1.2,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: BorderSide(
+                                  color: Color(0xFF00F6FF),
+                                  width: 2,
+                                ),
+                              ),
+                            ),
+                            style: TextStyle(color: Colors.white, fontSize: 18),
                           ),
+                          const SizedBox(height: 12),
                           TextFormField(
                             controller: controller.courseController,
-                            decoration: InputDecoration(labelText: 'Course'),
+                            decoration: InputDecoration(
+                              labelText: 'Course',
+                              labelStyle: TextStyle(color: Color(0xFF00F6FF)),
+                              prefixIcon: Icon(
+                                Icons.menu_book,
+                                color: Color(0xFF00F6FF),
+                              ),
+                              filled: true,
+                              fillColor: Color(0xFF181C23),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: BorderSide(
+                                  color: Color(0xFF00F6FF),
+                                  width: 1.2,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: BorderSide(
+                                  color: Color(0xFF00F6FF),
+                                  width: 2,
+                                ),
+                              ),
+                            ),
+                            style: TextStyle(color: Colors.white, fontSize: 18),
                           ),
+                          const SizedBox(height: 12),
                           TextFormField(
                             controller: controller.yearController,
-                            decoration: InputDecoration(labelText: 'Year'),
+                            decoration: InputDecoration(
+                              labelText: 'Year',
+                              labelStyle: TextStyle(color: Color(0xFF00F6FF)),
+                              prefixIcon: Icon(
+                                Icons.calendar_today,
+                                color: Color(0xFF00F6FF),
+                              ),
+                              filled: true,
+                              fillColor: Color(0xFF181C23),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: BorderSide(
+                                  color: Color(0xFF00F6FF),
+                                  width: 1.2,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: BorderSide(
+                                  color: Color(0xFF00F6FF),
+                                  width: 2,
+                                ),
+                              ),
+                            ),
+                            style: TextStyle(color: Colors.white, fontSize: 18),
                           ),
+                          const SizedBox(height: 12),
                           TextFormField(
                             controller: controller.locationController,
-                            decoration: InputDecoration(labelText: 'Location'),
+                            decoration: InputDecoration(
+                              labelText: 'Location',
+                              labelStyle: TextStyle(color: Color(0xFF00F6FF)),
+                              prefixIcon: Icon(
+                                Icons.location_on,
+                                color: Color(0xFF00F6FF),
+                              ),
+                              filled: true,
+                              fillColor: Color(0xFF181C23),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: BorderSide(
+                                  color: Color(0xFF00F6FF),
+                                  width: 1.2,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: BorderSide(
+                                  color: Color(0xFF00F6FF),
+                                  width: 2,
+                                ),
+                              ),
+                            ),
+                            style: TextStyle(color: Colors.white, fontSize: 18),
                           ),
                           // TODO: Add interests editing UI
                           const SizedBox(height: 16),
                           Row(
                             children: [
                               Expanded(
-                                child: ElevatedButton(
-                                  onPressed: () => controller.saveProfile(uid),
-                                  child: Text('Save'),
+                                child: Container(
+                                  height: 48,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(14),
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Color(0xFF00F6FF),
+                                        Color(0xFF00D1FF),
+                                      ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Color(
+                                          0xFF00F6FF,
+                                        ).withOpacity(0.4),
+                                        blurRadius: 16,
+                                        spreadRadius: 1,
+                                      ),
+                                    ],
+                                  ),
+                                  child: Material(
+                                    color: Colors.transparent,
+                                    child: InkWell(
+                                      borderRadius: BorderRadius.circular(14),
+                                      onTap: () => controller.saveProfile(uid),
+                                      child: Center(
+                                        child: Text(
+                                          'Save',
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 18,
+                                            letterSpacing: 1.1,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ),
                               const SizedBox(width: 8),
                               Expanded(
-                                child: OutlinedButton(
-                                  onPressed: () => controller.setEditing(false),
-                                  child: Text('Cancel'),
+                                child: Container(
+                                  height: 48,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(14),
+                                    border: Border.all(
+                                      color: Color(0xFF00F6FF),
+                                      width: 1.5,
+                                    ),
+                                    color: Color(0xFF181C23),
+                                  ),
+                                  child: Material(
+                                    color: Colors.transparent,
+                                    child: InkWell(
+                                      borderRadius: BorderRadius.circular(14),
+                                      onTap: () => controller.setEditing(false),
+                                      child: Center(
+                                        child: Text(
+                                          'Cancel',
+                                          style: TextStyle(
+                                            color: Color(0xFF00F6FF),
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 18,
+                                            letterSpacing: 1.1,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ),
                             ],

@@ -60,9 +60,21 @@ service cloud.firestore {
         (request.resource.data.linkUrl == null || request.resource.data.linkUrl is string) &&
         (request.resource.data.linkClickCount == null || request.resource.data.linkClickCount is number);
 
-      allow update: if request.auth != null && 
-        request.auth.uid == resource.data.userId &&
-        request.resource.data.userId == request.auth.uid;
+      allow update: if request.auth != null && (
+        // Allow the post owner to update anything
+        request.auth.uid == resource.data.userId
+        // OR allow anyone to update only engagement fields (partial update)
+        || (
+          // No attempt to update protected fields
+          !(request.resource.data.keys().hasAny([
+            'userId', 'hubId', 'hubName', 'postContent', 'postingTime', 'postImageUrl', 'pollData', 'linkUrl'
+          ])) &&
+          // Must be updating at least one engagement field
+          request.resource.data.keys().hasAny([
+            'upvotes', 'downvotes', 'score', 'commentCount', 'shareCount', 'linkClickCount', 'lastSharedAt'
+          ])
+        )
+      );
       allow delete: if request.auth != null && request.auth.uid == resource.data.userId;
 
       // Comments subcollection
@@ -70,7 +82,6 @@ service cloud.firestore {
         allow read: if true;
         allow create: if request.auth != null && 
           request.resource.data.userId == request.auth.uid &&
-          request.resource.data.userName is string &&
           request.resource.data.commentContent is string &&
           (request.resource.data.commentTime is timestamp || request.resource.data.commentTime == request.time) &&
           request.resource.data.upvotes is number &&
@@ -80,7 +91,6 @@ service cloud.firestore {
         allow update: if request.auth != null && 
           request.auth.uid == resource.data.userId &&
           request.resource.data.userId == request.auth.uid &&
-          request.resource.data.userName == resource.data.userName &&
           request.resource.data.commentTime == resource.data.commentTime &&
           request.resource.data.parentCommentId == resource.data.parentCommentId;
         allow delete: if request.auth != null && request.auth.uid == resource.data.userId;
@@ -105,8 +115,7 @@ service cloud.firestore {
         allow read: if true;
         allow create: if request.auth != null && 
           request.resource.data.userId == request.auth.uid &&
-          request.resource.data.voteType in ['upvote', 'downvote'] &&
-          (request.resource.data.voteTime is timestamp || request.resource.data.voteTime == request.time);
+          request.resource.data.voteType in ['upvote', 'downvote'];
         allow update: if request.auth != null && 
           request.auth.uid == resource.data.userId &&
           request.resource.data.userId == request.auth.uid &&
@@ -181,6 +190,12 @@ service cloud.firestore {
       allow read: if true;
       allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
       allow update, delete: if request.auth != null && request.auth.uid == resource.data.userId;
+    }
+
+    // Notifications: only recipient can read/update/delete, any authenticated user can create
+    match /notifications/{notificationId} {
+      allow read, update, delete: if request.auth != null && request.auth.uid == resource.data.recipientId;
+      allow create: if request.auth != null;
     }
   }
 } 

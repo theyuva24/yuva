@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/registration_data.dart';
 import '../service/registration_service.dart';
 import '../../core/services/auth_service.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class RegistrationController extends ChangeNotifier {
   RegistrationData data = RegistrationData();
@@ -104,6 +105,22 @@ class RegistrationController extends ChangeNotifier {
     setLoading(true);
     debugPrint('RegistrationController: Starting registration submission');
     try {
+      // Request notification permissions before getting FCM token
+      try {
+        await FirebaseMessaging.instance.requestPermission();
+      } catch (e) {
+        debugPrint('Error requesting notification permission: $e');
+      }
+
+      // Get FCM token
+      String? fcmToken;
+      try {
+        fcmToken = await FirebaseMessaging.instance.getToken();
+        debugPrint('FCM Token: ' + (fcmToken ?? 'null'));
+      } catch (e) {
+        debugPrint('Error getting FCM token: $e');
+      }
+
       final profileUrl = await _service.uploadProfileImage(data.profilePicPath);
       debugPrint('RegistrationController: Profile image uploaded: $profileUrl');
 
@@ -114,6 +131,7 @@ class RegistrationController extends ChangeNotifier {
         data,
         profileUrl: profileUrl,
         idCardUrl: idCardUrl,
+        fcmToken: fcmToken, // Pass the FCM token here
       );
 
       debugPrint('RegistrationController: Registration completed successfully');

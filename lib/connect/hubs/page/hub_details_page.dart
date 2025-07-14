@@ -5,6 +5,9 @@ import '../../post_service.dart';
 import '../model/hub_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../../../chat/page/hub_chat_page.dart'; // Import HubChatPage
+import '../service/hub_service.dart';
+import '../../post/page/post_details_page.dart'; // Import PostDetailsPage
 
 class HubDetailsPage extends StatefulWidget {
   final Hub hub;
@@ -18,6 +21,7 @@ class _HubDetailsPageState extends State<HubDetailsPage> {
   final PostService postService = PostService();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final HubService _hubService = HubService();
   bool _isJoined = false;
   bool _loading = true;
 
@@ -39,29 +43,37 @@ class _HubDetailsPageState extends State<HubDetailsPage> {
   }
 
   Future<void> _joinHub() async {
-    final user = _auth.currentUser;
-    if (user == null) return;
     setState(() => _loading = true);
-    await _firestore.collection('users').doc(user.uid).update({
-      'joinedHubs': FieldValue.arrayUnion([widget.hub.id]),
-    });
-    setState(() {
-      _isJoined = true;
-      _loading = false;
-    });
+    try {
+      await _hubService.joinHub(widget.hub.id);
+      setState(() {
+        _isJoined = true;
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to join hub: $e')));
+    } finally {
+      setState(() => _loading = false);
+      _checkMembership();
+    }
   }
 
   Future<void> _leaveHub() async {
-    final user = _auth.currentUser;
-    if (user == null) return;
     setState(() => _loading = true);
-    await _firestore.collection('users').doc(user.uid).update({
-      'joinedHubs': FieldValue.arrayRemove([widget.hub.id]),
-    });
-    setState(() {
-      _isJoined = false;
-      _loading = false;
-    });
+    try {
+      await _hubService.leaveHub(widget.hub.id);
+      setState(() {
+        _isJoined = false;
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to leave hub: $e')));
+    } finally {
+      setState(() => _loading = false);
+      _checkMembership();
+    }
   }
 
   @override
@@ -110,6 +122,21 @@ class _HubDetailsPageState extends State<HubDetailsPage> {
                       ),
                       child: Text(_isJoined ? 'Leave' : 'Join'),
                     ),
+                ElevatedButton.icon(
+                  icon: Icon(Icons.message),
+                  label: Text('Message'),
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder:
+                            (context) => HubChatPage(
+                              hubId: widget.hub.id,
+                              hubName: widget.hub.name,
+                            ),
+                      ),
+                    );
+                  },
+                ),
               ],
             ),
           ),
@@ -149,6 +176,29 @@ class _HubDetailsPageState extends State<HubDetailsPage> {
                       shareCount: post.shareCount,
                       postImage: post.postImage,
                       postOwnerId: post.postOwnerId,
+                      onCardTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (context) => PostDetailsPage(
+                                  postId: post.id,
+                                  userName: post.userName,
+                                  userProfileImage: post.userProfileImage,
+                                  hubName: post.hubName,
+                                  hubProfileImage: post.hubProfileImage,
+                                  postContent: post.postContent,
+                                  timestamp: post.timestamp,
+                                  upvotes: post.upvotes,
+                                  downvotes: post.downvotes,
+                                  commentCount: post.commentCount,
+                                  shareCount: post.shareCount,
+                                  postImage: post.postImage,
+                                  postOwnerId: post.postOwnerId,
+                                ),
+                          ),
+                        );
+                      },
                     );
                   },
                 );

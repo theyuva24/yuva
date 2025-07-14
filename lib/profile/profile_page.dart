@@ -12,6 +12,8 @@ import 'widgets/interests_card.dart';
 import '../core/services/auth_service.dart';
 import '../admin/admin_page.dart';
 import '../initial pages/presentation/screens/splash_screen.dart';
+import '../chat/page/chat_page.dart'; // Corrected import for ChatPage
+import '../chat/service/chat_service.dart'; // Corrected import for ChatService
 
 class ProfilePage extends StatelessWidget {
   final String uid;
@@ -199,8 +201,22 @@ class ProfilePage extends StatelessWidget {
                               child: ElevatedButton.icon(
                                 icon: Icon(Icons.message),
                                 label: Text('Message'),
-                                onPressed: () {
-                                  // Removed ChatPage navigation
+                                onPressed: () async {
+                                  // Initiate or get chat, then navigate to chat page
+                                  final chatService = ChatService();
+                                  final chat = await chatService
+                                      .getOrCreateChatWith(uid);
+                                  if (context.mounted) {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder:
+                                            (context) => ChatPage(
+                                              chatId: chat.id,
+                                              otherUserId: uid,
+                                            ),
+                                      ),
+                                    );
+                                  }
                                 },
                               ),
                             ),

@@ -44,6 +44,7 @@ class RegistrationService {
     RegistrationData data, {
     String? profileUrl,
     String? idCardUrl,
+    String? fcmToken,
   }) async {
     try {
       final uid = _auth.currentUser?.uid;
@@ -73,6 +74,7 @@ class RegistrationService {
           'course': data.course,
           'interests': data.interests,
           'phone': phone,
+          'fcmToken': fcmToken,
           'updatedAt': FieldValue.serverTimestamp(),
         });
       } else {
@@ -90,6 +92,7 @@ class RegistrationService {
           'course': data.course,
           'interests': data.interests,
           'phone': phone,
+          'fcmToken': fcmToken,
           'createdAt': FieldValue.serverTimestamp(),
         });
       }

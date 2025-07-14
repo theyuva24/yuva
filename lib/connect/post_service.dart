@@ -3,10 +3,134 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'post_model.dart';
 import 'hubs/service/hub_service.dart';
 import 'hubs/model/hub_model.dart';
+import 'notification_service.dart';
+
+// Reddit-style Comment model for nested comments, voting, and moderation
+class Comment {
+  final String id;
+  final String userId;
+  final String userName;
+  final String userProfileImage;
+  final String content;
+  final DateTime timestamp;
+  final int upvotes;
+  final int downvotes;
+  final int score;
+  final String? parentCommentId;
+  final List<Comment> replies;
+  final bool edited;
+  final bool deleted;
+
+  Comment({
+    required this.id,
+    required this.userId,
+    required this.userName,
+    required this.userProfileImage,
+    required this.content,
+    required this.timestamp,
+    required this.upvotes,
+    required this.downvotes,
+    required this.score,
+    this.parentCommentId,
+    this.replies = const [],
+    this.edited = false,
+    this.deleted = false,
+  });
+
+  factory Comment.fromFirestore(
+    Map<String, dynamic> data,
+    String id, {
+    List<Comment> replies = const [],
+  }) {
+    return Comment(
+      id: id,
+      userId: data['userId'] ?? '',
+      userName: data['userName'] ?? 'Anonymous',
+      userProfileImage: data['userProfileImage'] ?? '',
+      content: data['commentContent'] ?? '',
+      timestamp:
+          (data['commentTime'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      upvotes: data['upvotes'] ?? 0,
+      downvotes: data['downvotes'] ?? 0,
+      score: data['score'] ?? 0,
+      parentCommentId: data['parentCommentId'],
+      replies: replies,
+      edited: data['edited'] ?? false,
+      deleted: data['deleted'] ?? false,
+    );
+  }
+
+  Map<String, dynamic> toFirestore() {
+    return {
+      'userId': userId,
+      'userName': userName,
+      'userProfileImage': userProfileImage,
+      'commentContent': content,
+      'commentTime': Timestamp.fromDate(timestamp),
+      'upvotes': upvotes,
+      'downvotes': downvotes,
+      'score': score,
+      'parentCommentId': parentCommentId,
+      'edited': edited,
+      'deleted': deleted,
+    };
+  }
+}
+
+// Utility to build a tree of comments from a flat list
+List<Comment> buildCommentTree(List<Comment> flatComments) {
+  final Map<String, List<Comment>> childrenMap = {};
+  final Map<String, Comment> commentMap = {for (var c in flatComments) c.id: c};
+  final List<Comment> roots = [];
+
+  // Group comments by parentCommentId
+  for (final comment in flatComments) {
+    if (comment.parentCommentId == null) {
+      roots.add(comment);
+    } else {
+      childrenMap.putIfAbsent(comment.parentCommentId!, () => []).add(comment);
+    }
+  }
+
+  // Recursively attach children
+  Comment attachReplies(Comment comment) {
+    final replies = childrenMap[comment.id] ?? [];
+    return Comment(
+      id: comment.id,
+      userId: comment.userId,
+      userName: comment.userName,
+      userProfileImage: comment.userProfileImage,
+      content: comment.content,
+      timestamp: comment.timestamp,
+      upvotes: comment.upvotes,
+      downvotes: comment.downvotes,
+      score: comment.score,
+      parentCommentId: comment.parentCommentId,
+      replies: replies.map(attachReplies).toList(),
+      edited: comment.edited,
+      deleted: comment.deleted,
+    );
+  }
+
+  return roots.map(attachReplies).toList();
+}
 
 class PostService {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final NotificationService _notificationService = NotificationService();
+
+  // Helper to ensure all engagement fields are present
+  Map<String, dynamic> ensureEngagementFields(Map<String, dynamic> data) {
+    return {
+      'upvotes': data['upvotes'] ?? 0,
+      'downvotes': data['downvotes'] ?? 0,
+      'score': data['score'] ?? 0,
+      'commentCount': data['commentCount'] ?? 0,
+      'shareCount': data['shareCount'] ?? 0,
+      'linkClickCount': data['linkClickCount'] ?? 0,
+    };
+  }
 
   // Create a new post
   Future<String> createPost({
@@ -27,15 +151,10 @@ class PostService {
         'hubName': hubName,
         'postContent': postContent,
         'postingTime': FieldValue.serverTimestamp(),
-        'upvotes': 0,
-        'downvotes': 0,
-        'score': 0,
-        'commentCount': 0,
-        'shareCount': 0,
         'postImageUrl': postImageUrl,
         'pollData': pollData,
         'linkUrl': linkUrl,
-        'linkClickCount': 0,
+        ...ensureEngagementFields({}), // Always set all engagement fields
       };
 
       final docRef = await firestore.collection('posts').add(postData);
@@ -127,49 +246,84 @@ class PostService {
 
   // Vote on a post
   Future<void> voteOnPost(String postId, String voteType) async {
-    try {
-      final user = _auth.currentUser;
-      if (user == null) throw Exception('User not authenticated');
+    print(
+      '[DEBUG] voteOnPost called with postId: $postId, voteType: $voteType',
+    );
+    int maxRetries = 2;
+    int attempt = 0;
+    while (true) {
+      try {
+        final user = _auth.currentUser;
+        print(
+          '[DEBUG] Current user: ${user?.uid}, isAuthenticated: ${user != null}',
+        );
+        if (user == null) throw Exception('User not authenticated');
 
-      final postRef = firestore.collection('posts').doc(postId);
-      final voteRef = postRef.collection('voteInteractions').doc(user.uid);
+        final postRef = firestore.collection('posts').doc(postId);
+        final voteRef = postRef.collection('voteInteractions').doc(user.uid);
 
-      await firestore.runTransaction((transaction) async {
-        final voteSnapshot = await transaction.get(voteRef);
-        final postSnapshot = await transaction.get(postRef);
-        if (!postSnapshot.exists) {
-          throw Exception('Post does not exist');
-        }
-        final postData = postSnapshot.data() as Map<String, dynamic>;
-        int upvotes = postData['upvotes'] ?? 0;
-        int downvotes = postData['downvotes'] ?? 0;
-        int score = postData['score'] ?? 0;
+        await firestore.runTransaction((transaction) async {
+          print('[DEBUG] Running Firestore transaction for voting');
+          final voteSnapshot = await transaction.get(voteRef);
+          final postSnapshot = await transaction.get(postRef);
+          if (!postSnapshot.exists) {
+            print('[DEBUG] Post does not exist');
+            throw Exception('Post does not exist');
+          }
+          final postData = postSnapshot.data() as Map<String, dynamic>;
+          print('[DEBUG] Post data: ' + postData.toString());
+          int upvotes = postData['upvotes'] ?? 0;
+          int downvotes = postData['downvotes'] ?? 0;
+          int score = postData['score'] ?? 0;
+          int commentCount = postData['commentCount'] ?? 0;
+          int shareCount = postData['shareCount'] ?? 0;
+          int linkClickCount = postData['linkClickCount'] ?? 0;
+          final postOwnerId = postData['userId'] as String?;
 
-        if (voteSnapshot.exists) {
-          final currentVote = voteSnapshot.data()?['voteType'];
-          if (currentVote == voteType) {
-            // Remove vote
-            transaction.delete(voteRef);
-            if (voteType == 'upvote') {
-              upvotes -= 1;
-              score -= 1;
-            } else if (voteType == 'downvote') {
-              downvotes -= 1;
-              score += 1;
+          if (voteSnapshot.exists) {
+            final currentVote = voteSnapshot.data()?['voteType'];
+            print('[DEBUG] Existing vote found: ' + currentVote.toString());
+            if (currentVote == voteType) {
+              // Remove vote
+              print('[DEBUG] Removing vote');
+              transaction.delete(voteRef);
+              if (voteType == 'upvote') {
+                upvotes -= 1;
+                score -= 1;
+              } else if (voteType == 'downvote') {
+                downvotes -= 1;
+                score += 1;
+              }
+            } else {
+              // Change vote
+              print('[DEBUG] Changing vote from $currentVote to $voteType');
+              transaction.update(voteRef, {
+                'voteType': voteType,
+                'voteTime': FieldValue.serverTimestamp(),
+              });
+              if (currentVote == 'upvote') {
+                upvotes -= 1;
+                score -= 1;
+              } else if (currentVote == 'downvote') {
+                downvotes -= 1;
+                score += 1;
+              }
+              if (voteType == 'upvote') {
+                upvotes += 1;
+                score += 1;
+              } else if (voteType == 'downvote') {
+                downvotes += 1;
+                score -= 1;
+              }
             }
           } else {
-            // Change vote
-            transaction.update(voteRef, {
+            // New vote
+            print('[DEBUG] Creating new vote');
+            transaction.set(voteRef, {
+              'userId': user.uid,
               'voteType': voteType,
               'voteTime': FieldValue.serverTimestamp(),
             });
-            if (currentVote == 'upvote') {
-              upvotes -= 1;
-              score -= 1;
-            } else if (currentVote == 'downvote') {
-              downvotes -= 1;
-              score += 1;
-            }
             if (voteType == 'upvote') {
               upvotes += 1;
               score += 1;
@@ -177,30 +331,154 @@ class PostService {
               downvotes += 1;
               score -= 1;
             }
+            // Send notification only for upvotes and not for own post
+            if (voteType == 'upvote' &&
+                postOwnerId != null &&
+                postOwnerId != user.uid) {
+              final userDoc =
+                  await firestore.collection('users').doc(user.uid).get();
+              final senderName = userDoc.data()?['fullName'] ?? 'Someone';
+              print('[DEBUG] Sending notification to post owner: $postOwnerId');
+              await _notificationService.addNotification(
+                recipientId: postOwnerId,
+                type: 'like',
+                postId: postId,
+                senderId: user.uid,
+                senderName: senderName,
+              );
+            }
           }
-        } else {
-          // New vote
-          transaction.set(voteRef, {
-            'userId': user.uid,
-            'voteType': voteType,
-            'voteTime': FieldValue.serverTimestamp(),
-          });
-          if (voteType == 'upvote') {
-            upvotes += 1;
-            score += 1;
-          } else if (voteType == 'downvote') {
-            downvotes += 1;
-            score -= 1;
-          }
-        }
-        transaction.update(postRef, {
-          'upvotes': upvotes,
-          'downvotes': downvotes,
-          'score': score,
+          print('[DEBUG] Updating post engagement fields');
+          // Always ensure all engagement fields are present in the update
+          transaction.update(
+            postRef,
+            ensureEngagementFields({
+              'upvotes': upvotes,
+              'downvotes': downvotes,
+              'score': score,
+              'commentCount': commentCount,
+              'shareCount': shareCount,
+              'linkClickCount': linkClickCount,
+            }),
+          );
         });
-      });
-    } catch (e) {
-      throw Exception('Failed to vote: $e');
+        print('[DEBUG] Vote transaction completed successfully');
+        break; // Success, exit retry loop
+      } catch (e, stack) {
+        print('[DEBUG] Exception in voteOnPost (attempt ${attempt + 1}): $e');
+        print('[DEBUG] Stack trace: $stack');
+        if (attempt < maxRetries) {
+          attempt++;
+          print('[DEBUG] Retrying voteOnPost (attempt $attempt)...');
+          await Future.delayed(const Duration(milliseconds: 200));
+        } else {
+          throw Exception('Failed to vote after ${attempt + 1} attempts: $e');
+        }
+      }
+    }
+  }
+
+  // Vote on a comment
+  Future<void> voteOnComment(
+    String postId,
+    String commentId,
+    String voteType,
+  ) async {
+    int maxRetries = 2;
+    int attempt = 0;
+    while (true) {
+      try {
+        final user = _auth.currentUser;
+        if (user == null) throw Exception('User not authenticated');
+
+        final commentRef = firestore
+            .collection('posts')
+            .doc(postId)
+            .collection('comments')
+            .doc(commentId);
+        final voteRef = commentRef.collection('voteInteractions').doc(user.uid);
+
+        await firestore.runTransaction((transaction) async {
+          final voteSnapshot = await transaction.get(voteRef);
+          final commentSnapshot = await transaction.get(commentRef);
+          if (!commentSnapshot.exists) {
+            throw Exception('Comment does not exist');
+          }
+          final commentData = commentSnapshot.data() as Map<String, dynamic>;
+          int upvotes = commentData['upvotes'] ?? 0;
+          int downvotes = commentData['downvotes'] ?? 0;
+          int score = commentData['score'] ?? 0;
+          final commentOwnerId = commentData['userId'] as String?;
+
+          if (voteSnapshot.exists) {
+            final currentVote = voteSnapshot.data()?['voteType'];
+            if (currentVote == voteType) {
+              // Remove vote
+              transaction.delete(voteRef);
+              if (voteType == 'upvote') {
+                upvotes -= 1;
+                score -= 1;
+              } else if (voteType == 'downvote') {
+                downvotes -= 1;
+                score += 1;
+              }
+            } else {
+              // Change vote
+              transaction.update(voteRef, {
+                'voteType': voteType,
+                'voteTime': FieldValue.serverTimestamp(),
+              });
+              if (currentVote == 'upvote') {
+                upvotes -= 1;
+                score -= 1;
+              } else if (currentVote == 'downvote') {
+                downvotes -= 1;
+                score += 1;
+              }
+              if (voteType == 'upvote') {
+                upvotes += 1;
+                score += 1;
+              } else if (voteType == 'downvote') {
+                downvotes += 1;
+                score -= 1;
+              }
+            }
+          } else {
+            // New vote
+            transaction.set(voteRef, {
+              'userId': user.uid,
+              'voteType': voteType,
+              'voteTime': FieldValue.serverTimestamp(),
+            });
+            if (voteType == 'upvote') {
+              upvotes += 1;
+              score += 1;
+            } else if (voteType == 'downvote') {
+              downvotes += 1;
+              score -= 1;
+            }
+            // (Optional) Send notification to comment owner if not self
+            // if (voteType == 'upvote' && commentOwnerId != null && commentOwnerId != user.uid) {
+            //   // Add notification logic here
+            // }
+          }
+          transaction.update(commentRef, {
+            'upvotes': upvotes,
+            'downvotes': downvotes,
+            'score': score,
+          });
+        });
+        break; // Success
+      } catch (e) {
+        if (attempt < maxRetries) {
+          attempt++;
+          await Future.delayed(const Duration(milliseconds: 200));
+        } else {
+          throw Exception(
+            'Failed to vote on comment after ${attempt + 1} attempts: $e',
+          );
+        }
+      }
     }
   }
 
@@ -234,6 +512,22 @@ class PostService {
       await firestore.collection('posts').doc(postId).update({
         'commentCount': FieldValue.increment(1),
       });
+
+      // Send notification to post owner (not for own comment)
+      final postDoc = await firestore.collection('posts').doc(postId).get();
+      final postOwnerId = postDoc.data()?['userId'];
+      if (postOwnerId != null && postOwnerId != user.uid) {
+        final userDoc = await firestore.collection('users').doc(user.uid).get();
+        final senderName = userDoc.data()?['fullName'] ?? 'Someone';
+        await _notificationService.addNotification(
+          recipientId: postOwnerId,
+          type: 'comment',
+          postId: postId,
+          senderId: user.uid,
+          senderName: senderName,
+          commentText: commentContent,
+        );
+      }
     } catch (e) {
       throw Exception('Failed to add comment: $e');
     }

@@ -3,11 +3,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class HubService {
   final CollectionReference hubsCollection = FirebaseFirestore.instance
       .collection('Hubs');
   final FirebaseStorage _storage = FirebaseStorage.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   Stream<List<Hub>> getHubsStream() {
     return hubsCollection.snapshots().map((snapshot) {
@@ -58,6 +61,52 @@ class HubService {
       'name': name,
       'description': description,
       'imageUrl': imageUrl,
+    });
+  }
+
+  /// Join a hub: adds hubId to user's joinedHubs array in Firestore
+  Future<void> joinHub(String hubId) async {
+    final user = _auth.currentUser;
+    if (user == null) throw Exception('User not authenticated');
+    final userRef = _firestore.collection('users').doc(user.uid);
+    try {
+      await userRef.update({
+        'joinedHubs': FieldValue.arrayUnion([hubId]),
+      });
+      print('[HubService] User ${user.uid} joined hub $hubId');
+    } catch (e) {
+      print('[HubService] Failed to join hub: $e');
+      rethrow;
+    }
+  }
+
+  /// Leave a hub: removes hubId from user's joinedHubs array in Firestore
+  Future<void> leaveHub(String hubId) async {
+    final user = _auth.currentUser;
+    if (user == null) throw Exception('User not authenticated');
+    final userRef = _firestore.collection('users').doc(user.uid);
+    try {
+      await userRef.update({
+        'joinedHubs': FieldValue.arrayRemove([hubId]),
+      });
+      print('[HubService] User ${user.uid} left hub $hubId');
+    } catch (e) {
+      print('[HubService] Failed to leave hub: $e');
+      rethrow;
+    }
+  }
+
+  /// Get a stream of the user's joined hubs (for real-time updates)
+  Stream<List<String>> getJoinedHubsStream() {
+    final user = _auth.currentUser;
+    if (user == null) {
+      return Stream.value([]);
+    }
+    return _firestore.collection('users').doc(user.uid).snapshots().map((doc) {
+      final data = doc.data();
+      if (data == null) return <String>[];
+      final joined = data['joinedHubs'] as List<dynamic>? ?? [];
+      return joined.map((e) => e.toString()).toList();
     });
   }
 }

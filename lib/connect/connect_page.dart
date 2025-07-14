@@ -4,6 +4,8 @@ import 'post_model.dart';
 import 'post_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'hubs/service/hub_service.dart';
+import 'post_details_page.dart';
 
 class ConnectPage extends StatefulWidget {
   const ConnectPage({super.key});
@@ -18,6 +20,7 @@ class _ConnectPageState extends State<ConnectPage>
   final PostService postService = PostService();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final HubService _hubService = HubService();
   List<String> _joinedHubs = [];
   bool _loadingJoinedHubs = true;
 
@@ -25,7 +28,7 @@ class _ConnectPageState extends State<ConnectPage>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    _fetchJoinedHubs();
+    // Remove _fetchJoinedHubs();
   }
 
   Future<void> _fetchJoinedHubs() async {
@@ -111,19 +114,48 @@ class _ConnectPageState extends State<ConnectPage>
                           shareCount: post.shareCount,
                           postImage: post.postImage,
                           postOwnerId: post.postOwnerId,
+                          onCardTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (context) => PostDetailsPage(
+                                      postId: post.id,
+                                      userName: post.userName,
+                                      userProfileImage: post.userProfileImage,
+                                      hubName: post.hubName,
+                                      hubProfileImage: post.hubProfileImage,
+                                      postContent: post.postContent,
+                                      timestamp: post.timestamp,
+                                      upvotes: post.upvotes,
+                                      downvotes: post.downvotes,
+                                      commentCount: post.commentCount,
+                                      shareCount: post.shareCount,
+                                      postImage: post.postImage,
+                                      postOwnerId: post.postOwnerId,
+                                    ),
+                              ),
+                            );
+                          },
                         );
                       },
                     );
                   },
                 ),
-                // My Feed Tab
-                _loadingJoinedHubs
-                    ? const Center(
-                      child: CircularProgressIndicator(
-                        color: Color(0xFF6C63FF),
-                      ),
-                    )
-                    : StreamBuilder<List<Post>>(
+                // My Feed Tab (reactive)
+                StreamBuilder<List<String>>(
+                  stream: _hubService.getJoinedHubsStream(),
+                  builder: (context, hubSnapshot) {
+                    if (hubSnapshot.connectionState ==
+                        ConnectionState.waiting) {
+                      return const Center(
+                        child: CircularProgressIndicator(
+                          color: Color(0xFF6C63FF),
+                        ),
+                      );
+                    }
+                    final joinedHubs = hubSnapshot.data ?? [];
+                    return StreamBuilder<List<Post>>(
                       stream: postService.getPostsStream(),
                       builder: (context, snapshot) {
                         if (snapshot.connectionState ==
@@ -140,7 +172,7 @@ class _ConnectPageState extends State<ConnectPage>
                         final posts =
                             (snapshot.data ?? [])
                                 .where(
-                                  (post) => _joinedHubs.contains(post.hubId),
+                                  (post) => joinedHubs.contains(post.hubId),
                                 )
                                 .toList();
                         if (posts.isEmpty) {
@@ -167,11 +199,37 @@ class _ConnectPageState extends State<ConnectPage>
                               shareCount: post.shareCount,
                               postImage: post.postImage,
                               postOwnerId: post.postOwnerId,
+                              onCardTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (context) => PostDetailsPage(
+                                          postId: post.id,
+                                          userName: post.userName,
+                                          userProfileImage:
+                                              post.userProfileImage,
+                                          hubName: post.hubName,
+                                          hubProfileImage: post.hubProfileImage,
+                                          postContent: post.postContent,
+                                          timestamp: post.timestamp,
+                                          upvotes: post.upvotes,
+                                          downvotes: post.downvotes,
+                                          commentCount: post.commentCount,
+                                          shareCount: post.shareCount,
+                                          postImage: post.postImage,
+                                          postOwnerId: post.postOwnerId,
+                                        ),
+                                  ),
+                                );
+                              },
                             );
                           },
                         );
                       },
-                    ),
+                    );
+                  },
+                ),
               ],
             ),
           ),

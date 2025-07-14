@@ -6,6 +6,7 @@ import 'pages/notification_page.dart';
 import '../connect/hubs/page/hubs_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:yuva/profile/profile_page.dart';
+import '../../chat/page/chats_page.dart'; // Import ChatsPage
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -31,6 +32,7 @@ class HomeScreenState extends State<HomeScreen> {
     const ChallengesPage(),
     const ConnectPage(),
     const PostPage(),
+    const ChatsPage(), // Add ChatsPage here
     const NotificationPage(),
   ];
 
@@ -38,11 +40,17 @@ class HomeScreenState extends State<HomeScreen> {
     'Challenges',
     'Connect',
     'Post',
+    'Chats', // Add Chats title
     'Notifications',
   ];
 
   @override
   Widget build(BuildContext context) {
+    // Ensure _currentIndex is always valid
+    final maxIndex = _pages.length - 1;
+    if (_currentIndex > maxIndex) {
+      _currentIndex = maxIndex;
+    }
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -95,13 +103,20 @@ class HomeScreenState extends State<HomeScreen> {
         elevation: 8,
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.emoji_events),
+            icon: Icon(Icons.emoji_events_outlined),
             label: 'Challenges',
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Connect'),
           BottomNavigationBarItem(
-            icon: Icon(Icons.add_circle_outline),
+            icon: Icon(Icons.people_outline),
+            label: 'Connect',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.add_box_outlined),
             label: 'Post',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.chat_bubble_outline),
+            label: 'Chats',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.notifications_outlined),

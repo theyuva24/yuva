@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../connect/create_post_screen.dart';
+import '../../connect/pages/create_post_screen.dart';
 import '../home_screen.dart';
 
 class PostPage extends StatelessWidget {

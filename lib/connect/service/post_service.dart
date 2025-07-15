@@ -1,119 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'post_model.dart';
-import 'hubs/service/hub_service.dart';
-import 'hubs/model/hub_model.dart';
+import '../models/post_model.dart';
+import 'hub_service.dart';
+import '../models/hub_model.dart';
 import 'notification_service.dart';
-
-// Reddit-style Comment model for nested comments, voting, and moderation
-class Comment {
-  final String id;
-  final String userId;
-  final String userName;
-  final String userProfileImage;
-  final String content;
-  final DateTime timestamp;
-  final int upvotes;
-  final int downvotes;
-  final int score;
-  final String? parentCommentId;
-  final List<Comment> replies;
-  final bool edited;
-  final bool deleted;
-
-  Comment({
-    required this.id,
-    required this.userId,
-    required this.userName,
-    required this.userProfileImage,
-    required this.content,
-    required this.timestamp,
-    required this.upvotes,
-    required this.downvotes,
-    required this.score,
-    this.parentCommentId,
-    this.replies = const [],
-    this.edited = false,
-    this.deleted = false,
-  });
-
-  factory Comment.fromFirestore(
-    Map<String, dynamic> data,
-    String id, {
-    List<Comment> replies = const [],
-  }) {
-    return Comment(
-      id: id,
-      userId: data['userId'] ?? '',
-      userName: data['userName'] ?? 'Anonymous',
-      userProfileImage: data['userProfileImage'] ?? '',
-      content: data['commentContent'] ?? '',
-      timestamp:
-          (data['commentTime'] as Timestamp?)?.toDate() ?? DateTime.now(),
-      upvotes: data['upvotes'] ?? 0,
-      downvotes: data['downvotes'] ?? 0,
-      score: data['score'] ?? 0,
-      parentCommentId: data['parentCommentId'],
-      replies: replies,
-      edited: data['edited'] ?? false,
-      deleted: data['deleted'] ?? false,
-    );
-  }
-
-  Map<String, dynamic> toFirestore() {
-    return {
-      'userId': userId,
-      'userName': userName,
-      'userProfileImage': userProfileImage,
-      'commentContent': content,
-      'commentTime': Timestamp.fromDate(timestamp),
-      'upvotes': upvotes,
-      'downvotes': downvotes,
-      'score': score,
-      'parentCommentId': parentCommentId,
-      'edited': edited,
-      'deleted': deleted,
-    };
-  }
-}
-
-// Utility to build a tree of comments from a flat list
-List<Comment> buildCommentTree(List<Comment> flatComments) {
-  final Map<String, List<Comment>> childrenMap = {};
-  final Map<String, Comment> commentMap = {for (var c in flatComments) c.id: c};
-  final List<Comment> roots = [];
-
-  // Group comments by parentCommentId
-  for (final comment in flatComments) {
-    if (comment.parentCommentId == null) {
-      roots.add(comment);
-    } else {
-      childrenMap.putIfAbsent(comment.parentCommentId!, () => []).add(comment);
-    }
-  }
-
-  // Recursively attach children
-  Comment attachReplies(Comment comment) {
-    final replies = childrenMap[comment.id] ?? [];
-    return Comment(
-      id: comment.id,
-      userId: comment.userId,
-      userName: comment.userName,
-      userProfileImage: comment.userProfileImage,
-      content: comment.content,
-      timestamp: comment.timestamp,
-      upvotes: comment.upvotes,
-      downvotes: comment.downvotes,
-      score: comment.score,
-      parentCommentId: comment.parentCommentId,
-      replies: replies.map(attachReplies).toList(),
-      edited: comment.edited,
-      deleted: comment.deleted,
-    );
-  }
-
-  return roots.map(attachReplies).toList();
-}
+import '../widget/comment.dart';
 
 class PostService {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -349,18 +240,12 @@ class PostService {
             }
           }
           print('[DEBUG] Updating post engagement fields');
-          // Always ensure all engagement fields are present in the update
-          transaction.update(
-            postRef,
-            ensureEngagementFields({
-              'upvotes': upvotes,
-              'downvotes': downvotes,
-              'score': score,
-              'commentCount': commentCount,
-              'shareCount': shareCount,
-              'linkClickCount': linkClickCount,
-            }),
-          );
+          // Only update engagement fields: upvotes, downvotes, score
+          transaction.update(postRef, {
+            'upvotes': upvotes,
+            'downvotes': downvotes,
+            'score': score,
+          });
         });
         print('[DEBUG] Vote transaction completed successfully');
         break; // Success, exit retry loop

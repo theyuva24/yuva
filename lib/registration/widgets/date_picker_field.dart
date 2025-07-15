@@ -17,12 +17,16 @@ class DatePickerField extends StatelessWidget {
     final maxDate = DateTime(now.year - 13, now.month, now.day);
     return GestureDetector(
       onTap: () async {
+        // Unfocus before opening the picker
+        FocusScope.of(context).requestFocus(FocusNode());
         final picked = await showDatePicker(
           context: context,
           initialDate: initialDate ?? maxDate,
           firstDate: minDate,
           lastDate: maxDate,
         );
+        // Unfocus again after closing the picker
+        FocusScope.of(context).requestFocus(FocusNode());
         if (picked != null) {
           onDatePicked(picked);
         }
@@ -32,7 +36,6 @@ class DatePickerField extends StatelessWidget {
           decoration: InputDecoration(
             labelText: 'Date of Birth',
             border: const OutlineInputBorder(),
-            suffixIcon: const Icon(Icons.calendar_today),
           ),
           controller: TextEditingController(
             text:

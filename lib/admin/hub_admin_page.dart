@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../connect/hubs/service/hub_service.dart';
-import '../connect/hubs/model/hub_model.dart';
-import '../connect/hubs/page/hub_details_page.dart';
+import '../connect/service/hub_service.dart';
+import '../connect/models/hub_model.dart';
+import '../connect/pages/hub_details_page.dart';
 import '../registration/widgets/profile_image_picker.dart';
 
 class HubAdminPage extends StatefulWidget {

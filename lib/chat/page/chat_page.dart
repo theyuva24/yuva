@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../service/chat_service.dart';
 import '../model/message_model.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class ChatPage extends StatefulWidget {
   final String chatId;
@@ -19,7 +20,30 @@ class _ChatPageState extends State<ChatPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Chat')),
+      backgroundColor: const Color(0xFF181C23),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF181C23),
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Color(0xFF00F6FF)),
+        title: Text(
+          'Chat',
+          style: GoogleFonts.orbitron(
+            textStyle: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF00F6FF),
+              letterSpacing: 2,
+              shadows: [
+                Shadow(
+                  blurRadius: 16,
+                  color: Color(0xFF00F6FF),
+                  offset: Offset(0, 0),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
       body: Column(
         children: [
           Expanded(
@@ -27,7 +51,9 @@ class _ChatPageState extends State<ChatPage> {
               stream: _chatService.getMessages(widget.chatId),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
-                  return Center(child: CircularProgressIndicator());
+                  return const Center(
+                    child: CircularProgressIndicator(color: Color(0xFF00F6FF)),
+                  );
                 }
                 final messages = snapshot.data!;
                 return ListView.builder(
@@ -46,10 +72,31 @@ class _ChatPageState extends State<ChatPage> {
                           vertical: 8,
                         ),
                         decoration: BoxDecoration(
-                          color: isMe ? Colors.blue[100] : Colors.grey[300],
-                          borderRadius: BorderRadius.circular(12),
+                          color:
+                              isMe
+                                  ? const Color(0xFF00F6FF)
+                                  : const Color(0xFF232733),
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow:
+                              isMe
+                                  ? [
+                                    BoxShadow(
+                                      color: const Color(
+                                        0xFF00F6FF,
+                                      ).withOpacity(0.2),
+                                      blurRadius: 8,
+                                      spreadRadius: 1,
+                                    ),
+                                  ]
+                                  : [],
                         ),
-                        child: Text(msg.text),
+                        child: Text(
+                          msg.text,
+                          style: TextStyle(
+                            color: isMe ? Colors.black : Colors.white,
+                            fontSize: 16,
+                          ),
+                        ),
                       ),
                     );
                   },
@@ -64,11 +111,25 @@ class _ChatPageState extends State<ChatPage> {
                 Expanded(
                   child: TextField(
                     controller: _controller,
-                    decoration: InputDecoration(hintText: 'Type a message...'),
+                    style: const TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      hintText: 'Type a message...',
+                      hintStyle: const TextStyle(color: Colors.white54),
+                      filled: true,
+                      fillColor: const Color(0xFF232733),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: BorderSide.none,
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        vertical: 16,
+                        horizontal: 16,
+                      ),
+                    ),
                   ),
                 ),
                 IconButton(
-                  icon: Icon(Icons.send),
+                  icon: const Icon(Icons.send, color: Color(0xFF00F6FF)),
                   onPressed: () async {
                     final text = _controller.text.trim();
                     if (text.isNotEmpty) {

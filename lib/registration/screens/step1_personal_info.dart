@@ -4,6 +4,8 @@ import '../controller/registration_controller.dart';
 import '../widgets/profile_image_picker.dart';
 import '../widgets/date_picker_field.dart';
 import '../widgets/location_picker.dart';
+import '../../core/theme/gradient_button.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class Step1PersonalInfo extends StatelessWidget {
   const Step1PersonalInfo({super.key});
@@ -11,76 +13,197 @@ class Step1PersonalInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Provider.of<RegistrationController>(context);
+    String? genderValue = controller.data.gender;
     return SingleChildScrollView(
       child: Padding(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 32),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const SizedBox(height: 16),
+            // Neon YUVA logo (REMOVED)
+            // Center(
+            //   child: Text(
+            //     'YUVA',
+            //     style: GoogleFonts.orbitron(
+            //       textStyle: const TextStyle(
+            //         fontSize: 56,
+            //         fontWeight: FontWeight.bold,
+            //         color: Color(0xFF00F6FF),
+            //         letterSpacing: 4,
+            //         shadows: [
+            //           Shadow(
+            //             blurRadius: 32,
+            //             color: Color(0xFF00F6FF),
+            //             offset: Offset(0, 0),
+            //           ),
+            //           Shadow(
+            //             blurRadius: 8,
+            //             color: Color(0xFF00F6FF),
+            //             offset: Offset(0, 0),
+            //           ),
+            //         ],
+            //       ),
+            //     ),
+            //   ),
+            // ),
+            // const SizedBox(height: 8),
             Center(
-              child: ProfileImagePicker(
-                imagePath: controller.data.profilePicPath,
-                onImagePicked: controller.updateProfilePic,
+              child: Text(
+                'Create your account',
+                style: TextStyle(
+                  color: Colors.grey[300],
+                  fontSize: 20,
+                  fontWeight: FontWeight.w400,
+                  letterSpacing: 0.5,
+                ),
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 32),
+            Center(
+              child: Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Color(0xFF00F6FF), width: 3),
+                  // boxShadow removed to eliminate radiant glow
+                ),
+                child: ProfileImagePicker(
+                  imagePath: controller.data.profilePicPath,
+                  onImagePicked: controller.updateProfilePic,
+                ),
+              ),
+            ),
+            const SizedBox(height: 32),
             TextFormField(
               initialValue: controller.data.fullName,
-              decoration: const InputDecoration(
-                labelText: 'Full Name',
-                border: OutlineInputBorder(),
+              textCapitalization: TextCapitalization.words,
+              decoration: InputDecoration(
+                prefixIcon: const Icon(Icons.person, color: Color(0xFF00F6FF)),
+                hintText: 'Username',
+                hintStyle: TextStyle(
+                  color: Colors.grey[400],
+                  fontWeight: FontWeight.w500,
+                ),
+                filled: true,
+                fillColor: const Color(0xFF181C23),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: BorderSide.none,
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  vertical: 20,
+                  horizontal: 20,
+                ),
               ),
+              style: const TextStyle(color: Colors.white, fontSize: 18),
               onChanged: controller.updateName,
             ),
             const SizedBox(height: 20),
-            DatePickerField(
-              initialDate: controller.data.dob,
-              onDatePicked: controller.updateDob,
+            // Date of Birth field with neon style
+            Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFF181C23),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Row(
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.only(left: 16.0),
+                    child: Icon(Icons.calendar_today, color: Color(0xFF00F6FF)),
+                  ),
+                  Expanded(
+                    child: DatePickerField(
+                      initialDate: controller.data.dob,
+                      onDatePicked: controller.updateDob,
+                    ),
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 20),
-            const Text('Gender', style: TextStyle(fontWeight: FontWeight.bold)),
-            Row(
-              children: [
-                Expanded(
-                  child: RadioListTile<String>(
-                    value: 'M',
-                    groupValue: controller.data.gender,
-                    onChanged: (val) {
-                      if (val != null) controller.updateGender(val);
-                    },
-                    title: const Text('Male'),
+            // Gender dropdown (already styled above)
+            DropdownButtonFormField<String>(
+              value: genderValue,
+              items: const [
+                DropdownMenuItem(
+                  value: 'M',
+                  child: Row(
+                    children: [
+                      Icon(Icons.male, color: Color(0xFF00F6FF)),
+                      SizedBox(width: 8),
+                      Text('Male'),
+                    ],
                   ),
                 ),
-                Expanded(
-                  child: RadioListTile<String>(
-                    value: 'F',
-                    groupValue: controller.data.gender,
-                    onChanged: (val) {
-                      if (val != null) controller.updateGender(val);
-                    },
-                    title: const Text('Female'),
+                DropdownMenuItem(
+                  value: 'F',
+                  child: Row(
+                    children: [
+                      Icon(Icons.female, color: Color(0xFF00F6FF)),
+                      SizedBox(width: 8),
+                      Text('Female'),
+                    ],
                   ),
                 ),
-                Expanded(
-                  child: RadioListTile<String>(
-                    value: 'Other',
-                    groupValue: controller.data.gender,
-                    onChanged: (val) {
-                      if (val != null) controller.updateGender(val);
-                    },
-                    title: const Text('Other'),
+                DropdownMenuItem(
+                  value: 'Other',
+                  child: Row(
+                    children: [
+                      Icon(Icons.transgender, color: Color(0xFF00F6FF)),
+                      SizedBox(width: 8),
+                      Text('Other'),
+                    ],
                   ),
                 ),
               ],
+              onChanged: (val) {
+                if (val != null) controller.updateGender(val);
+              },
+              decoration: InputDecoration(
+                prefixIcon: const Icon(Icons.people, color: Color(0xFF00F6FF)),
+                hintText: 'Gender',
+                hintStyle: TextStyle(
+                  color: Colors.grey[400],
+                  fontWeight: FontWeight.w500,
+                ),
+                filled: true,
+                fillColor: const Color(0xFF181C23),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: BorderSide.none,
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  vertical: 20,
+                  horizontal: 20,
+                ),
+              ),
+              style: const TextStyle(color: Colors.white, fontSize: 18),
+              dropdownColor: const Color(0xFF181C23),
             ),
             const SizedBox(height: 20),
-            LocationPicker(
-              initialLocation: controller.data.location,
-              onLocationPicked: controller.updateLocation,
+            // Location field with neon style
+            Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFF181C23),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Row(
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.only(left: 16.0),
+                    child: Icon(Icons.location_on, color: Color(0xFF00F6FF)),
+                  ),
+                  Expanded(
+                    child: LocationPicker(
+                      initialLocation: controller.data.location,
+                      onLocationPicked: controller.updateLocation,
+                    ),
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 32),
-            ElevatedButton(
+            GradientButton(
               onPressed: () {
                 if (controller.data.profilePicPath == null ||
                     controller.data.profilePicPath!.isEmpty) {
@@ -91,7 +214,6 @@ class Step1PersonalInfo extends StatelessWidget {
                   );
                   return;
                 }
-                // Validate fields (basic)
                 if (controller.data.fullName == null ||
                     controller.data.fullName!.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -126,7 +248,17 @@ class Step1PersonalInfo extends StatelessWidget {
                 }
                 controller.nextStep();
               },
-              child: const Text('Next'),
+              borderRadius: 18,
+              padding: const EdgeInsets.symmetric(vertical: 20),
+              child: const Text(
+                'Next',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                  color: Colors.black,
+                  letterSpacing: 1.2,
+                ),
+              ),
             ),
           ],
         ),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../connect/hubs/page/hubs_page.dart';
+import '../connect/pages/hubs_page.dart';
 import 'hub_admin_page.dart';
 import 'challenge_admin_page.dart';
 

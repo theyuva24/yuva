@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:yuva/challenge/page/challenges_page.dart';
-import '../connect/connect_page.dart';
+import '../connect/pages/connect_page.dart';
 import 'pages/post_page.dart';
 import 'pages/notification_page.dart';
-import '../connect/hubs/page/hubs_page.dart';
+import '../connect/pages/hubs_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:yuva/profile/profile_page.dart';
 import '../../chat/page/chats_page.dart'; // Import ChatsPage
+import 'package:google_fonts/google_fonts.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -53,6 +54,8 @@ class HomeScreenState extends State<HomeScreen> {
     }
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: const Color(0xFF181C23),
+        elevation: 0,
         leading: IconButton(
           onPressed: () {
             final user = FirebaseAuth.instance.currentUser;
@@ -65,19 +68,46 @@ class HomeScreenState extends State<HomeScreen> {
               );
             }
           },
-          icon: const CircleAvatar(
-            backgroundColor: Color(0xFF6C63FF),
-            child: Icon(Icons.person, color: Colors.white, size: 24),
+          icon: Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: Color(0xFF00F6FF), width: 2),
+              boxShadow: [
+                BoxShadow(
+                  color: Color(0xFF00F6FF).withOpacity(0.5),
+                  blurRadius: 12,
+                  spreadRadius: 1,
+                ),
+              ],
+            ),
+            child: const CircleAvatar(
+              backgroundColor: Color(0xFF181C23),
+              child: Icon(Icons.person, color: Color(0xFF00F6FF), size: 24),
+            ),
           ),
         ),
         title: Text(
           _pageTitles[_currentIndex],
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          style: GoogleFonts.orbitron(
+            textStyle: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 24,
+              color: Color(0xFF00F6FF),
+              letterSpacing: 2,
+              shadows: [
+                Shadow(
+                  blurRadius: 16,
+                  color: Color(0xFF00F6FF),
+                  offset: Offset(0, 0),
+                ),
+              ],
+            ),
+          ),
         ),
         actions: [
           if (_currentIndex == 1)
             IconButton(
-              icon: const Icon(Icons.groups),
+              icon: const Icon(Icons.groups, color: Color(0xFF00F6FF)),
               tooltip: 'Hubs',
               onPressed: () {
                 Navigator.push(
@@ -97,10 +127,15 @@ class HomeScreenState extends State<HomeScreen> {
             _currentIndex = index;
           });
         },
-        selectedItemColor: const Color(0xFF6C63FF),
-        unselectedItemColor: Colors.grey,
-        backgroundColor: Colors.white,
-        elevation: 8,
+        selectedItemColor: const Color(0xFF00F6FF),
+        unselectedItemColor: Colors.white70,
+        backgroundColor: const Color(0xFF181C23),
+        elevation: 12,
+        selectedLabelStyle: GoogleFonts.orbitron(
+          fontWeight: FontWeight.bold,
+          letterSpacing: 1,
+        ),
+        unselectedLabelStyle: GoogleFonts.orbitron(letterSpacing: 1),
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.emoji_events_outlined),

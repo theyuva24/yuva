@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'post_card.dart';
-import 'post_model.dart';
-import 'post_service.dart';
+import '../widget/post_card.dart';
+import '../models/post_model.dart';
+import '../service/post_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'hubs/service/hub_service.dart';
+import '../service/hub_service.dart';
 import 'post_details_page.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class ConnectPage extends StatefulWidget {
   const ConnectPage({super.key});
@@ -59,12 +60,22 @@ class _ConnectPageState extends State<ConnectPage>
       child: Column(
         children: [
           Container(
-            color: Colors.white,
+            color: const Color(0xFF181C23),
             child: TabBar(
               controller: _tabController,
-              labelColor: const Color(0xFF6C63FF),
-              unselectedLabelColor: Colors.grey,
-              indicatorColor: const Color(0xFF6C63FF),
+              labelColor: const Color(0xFF00F6FF),
+              unselectedLabelColor: Colors.white70,
+              indicatorColor: const Color(0xFF00F6FF),
+              indicatorWeight: 4,
+              labelStyle: GoogleFonts.orbitron(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                letterSpacing: 1,
+              ),
+              unselectedLabelStyle: GoogleFonts.orbitron(
+                fontSize: 16,
+                letterSpacing: 1,
+              ),
               tabs: const [Tab(text: 'Trending'), Tab(text: 'My Feed')],
             ),
           ),
@@ -79,16 +90,26 @@ class _ConnectPageState extends State<ConnectPage>
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(
                         child: CircularProgressIndicator(
-                          color: Color(0xFF6C63FF),
+                          color: Color(0xFF00F6FF),
                         ),
                       );
                     }
                     if (snapshot.hasError) {
-                      return Center(child: Text('Error loading posts'));
+                      return const Center(
+                        child: Text(
+                          'Error loading posts',
+                          style: TextStyle(color: Color(0xFF00F6FF)),
+                        ),
+                      );
                     }
                     final posts = snapshot.data ?? [];
                     if (posts.isEmpty) {
-                      return const Center(child: Text('No posts yet'));
+                      return const Center(
+                        child: Text(
+                          'No posts yet',
+                          style: TextStyle(color: Color(0xFF00F6FF)),
+                        ),
+                      );
                     }
                     final sortedPosts = List<Post>.from(posts)..sort(
                       (a, b) => _calculateTrendingScore(
@@ -150,7 +171,7 @@ class _ConnectPageState extends State<ConnectPage>
                         ConnectionState.waiting) {
                       return const Center(
                         child: CircularProgressIndicator(
-                          color: Color(0xFF6C63FF),
+                          color: Color(0xFF00F6FF),
                         ),
                       );
                     }
@@ -162,12 +183,17 @@ class _ConnectPageState extends State<ConnectPage>
                             ConnectionState.waiting) {
                           return const Center(
                             child: CircularProgressIndicator(
-                              color: Color(0xFF6C63FF),
+                              color: Color(0xFF00F6FF),
                             ),
                           );
                         }
                         if (snapshot.hasError) {
-                          return Center(child: Text('Error loading posts'));
+                          return const Center(
+                            child: Text(
+                              'Error loading posts',
+                              style: TextStyle(color: Color(0xFF00F6FF)),
+                            ),
+                          );
                         }
                         final posts =
                             (snapshot.data ?? [])
@@ -177,7 +203,10 @@ class _ConnectPageState extends State<ConnectPage>
                                 .toList();
                         if (posts.isEmpty) {
                           return const Center(
-                            child: Text('No posts in your feed yet'),
+                            child: Text(
+                              'No posts in your feed yet',
+                              style: TextStyle(color: Color(0xFF00F6FF)),
+                            ),
                           );
                         }
                         return ListView.builder(

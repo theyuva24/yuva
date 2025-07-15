@@ -5,6 +5,7 @@ import 'step1_personal_info.dart';
 import 'step2_education_info.dart';
 import 'step3_interests.dart';
 import '../../core/services/auth_service.dart';
+import '../../core/theme/app_theme.dart';
 
 /// Registration flow after phone auth
 class RegistrationFlow extends StatelessWidget {
@@ -23,12 +24,40 @@ class RegistrationFlow extends StatelessWidget {
         builder: (context, controller, _) {
           return Scaffold(
             appBar: AppBar(
+              leading:
+                  controller.currentStep > 0
+                      ? IconButton(
+                        icon: const Icon(
+                          Icons.arrow_back,
+                          color: Color(0xFF00F6FF),
+                        ),
+                        onPressed: () {
+                          controller.prevStep();
+                        },
+                      )
+                      : null,
+              backgroundColor: const Color(0xFF181C23),
               title: Text(
                 isAuthenticated ? 'Complete Registration' : 'Create Account',
+                style: const TextStyle(
+                  color: Color(0xFF00F6FF),
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 2,
+                  fontSize: 22,
+                  shadows: [
+                    Shadow(
+                      blurRadius: 16,
+                      color: Color(0xFF00F6FF),
+                      offset: Offset(0, 0),
+                    ),
+                  ],
+                ),
               ),
               centerTitle: true,
               elevation: 0,
+              iconTheme: const IconThemeData(color: Color(0xFF00F6FF)),
             ),
+            backgroundColor: const Color(0xFF181C23),
             body: Column(
               children: [
                 const SizedBox(height: 16),
@@ -67,10 +96,18 @@ class _StepProgress extends StatelessWidget {
           width: 32,
           height: 8,
           decoration: BoxDecoration(
-            color: i <= currentStep
-                ? const Color(0xFF6C63FF)
-                : Colors.grey[300],
+            color: i <= currentStep ? const Color(0xFF00F6FF) : Colors.white24,
             borderRadius: BorderRadius.circular(4),
+            boxShadow:
+                i == currentStep
+                    ? [
+                      const BoxShadow(
+                        color: Color(0xFF00F6FF),
+                        blurRadius: 12,
+                        spreadRadius: 2,
+                      ),
+                    ]
+                    : [],
           ),
         );
       }),

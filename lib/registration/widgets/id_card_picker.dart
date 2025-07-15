@@ -40,48 +40,52 @@ class IdCardPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Row(
-          children: [
-            if (imagePath != null)
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  image: DecorationImage(
-                    image: FileImage(File(imagePath!)),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              )
-            else
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  color: Colors.grey[200],
-                ),
-                child: const Icon(
-                  Icons.credit_card,
-                  size: 32,
-                  color: Colors.grey,
-                ),
-              ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: ElevatedButton.icon(
-                onPressed: () => _pickImage(context),
-                icon: const Icon(Icons.upload_file),
-                label: Text(imagePath == null ? 'Upload ID Card' : 'Change'),
-              ),
-            ),
-          ],
+    final isUploaded = imagePath != null && imagePath!.isNotEmpty;
+    return GestureDetector(
+      onTap: () => _pickImage(context),
+      child: Container(
+        width: double.infinity,
+        height: 160,
+        decoration: BoxDecoration(
+          color: const Color(0xFF181C23),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: const Color(0xFF00F6FF),
+            width: 2,
+            style: BorderStyle.solid,
+          ),
         ),
+        child:
+            isUploaded
+                ? ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.file(
+                    File(imagePath!),
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    height: double.infinity,
+                  ),
+                )
+                : Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: const [
+                    Icon(
+                      Icons.cloud_upload,
+                      size: 48,
+                      color: Color(0xFF00F6FF),
+                    ),
+                    SizedBox(height: 12),
+                    Text(
+                      'Click here to upload ID',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                  ],
+                ),
       ),
     );
   }

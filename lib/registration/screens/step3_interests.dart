@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../controller/registration_controller.dart';
 import '../../Home screen/home_screen.dart';
+import '../../core/theme/gradient_button.dart';
 
 class Step3Interests extends StatefulWidget {
   const Step3Interests({super.key});
@@ -39,7 +40,10 @@ class _Step3InterestsState extends State<Step3Interests> {
           children: [
             const Text(
               'Choose your interests (max 5):',
-              style: TextStyle(fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF00F6FF),
+              ),
             ),
             const SizedBox(height: 16),
             Wrap(
@@ -49,8 +53,20 @@ class _Step3InterestsState extends State<Step3Interests> {
                   allInterests.map((interest) {
                     final isSelected = selected.contains(interest);
                     return FilterChip(
-                      label: Text(interest),
+                      label: Text(
+                        interest,
+                        style: TextStyle(
+                          color: isSelected ? Color(0xFF00F6FF) : Colors.white,
+                        ),
+                      ),
                       selected: isSelected,
+                      selectedColor: Color(0xFF181C23),
+                      backgroundColor: Colors.transparent,
+                      side: BorderSide(
+                        color: isSelected ? Color(0xFF00F6FF) : Colors.white24,
+                        width: 2,
+                      ),
+                      checkmarkColor: Color(0xFF00F6FF),
                       onSelected: (val) {
                         if (isSelected) {
                           controller.updateInterests(
@@ -71,7 +87,9 @@ class _Step3InterestsState extends State<Step3Interests> {
               decoration: const InputDecoration(
                 labelText: 'Suggest another interest',
                 border: OutlineInputBorder(),
+                labelStyle: TextStyle(color: Color(0xFF00F6FF)),
               ),
+              style: const TextStyle(color: Colors.white),
               onSubmitted: (val) {
                 if (val.isNotEmpty &&
                     !selected.contains(val) &&
@@ -82,7 +100,7 @@ class _Step3InterestsState extends State<Step3Interests> {
               },
             ),
             const SizedBox(height: 32),
-            ElevatedButton(
+            GradientButton(
               onPressed:
                   controller.isLoading
                       ? null
@@ -165,7 +183,14 @@ class _Step3InterestsState extends State<Step3Interests> {
                           color: Colors.white,
                         ),
                       )
-                      : const Text('Create My Account'),
+                      : const Text(
+                        'Create My Account',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          color: Colors.black,
+                        ),
+                      ),
             ),
           ],
         ),

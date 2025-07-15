@@ -5,6 +5,7 @@ import '../service/chat_service.dart';
 import '../model/chat_model.dart';
 import 'chat_page.dart';
 import 'hub_chat_page.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class ChatsPage extends StatelessWidget {
   const ChatsPage({Key? key}) : super(key: key);
@@ -86,11 +87,14 @@ class ChatsPage extends StatelessWidget {
       return const Center(child: Text('Not logged in'));
     }
     return Scaffold(
+      backgroundColor: const Color(0xFF181C23),
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: fetchUnifiedChats(user.uid),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(
+              child: CircularProgressIndicator(color: Color(0xFF00F6FF)),
+            );
           }
           final chats = snapshot.data!;
           if (chats.isEmpty) {
@@ -99,7 +103,7 @@ class ChatsPage extends StatelessWidget {
                 padding: EdgeInsets.only(top: 64),
                 child: Text(
                   'No chats yet',
-                  style: TextStyle(fontSize: 18, color: Colors.grey),
+                  style: TextStyle(fontSize: 18, color: Color(0xFF00F6FF)),
                 ),
               ),
             );
@@ -111,22 +115,70 @@ class ChatsPage extends StatelessWidget {
               return ListTile(
                 leading:
                     chat['imageUrl'].isNotEmpty
-                        ? CircleAvatar(
-                          backgroundImage: NetworkImage(chat['imageUrl']),
+                        ? Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Color(0xFF00F6FF),
+                              width: 2,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Color(0xFF00F6FF).withOpacity(0.4),
+                                blurRadius: 8,
+                                spreadRadius: 1,
+                              ),
+                            ],
+                          ),
+                          child: CircleAvatar(
+                            backgroundImage: NetworkImage(chat['imageUrl']),
+                            backgroundColor: Color(0xFF181C23),
+                          ),
                         )
-                        : CircleAvatar(
-                          child: Icon(
-                            chat['type'] == 'hub' ? Icons.groups : Icons.person,
+                        : Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Color(0xFF00F6FF),
+                              width: 2,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Color(0xFF00F6FF).withOpacity(0.4),
+                                blurRadius: 8,
+                                spreadRadius: 1,
+                              ),
+                            ],
+                          ),
+                          child: CircleAvatar(
+                            backgroundColor: Color(0xFF181C23),
+                            child: Icon(
+                              chat['type'] == 'hub'
+                                  ? Icons.groups
+                                  : Icons.person,
+                              color: Color(0xFF00F6FF),
+                            ),
                           ),
                         ),
                 title: Text(
                   chat['name'],
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+                  style: GoogleFonts.orbitron(
+                    textStyle: const TextStyle(
+                      color: Color(0xFF00F6FF),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      letterSpacing: 1,
+                      shadows: [
+                        Shadow(color: Color(0xFF00F6FF), blurRadius: 8),
+                      ],
+                    ),
+                  ),
                 ),
                 subtitle: Text(
                   chat['lastMsg'] ?? '',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(color: Colors.white70),
                 ),
                 trailing:
                     chat['lastMsgTime'] != null
@@ -136,7 +188,7 @@ class ChatsPage extends StatelessWidget {
                           ).format(context),
                           style: const TextStyle(
                             fontSize: 12,
-                            color: Colors.grey,
+                            color: Color(0xFF00F6FF),
                           ),
                         )
                         : null,

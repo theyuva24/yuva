@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import '../model/hub_model.dart';
+import '../models/hub_model.dart';
 import '../service/hub_service.dart';
 import 'hub_details_page.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class HubsPage extends StatelessWidget {
   const HubsPage({super.key});
@@ -100,32 +101,109 @@ class HubsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final HubService hubService = HubService();
     return Scaffold(
-      appBar: AppBar(title: const Text('Hubs')),
+      backgroundColor: const Color(0xFF181C23),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF181C23),
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Color(0xFF00F6FF)),
+        title: Text(
+          'Hubs',
+          style: GoogleFonts.orbitron(
+            textStyle: const TextStyle(
+              fontSize: 26,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF00F6FF),
+              letterSpacing: 2,
+              shadows: [
+                Shadow(
+                  blurRadius: 16,
+                  color: Color(0xFF00F6FF),
+                  offset: Offset(0, 0),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
       body: StreamBuilder<List<Hub>>(
         stream: hubService.getHubsStream(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(
+              child: CircularProgressIndicator(color: Color(0xFF00F6FF)),
+            );
           }
           if (snapshot.hasError) {
-            return Center(child: Text('Error loading hubs'));
+            return const Center(
+              child: Text(
+                'Error loading hubs',
+                style: TextStyle(color: Color(0xFF00F6FF)),
+              ),
+            );
           }
           final hubs = snapshot.data ?? [];
           if (hubs.isEmpty) {
-            return const Center(child: Text('No hubs available.'));
+            return const Center(
+              child: Text(
+                'No hubs available.',
+                style: TextStyle(color: Color(0xFF00F6FF)),
+              ),
+            );
           }
           return ListView.builder(
             itemCount: hubs.length,
             itemBuilder: (context, index) {
               final hub = hubs[index];
-              return Card(
+              return Container(
                 margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF232733),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: Color(0xFF00F6FF), width: 1.5),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Color(0xFF00F6FF).withOpacity(0.12),
+                      blurRadius: 12,
+                      spreadRadius: 1,
+                    ),
+                  ],
+                ),
                 child: ListTile(
-                  leading: CircleAvatar(
-                    backgroundImage: NetworkImage(hub.imageUrl),
+                  leading: Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Color(0xFF00F6FF), width: 2),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Color(0xFF00F6FF).withOpacity(0.4),
+                          blurRadius: 8,
+                          spreadRadius: 1,
+                        ),
+                      ],
+                    ),
+                    child: CircleAvatar(
+                      backgroundImage: NetworkImage(hub.imageUrl),
+                      backgroundColor: Color(0xFF181C23),
+                    ),
                   ),
-                  title: Text(hub.name),
-                  subtitle: Text(hub.description),
+                  title: Text(
+                    hub.name,
+                    style: GoogleFonts.orbitron(
+                      textStyle: const TextStyle(
+                        color: Color(0xFF00F6FF),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        letterSpacing: 1,
+                        shadows: [
+                          Shadow(color: Color(0xFF00F6FF), blurRadius: 8),
+                        ],
+                      ),
+                    ),
+                  ),
+                  subtitle: Text(
+                    hub.description,
+                    style: const TextStyle(color: Colors.white70),
+                  ),
                   onTap: () {
                     Navigator.push(
                       context,
@@ -142,7 +220,8 @@ class HubsPage extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showCreateHubDialog(context, hubService),
-        child: const Icon(Icons.add),
+        backgroundColor: const Color(0xFF00F6FF),
+        child: const Icon(Icons.add, color: Colors.black),
         tooltip: 'Create Hub',
       ),
     );

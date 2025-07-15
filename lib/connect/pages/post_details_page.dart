@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'post_service.dart';
-import 'post_card.dart';
+import '../service/post_service.dart' hide Comment, buildCommentTree;
+import '../widget/post_card.dart';
+import '../widget/voting.dart';
+import '../widget/comment.dart' as comment;
 
 class PostDetailsPage extends StatefulWidget {
   final String postId;
@@ -42,7 +44,7 @@ class PostDetailsPage extends StatefulWidget {
 
 class _PostDetailsPageState extends State<PostDetailsPage> {
   final PostService _postService = PostService();
-  List<Comment> _comments = [];
+  List<comment.Comment> _comments = [];
   bool _loadingComments = true;
   String? _commentsError;
 
@@ -65,7 +67,7 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
         .snapshots()
         .listen((snapshot) async {
           try {
-            final List<Comment> flat = [];
+            final List<comment.Comment> flat = [];
             for (final doc in snapshot.docs) {
               final data = doc.data();
               // Fetch user info for each comment
@@ -84,7 +86,7 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
                 }
               } catch (_) {}
               flat.add(
-                Comment.fromFirestore({
+                comment.Comment.fromFirestore({
                   ...data,
                   'userName': userName,
                   'userProfileImage': userProfileImage,
@@ -92,7 +94,7 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
               );
             }
             setState(() {
-              _comments = buildCommentTree(flat);
+              _comments = comment.buildCommentTree(flat);
               _loadingComments = false;
             });
           } catch (e) {
@@ -155,16 +157,6 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
     );
   }
 
-  Future<void> _handleCommentVote(Comment comment, String voteType) async {
-    try {
-      await _postService.voteOnComment(widget.postId, comment.id, voteType);
-    } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Failed to vote: $e')));
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -215,10 +207,10 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
               if (!_loadingComments && _comments.isEmpty)
                 const Text('No comments yet. Be the first to comment!'),
               if (!_loadingComments && _comments.isNotEmpty)
-                CommentTree(
+                comment.CommentTree(
                   comments: _comments,
                   onReply: _handleCommentReply,
-                  onVote: _handleCommentVote,
+                  postId: widget.postId,
                   // You can add onEdit, onDelete, onReport handlers here
                 ),
             ],

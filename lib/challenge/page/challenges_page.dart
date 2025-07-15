@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../service/challenge_service.dart';
 import '../widget/challenge_card.dart';
 import '../model/challenge_model.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class ChallengesPage extends StatefulWidget {
   const ChallengesPage({Key? key}) : super(key: key);
@@ -29,7 +30,7 @@ class _ChallengesPageState extends State<ChallengesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F8FA),
+      backgroundColor: const Color(0xFF181C23),
       // Removed the AppBar as requested
       body: RefreshIndicator(
         onRefresh: () async => _refreshChallenges(),
@@ -44,9 +45,12 @@ class _ChallengesPageState extends State<ChallengesPage> {
                     child: Center(
                       child: Column(
                         children: const [
-                          CircularProgressIndicator(),
+                          CircularProgressIndicator(color: Color(0xFF00F6FF)),
                           SizedBox(height: 16),
-                          Text('Loading challenges...'),
+                          Text(
+                            'Loading challenges...',
+                            style: TextStyle(color: Color(0xFF00F6FF)),
+                          ),
                         ],
                       ),
                     ),
@@ -64,18 +68,21 @@ class _ChallengesPageState extends State<ChallengesPage> {
                         children: [
                           const Icon(
                             Icons.error_outline,
-                            color: Colors.red,
+                            color: Color(0xFF00F6FF),
                             size: 48,
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            'Error: \\${snapshot.error}',
-                            style: const TextStyle(color: Colors.red),
+                            'Error: ${snapshot.error}',
+                            style: const TextStyle(color: Color(0xFF00F6FF)),
                           ),
                           const SizedBox(height: 8),
-                          ElevatedButton(
+                          TextButton(
                             onPressed: _refreshChallenges,
-                            child: const Text('Retry'),
+                            child: const Text(
+                              'Retry',
+                              style: TextStyle(color: Color(0xFF00F6FF)),
+                            ),
                           ),
                         ],
                       ),
@@ -95,13 +102,16 @@ class _ChallengesPageState extends State<ChallengesPage> {
                         children: const [
                           Icon(
                             Icons.emoji_events_outlined,
-                            color: Colors.grey,
+                            color: Color(0xFF00F6FF),
                             size: 48,
                           ),
                           SizedBox(height: 16),
                           Text(
                             'No challenges available yet.',
-                            style: TextStyle(fontSize: 18, color: Colors.grey),
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Color(0xFF00F6FF),
+                            ),
                           ),
                         ],
                       ),

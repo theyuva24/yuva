@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
-import '../../post_card.dart';
-import '../../post_model.dart';
-import '../../post_service.dart';
-import '../model/hub_model.dart';
+import '../widget/post_card.dart';
+import '../models/post_model.dart';
+import '../service/post_service.dart';
+import '../models/hub_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../../../chat/page/hub_chat_page.dart'; // Import HubChatPage
+import '../../chat/page/hub_chat_page.dart'; // Import HubChatPage
 import '../service/hub_service.dart';
-import '../../post_details_page.dart'; // Import PostDetailsPage
+import 'post_details_page.dart'; // Import PostDetailsPage
+import 'package:google_fonts/google_fonts.dart';
 
 class HubDetailsPage extends StatefulWidget {
   final Hub hub;
@@ -79,16 +80,53 @@ class _HubDetailsPageState extends State<HubDetailsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(widget.hub.name)),
+      backgroundColor: const Color(0xFF181C23),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF181C23),
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Color(0xFF00F6FF)),
+        title: Text(
+          widget.hub.name,
+          style: GoogleFonts.orbitron(
+            textStyle: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF00F6FF),
+              letterSpacing: 2,
+              shadows: [
+                Shadow(
+                  blurRadius: 16,
+                  color: Color(0xFF00F6FF),
+                  offset: Offset(0, 0),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
       body: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Row(
               children: [
-                CircleAvatar(
-                  radius: 32,
-                  backgroundImage: NetworkImage(widget.hub.imageUrl),
+                Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Color(0xFF00F6FF), width: 3),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Color(0xFF00F6FF).withOpacity(0.4),
+                        blurRadius: 16,
+                        spreadRadius: 2,
+                      ),
+                    ],
+                  ),
+                  child: CircleAvatar(
+                    radius: 32,
+                    backgroundImage: NetworkImage(widget.hub.imageUrl),
+                    backgroundColor: Color(0xFF181C23),
+                  ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -97,35 +135,67 @@ class _HubDetailsPageState extends State<HubDetailsPage> {
                     children: [
                       Text(
                         widget.hub.name,
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
+                        style: GoogleFonts.orbitron(
+                          textStyle: const TextStyle(
+                            color: Color(0xFF00F6FF),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                            letterSpacing: 1,
+                            shadows: [
+                              Shadow(color: Color(0xFF00F6FF), blurRadius: 8),
+                            ],
+                          ),
                         ),
                       ),
                       const SizedBox(height: 8),
-                      Text(widget.hub.description),
+                      Text(
+                        widget.hub.description,
+                        style: const TextStyle(color: Colors.white70),
+                      ),
                     ],
                   ),
                 ),
                 const SizedBox(width: 16),
                 _loading
-                    ? const CircularProgressIndicator(strokeWidth: 2)
+                    ? const CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Color(0xFF00F6FF),
+                    )
                     : ElevatedButton(
                       onPressed: _isJoined ? _leaveHub : _joinHub,
                       style: ElevatedButton.styleFrom(
                         backgroundColor:
-                            _isJoined ? Colors.grey : const Color(0xFF6C63FF),
-                        foregroundColor: Colors.white,
+                            _isJoined ? Colors.grey : const Color(0xFF00F6FF),
+                        foregroundColor: Colors.black,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
+                        elevation: 4,
+                        shadowColor: const Color(0xFF00F6FF),
                       ),
-                      child: Text(_isJoined ? 'Leave' : 'Join'),
+                      child: Text(
+                        _isJoined ? 'Leave' : 'Join',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
                     ),
                 if (_isJoined)
                   ElevatedButton.icon(
-                    icon: Icon(Icons.message),
-                    label: Text('Message'),
+                    icon: const Icon(Icons.message, color: Color(0xFF00F6FF)),
+                    label: const Text(
+                      'Message',
+                      style: TextStyle(
+                        color: Color(0xFF00F6FF),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF232733),
+                      foregroundColor: const Color(0xFF00F6FF),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      elevation: 0,
+                    ),
                     onPressed: () {
                       Navigator.of(context).push(
                         MaterialPageRoute(
@@ -141,23 +211,35 @@ class _HubDetailsPageState extends State<HubDetailsPage> {
               ],
             ),
           ),
-          const Divider(),
+          const Divider(color: Color(0xFF00F6FF)),
           Expanded(
             child: StreamBuilder<List<Post>>(
               stream: postService.getPostsStream(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const Center(
+                    child: CircularProgressIndicator(color: Color(0xFF00F6FF)),
+                  );
                 }
                 if (snapshot.hasError) {
-                  return Center(child: Text('Error loading posts'));
+                  return const Center(
+                    child: Text(
+                      'Error loading posts',
+                      style: TextStyle(color: Color(0xFF00F6FF)),
+                    ),
+                  );
                 }
                 final posts =
                     (snapshot.data ?? [])
                         .where((post) => post.hubName == widget.hub.name)
                         .toList();
                 if (posts.isEmpty) {
-                  return const Center(child: Text('No posts in this hub yet.'));
+                  return const Center(
+                    child: Text(
+                      'No posts in this hub yet.',
+                      style: TextStyle(color: Color(0xFF00F6FF)),
+                    ),
+                  );
                 }
                 return ListView.builder(
                   itemCount: posts.length,

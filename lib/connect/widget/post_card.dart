@@ -1,309 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:share_plus/share_plus.dart';
-import 'post_service.dart';
-import '../profile/profile_page.dart';
-import 'hubs/page/hub_details_page.dart';
-import 'hubs/model/hub_model.dart';
+import '../service/post_service.dart' hide Comment, buildCommentTree;
+import '../../profile/profile_page.dart';
+import '../pages/hub_details_page.dart';
+import '../models/hub_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'post_details_page.dart'; // <-- Add this import
-
-// Reddit-style CommentTree widget
-class CommentTree extends StatefulWidget {
-  final List<Comment> comments;
-  final void Function(String parentId)? onReply;
-  final void Function(Comment comment, String voteType)? onVote;
-  final void Function(Comment comment)? onEdit;
-  final void Function(Comment comment)? onDelete;
-  final void Function(Comment comment)? onReport;
-  final int depth;
-
-  const CommentTree({
-    Key? key,
-    required this.comments,
-    this.onReply,
-    this.onVote,
-    this.onEdit,
-    this.onDelete,
-    this.onReport,
-    this.depth = 0,
-  }) : super(key: key);
-
-  @override
-  State<CommentTree> createState() => _CommentTreeState();
-}
-
-class _CommentTreeState extends State<CommentTree> {
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children:
-          widget.comments
-              .map(
-                (comment) => CommentCard(
-                  comment: comment,
-                  depth: widget.depth,
-                  onReply: widget.onReply,
-                  onVote: widget.onVote,
-                  onEdit: widget.onEdit,
-                  onDelete: widget.onDelete,
-                  onReport: widget.onReport,
-                ),
-              )
-              .toList(),
-    );
-  }
-}
-
-class CommentCard extends StatefulWidget {
-  final Comment comment;
-  final int depth;
-  final void Function(String parentId)? onReply;
-  final void Function(Comment comment, String voteType)? onVote;
-  final void Function(Comment comment)? onEdit;
-  final void Function(Comment comment)? onDelete;
-  final void Function(Comment comment)? onReport;
-
-  const CommentCard({
-    Key? key,
-    required this.comment,
-    this.depth = 0,
-    this.onReply,
-    this.onVote,
-    this.onEdit,
-    this.onDelete,
-    this.onReport,
-  }) : super(key: key);
-
-  @override
-  State<CommentCard> createState() => _CommentCardState();
-}
-
-class _CommentCardState extends State<CommentCard> {
-  bool collapsed = false;
-  bool showReplyField = false;
-  final TextEditingController replyController = TextEditingController();
-
-  @override
-  Widget build(BuildContext context) {
-    final comment = widget.comment;
-    final isDeleted = comment.deleted;
-    final isEdited = comment.edited;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(width: widget.depth * 16.0),
-            Expanded(
-              child: Card(
-                margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 0),
-                elevation: 1,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          CircleAvatar(
-                            radius: 14,
-                            backgroundImage:
-                                comment.userProfileImage.isNotEmpty
-                                    ? NetworkImage(comment.userProfileImage)
-                                    : null,
-                            child:
-                                comment.userProfileImage.isEmpty
-                                    ? const Icon(Icons.person, size: 16)
-                                    : null,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            comment.userName,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 13,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            _formatTimeAgo(comment.timestamp),
-                            style: const TextStyle(
-                              fontSize: 11,
-                              color: Colors.grey,
-                            ),
-                          ),
-                          if (isEdited)
-                            const Padding(
-                              padding: EdgeInsets.only(left: 4),
-                              child: Text(
-                                '(edited)',
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      if (!isDeleted)
-                        Text(
-                          comment.content,
-                          style: const TextStyle(fontSize: 14),
-                        )
-                      else
-                        const Text(
-                          '[deleted]',
-                          style: TextStyle(
-                            fontStyle: FontStyle.italic,
-                            color: Colors.grey,
-                          ),
-                        ),
-                      Row(
-                        children: [
-                          IconButton(
-                            icon: Icon(
-                              Icons.arrow_upward,
-                              color: Colors.grey[700],
-                              size: 18,
-                            ),
-                            onPressed:
-                                widget.onVote != null
-                                    ? () => widget.onVote!(comment, 'upvote')
-                                    : null,
-                            tooltip: 'Upvote',
-                          ),
-                          Text(
-                            '${comment.score}',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 13,
-                            ),
-                          ),
-                          IconButton(
-                            icon: Icon(
-                              Icons.arrow_downward,
-                              color: Colors.grey[700],
-                              size: 18,
-                            ),
-                            onPressed:
-                                widget.onVote != null
-                                    ? () => widget.onVote!(comment, 'downvote')
-                                    : null,
-                            tooltip: 'Downvote',
-                          ),
-                          TextButton(
-                            onPressed:
-                                isDeleted
-                                    ? null
-                                    : () => setState(
-                                      () => showReplyField = !showReplyField,
-                                    ),
-                            child: const Text(
-                              'Reply',
-                              style: TextStyle(fontSize: 12),
-                            ),
-                          ),
-                          IconButton(
-                            icon: Icon(
-                              collapsed ? Icons.add : Icons.remove,
-                              size: 18,
-                            ),
-                            onPressed:
-                                () => setState(() => collapsed = !collapsed),
-                            tooltip: collapsed ? 'Expand' : 'Collapse',
-                          ),
-                          if (widget.onEdit != null && !isDeleted)
-                            IconButton(
-                              icon: const Icon(Icons.edit, size: 16),
-                              onPressed: () => widget.onEdit!(comment),
-                              tooltip: 'Edit',
-                            ),
-                          if (widget.onDelete != null && !isDeleted)
-                            IconButton(
-                              icon: const Icon(Icons.delete, size: 16),
-                              onPressed: () => widget.onDelete!(comment),
-                              tooltip: 'Delete',
-                            ),
-                          if (widget.onReport != null)
-                            IconButton(
-                              icon: const Icon(Icons.flag, size: 16),
-                              onPressed: () => widget.onReport!(comment),
-                              tooltip: 'Report',
-                            ),
-                        ],
-                      ),
-                      if (showReplyField && !isDeleted)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 4.0),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: TextField(
-                                  controller: replyController,
-                                  decoration: const InputDecoration(
-                                    hintText: 'Write a reply...',
-                                    border: OutlineInputBorder(),
-                                    isDense: true,
-                                    contentPadding: EdgeInsets.symmetric(
-                                      vertical: 8,
-                                      horizontal: 8,
-                                    ),
-                                  ),
-                                  minLines: 1,
-                                  maxLines: 3,
-                                ),
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.send, size: 18),
-                                onPressed: () {
-                                  if (replyController.text.trim().isNotEmpty &&
-                                      widget.onReply != null) {
-                                    widget.onReply!(comment.id);
-                                    replyController.clear();
-                                    setState(() => showReplyField = false);
-                                  }
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-        if (!collapsed && comment.replies.isNotEmpty)
-          CommentTree(
-            comments: comment.replies,
-            onReply: widget.onReply,
-            onVote: widget.onVote,
-            onEdit: widget.onEdit,
-            onDelete: widget.onDelete,
-            onReport: widget.onReport,
-            depth: widget.depth + 1,
-          ),
-      ],
-    );
-  }
-
-  String _formatTimeAgo(DateTime dateTime) {
-    final now = DateTime.now();
-    final diff = now.difference(dateTime);
-    if (diff.inSeconds < 60) return '${diff.inSeconds}s ago';
-    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
-    if (diff.inHours < 24) return '${diff.inHours}h ago';
-    if (diff.inDays < 7) return '${diff.inDays}d ago';
-    return '${dateTime.year}/${dateTime.month}/${dateTime.day}';
-  }
-}
+import '../pages/post_details_page.dart'; // <-- Add this import
+import 'package:google_fonts/google_fonts.dart';
+import 'voting.dart';
+import 'comment.dart' as comment;
 
 class PostCard extends StatefulWidget {
   final String postId;
@@ -347,30 +53,15 @@ class _PostCardState extends State<PostCard> {
   final PostService _postService = PostService();
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  bool _isUpvoted = false;
-  bool _isDownvoted = false;
-  bool _isVoting = false;
-  bool _isSharing = false;
-  String? _voteError; // For persistent error feedback
-  DateTime? _lastVoteTime; // For debounce
-
-  // Optimistic vote counts - updated immediately for UI
-  late int _optimisticUpvotes;
-  late int _optimisticDownvotes;
-  late int _optimisticScore;
-
   // Comments state
-  List<Comment> _comments = [];
+  List<comment.Comment> _comments = [];
   bool _loadingComments = true;
   String? _commentsError;
+  bool _isSharing = false;
 
   @override
   void initState() {
     super.initState();
-    _optimisticUpvotes = widget.upvotes;
-    _optimisticDownvotes = widget.downvotes;
-    _optimisticScore = widget.upvotes - widget.downvotes;
-    _checkUserVote();
     _fetchComments();
   }
 
@@ -387,7 +78,7 @@ class _PostCardState extends State<PostCard> {
         .snapshots()
         .listen((snapshot) async {
           try {
-            final List<Comment> flat = [];
+            final List<comment.Comment> flat = [];
             for (final doc in snapshot.docs) {
               final data = doc.data();
               // Fetch user info for each comment
@@ -406,7 +97,7 @@ class _PostCardState extends State<PostCard> {
                 }
               } catch (_) {}
               flat.add(
-                Comment.fromFirestore({
+                comment.Comment.fromFirestore({
                   ...data,
                   'userName': userName,
                   'userProfileImage': userProfileImage,
@@ -414,7 +105,7 @@ class _PostCardState extends State<PostCard> {
               );
             }
             setState(() {
-              _comments = buildCommentTree(flat);
+              _comments = flat; // No longer need buildCommentTree
               _loadingComments = false;
             });
           } catch (e) {
@@ -424,132 +115,6 @@ class _PostCardState extends State<PostCard> {
             });
           }
         });
-  }
-
-  Future<void> _checkUserVote() async {
-    try {
-      final user = _auth.currentUser;
-      if (user == null) return;
-
-      final voteDoc =
-          await _postService.firestore
-              .collection('posts')
-              .doc(widget.postId)
-              .collection('voteInteractions')
-              .doc(user.uid)
-              .get();
-
-      if (voteDoc.exists) {
-        final voteType = voteDoc.data()?['voteType'];
-        setState(() {
-          _isUpvoted = voteType == 'upvote';
-          _isDownvoted = voteType == 'downvote';
-        });
-      }
-    } catch (e) {
-      // Handle error silently
-    }
-  }
-
-  Future<void> _handleVote(String voteType) async {
-    print('[DEBUG] _handleVote called with voteType: ' + voteType);
-    // Debounce: ignore if last vote was <500ms ago
-    final now = DateTime.now();
-    if (_lastVoteTime != null &&
-        now.difference(_lastVoteTime!) < const Duration(milliseconds: 500)) {
-      print('[DEBUG] Debounced vote');
-      return;
-    }
-    _lastVoteTime = now;
-    if (_isVoting) {
-      print('[DEBUG] Already voting, skipping');
-      return;
-    }
-
-    setState(() {
-      _isVoting = true;
-      _voteError = null;
-    });
-
-    // Store previous state for rollback if needed
-    final previousUpvoted = _isUpvoted;
-    final previousDownvoted = _isDownvoted;
-    final previousUpvotes = _optimisticUpvotes;
-    final previousDownvotes = _optimisticDownvotes;
-    final previousScore = _optimisticScore;
-
-    // Optimistic UI update - immediate response
-    setState(() {
-      if (voteType == 'upvote') {
-        if (_isUpvoted) {
-          // Remove upvote
-          _isUpvoted = false;
-          _optimisticUpvotes--;
-          _optimisticScore--;
-        } else {
-          // Add upvote
-          _isUpvoted = true;
-          _isDownvoted = false;
-          _optimisticUpvotes++;
-          if (_isDownvoted) {
-            _optimisticDownvotes--;
-            _optimisticScore += 2; // Remove downvote + add upvote
-          } else {
-            _optimisticScore++;
-          }
-        }
-      } else {
-        if (_isDownvoted) {
-          // Remove downvote
-          _isDownvoted = false;
-          _optimisticDownvotes--;
-          _optimisticScore++;
-        } else {
-          // Add downvote
-          _isDownvoted = true;
-          _isUpvoted = false;
-          _optimisticDownvotes++;
-          if (_isUpvoted) {
-            _optimisticUpvotes--;
-            _optimisticScore -= 2; // Remove upvote + add downvote
-          } else {
-            _optimisticScore--;
-          }
-        }
-      }
-      _isVoting = false;
-    });
-
-    // Firestore operation in background
-    try {
-      print('[DEBUG] Calling voteOnPost in PostService');
-      await _postService.voteOnPost(widget.postId, voteType);
-    } catch (e) {
-      print('[DEBUG] Exception in _handleVote: ' + e.toString());
-      // Rollback optimistic update on error
-      setState(() {
-        _isUpvoted = previousUpvoted;
-        _isDownvoted = previousDownvoted;
-        _optimisticUpvotes = previousUpvotes;
-        _optimisticDownvotes = previousDownvotes;
-        _optimisticScore = previousScore;
-        _voteError = 'Failed to vote. Tap to retry.';
-      });
-
-      // Show error message
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to vote: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    } finally {
-      setState(() {
-        _isVoting = false;
-      });
-    }
   }
 
   Future<void> _handleComment() async {
@@ -652,16 +217,6 @@ class _PostCardState extends State<PostCard> {
             ],
           ),
     );
-  }
-
-  Future<void> _handleCommentVote(Comment comment, String voteType) async {
-    try {
-      await _postService.voteOnComment(widget.postId, comment.id, voteType);
-    } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Failed to vote: $e')));
-    }
   }
 
   Future<void> _handleShare() async {
@@ -928,7 +483,8 @@ class _PostCardState extends State<PostCard> {
                                   widget.userName,
                                   style: const TextStyle(
                                     fontWeight: FontWeight.bold,
-                                    fontSize: 14,
+                                    fontSize: 16,
+                                    letterSpacing: 1,
                                   ),
                                   overflow: TextOverflow.ellipsis,
                                   maxLines: 1,
@@ -1028,69 +584,15 @@ class _PostCardState extends State<PostCard> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Semantics(
-                          label: _isUpvoted ? 'Upvoted' : 'Upvote',
-                          selected: _isUpvoted,
-                          child: IconButton(
-                            onPressed:
-                                _isVoting ? null : () => _handleVote('upvote'),
-                            icon:
-                                _isUpvoted
-                                    ? const Icon(
-                                      Icons.arrow_upward,
-                                      color: Color(0xFF6C63FF),
-                                      size: 22,
-                                    )
-                                    : const Icon(
-                                      Icons.arrow_upward_outlined,
-                                      color: Colors.grey,
-                                      size: 22,
-                                    ),
-                            tooltip: _isUpvoted ? 'You upvoted' : 'Upvote',
-                            padding: EdgeInsets.zero,
-                            constraints: BoxConstraints(),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 2.0),
-                          child: Text(
-                            '$_optimisticScore',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 15,
-                            ),
-                          ),
-                        ),
-                        Semantics(
-                          label: _isDownvoted ? 'Downvoted' : 'Downvote',
-                          selected: _isDownvoted,
-                          child: IconButton(
-                            onPressed:
-                                _isVoting
-                                    ? null
-                                    : () => _handleVote('downvote'),
-                            icon:
-                                _isDownvoted
-                                    ? const Icon(
-                                      Icons.arrow_downward,
-                                      color: Color(0xFF6C63FF),
-                                      size: 22,
-                                    )
-                                    : const Icon(
-                                      Icons.arrow_downward_outlined,
-                                      color: Colors.grey,
-                                      size: 22,
-                                    ),
-                            tooltip:
-                                _isDownvoted ? 'You downvoted' : 'Downvote',
-                            padding: EdgeInsets.zero,
-                            constraints: BoxConstraints(),
-                          ),
-                        ),
-                      ],
+                    VotingBar(
+                      type: VotingTargetType.post,
+                      postId: widget.postId,
+                      initialUpvotes: widget.upvotes,
+                      initialDownvotes: widget.downvotes,
+                      initialScore: widget.upvotes - widget.downvotes,
+                      votingService: VotingService(),
+                      initiallyUpvoted: false, // <-- Add this
+                      initiallyDownvoted: false, // <-- Add this
                     ),
                     const SizedBox(width: 8),
                     // Comment button section
@@ -1100,17 +602,14 @@ class _PostCardState extends State<PostCard> {
                         IconButton(
                           onPressed: _openDetailsPage,
                           icon: const Icon(Icons.chat_bubble_outline),
-                          color: Colors.grey[600],
+                          color: Color(0xFF00F6FF),
                           iconSize: 18,
                           padding: EdgeInsets.zero,
                           constraints: BoxConstraints(),
                         ),
                         Text(
                           '${widget.commentCount}',
-                          style: TextStyle(
-                            color: Colors.grey[600],
-                            fontSize: 12,
-                          ),
+                          style: TextStyle(color: Colors.white70, fontSize: 12),
                         ),
                       ],
                     ),
@@ -1125,11 +624,11 @@ class _PostCardState extends State<PostCard> {
                                 height: 16,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
-                                  color: Color(0xFF6C63FF),
+                                  color: Color(0xFF00F6FF),
                                 ),
                               )
                               : const Icon(Icons.share_outlined),
-                      color: Colors.grey[600],
+                      color: Color(0xFF00F6FF),
                       iconSize: 18,
                       padding: EdgeInsets.zero,
                       constraints: BoxConstraints(),
@@ -1144,32 +643,6 @@ class _PostCardState extends State<PostCard> {
                       padding: EdgeInsets.zero,
                       constraints: BoxConstraints(),
                     ),
-                    if (_voteError != null)
-                      GestureDetector(
-                        onTap:
-                            () =>
-                                _handleVote(_isUpvoted ? 'upvote' : 'downvote'),
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 8.0),
-                          child: Row(
-                            children: [
-                              const Icon(
-                                Icons.error,
-                                color: Colors.red,
-                                size: 18,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                _voteError!,
-                                style: const TextStyle(
-                                  color: Colors.red,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
                   ],
                 ),
               ),

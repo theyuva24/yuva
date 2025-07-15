@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'post_service.dart';
-import 'hubs/service/hub_service.dart';
-import 'hubs/model/hub_model.dart';
+import '../service/post_service.dart';
+import '../service/hub_service.dart';
+import '../models/hub_model.dart';
+import 'package:google_fonts/google_fonts.dart';
+import '../../../core/theme/gradient_button.dart';
 
 class CreatePostScreen extends StatefulWidget {
   const CreatePostScreen({super.key});
@@ -110,10 +112,29 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFF181C23),
       appBar: AppBar(
-        title: const Text('Create Post'),
-        backgroundColor: const Color(0xFF6C63FF),
-        foregroundColor: Colors.white,
+        backgroundColor: const Color(0xFF181C23),
+        elevation: 0,
+        title: Text(
+          'Create Post',
+          style: GoogleFonts.orbitron(
+            textStyle: const TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF00F6FF),
+              letterSpacing: 2,
+              shadows: [
+                Shadow(
+                  blurRadius: 24,
+                  color: Color(0xFF00F6FF),
+                  offset: Offset(0, 0),
+                ),
+              ],
+            ),
+          ),
+        ),
+        iconTheme: const IconThemeData(color: Color(0xFF00F6FF)),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -121,15 +142,48 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             SizedBox(
-              height: 120, // enough space for the dropdown
+              height: 120,
               child: Stack(
                 children: [
                   TextField(
                     controller: _hubController,
-                    decoration: const InputDecoration(
+                    style: const TextStyle(color: Colors.white, fontSize: 18),
+                    decoration: InputDecoration(
+                      prefixIcon: const Icon(
+                        Icons.hub,
+                        color: Color(0xFF00F6FF),
+                      ),
                       labelText: 'Hub Name',
+                      labelStyle: const TextStyle(color: Color(0xFF00F6FF)),
                       hintText: 'Enter the hub where you want to post',
-                      border: OutlineInputBorder(),
+                      hintStyle: TextStyle(color: Colors.grey[400]),
+                      filled: true,
+                      fillColor: const Color(0xFF232733),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: BorderSide(
+                          color: Color(0xFF00F6FF),
+                          width: 1.5,
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: const BorderSide(
+                          color: Color(0xFF00F6FF),
+                          width: 1.5,
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: const BorderSide(
+                          color: Color(0xFF00F6FF),
+                          width: 2,
+                        ),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        vertical: 20,
+                        horizontal: 20,
+                      ),
                     ),
                   ),
                   if (_showDropdown)
@@ -138,18 +192,28 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                       right: 0,
                       top: 60,
                       child: Material(
-                        elevation: 2,
-                        borderRadius: BorderRadius.circular(8),
+                        color: const Color(0xFF232733),
+                        elevation: 4,
+                        borderRadius: BorderRadius.circular(12),
                         child: SizedBox(
-                          height: 60, // or more for more items
+                          height: 60,
                           child: ListView.builder(
                             shrinkWrap: true,
                             itemCount: _filteredHubs.length,
                             itemBuilder: (context, index) {
                               final hub = _filteredHubs[index];
                               return ListTile(
-                                title: Text(hub.name),
-                                subtitle: Text(hub.description),
+                                title: Text(
+                                  hub.name,
+                                  style: const TextStyle(
+                                    color: Color(0xFF00F6FF),
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                subtitle: Text(
+                                  hub.description,
+                                  style: const TextStyle(color: Colors.white70),
+                                ),
                                 onTap: () {
                                   _hubController.text = hub.name;
                                   _selectedHub = hub;
@@ -170,10 +234,40 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
             Expanded(
               child: TextField(
                 controller: _contentController,
-                decoration: const InputDecoration(
+                style: const TextStyle(color: Colors.white, fontSize: 18),
+                decoration: InputDecoration(
+                  prefixIcon: const Icon(Icons.edit, color: Color(0xFF00F6FF)),
                   labelText: 'Post Content',
+                  labelStyle: const TextStyle(color: Color(0xFF00F6FF)),
                   hintText: 'What\'s on your mind?',
-                  border: OutlineInputBorder(),
+                  hintStyle: TextStyle(color: Colors.grey[400]),
+                  filled: true,
+                  fillColor: const Color(0xFF232733),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: const BorderSide(
+                      color: Color(0xFF00F6FF),
+                      width: 1.5,
+                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: const BorderSide(
+                      color: Color(0xFF00F6FF),
+                      width: 1.5,
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: const BorderSide(
+                      color: Color(0xFF00F6FF),
+                      width: 2,
+                    ),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    vertical: 20,
+                    horizontal: 20,
+                  ),
                   alignLabelWithHint: true,
                 ),
                 maxLines: null,
@@ -181,13 +275,10 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            ElevatedButton(
+            GradientButton(
               onPressed: _isLoading ? null : _createPost,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF6C63FF),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-              ),
+              borderRadius: 18,
+              padding: const EdgeInsets.symmetric(vertical: 20),
               child:
                   _isLoading
                       ? const SizedBox(
@@ -196,15 +287,17 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
                           valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.white,
+                            Color(0xFF00F6FF),
                           ),
                         ),
                       )
                       : const Text(
                         'Create Post',
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: 20,
                           fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                          letterSpacing: 1.2,
                         ),
                       ),
             ),

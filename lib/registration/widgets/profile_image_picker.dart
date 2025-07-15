@@ -53,7 +53,7 @@ class ProfileImagePicker extends StatelessWidget {
               radius: 48,
               backgroundImage:
                   imagePath != null ? FileImage(File(imagePath!)) : null,
-              backgroundColor: const Color(0xFF6C63FF),
+              backgroundColor: Colors.transparent,
               child:
                   imagePath == null
                       ? const Icon(

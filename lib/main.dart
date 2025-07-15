@@ -18,7 +18,7 @@ class YuvaApp extends StatelessWidget {
     return MaterialApp(
       title: 'YUVA',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
+      theme: AppTheme.darkTheme,
       home: const SplashScreen(),
     );
   }

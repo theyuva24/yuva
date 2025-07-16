@@ -1,53 +1,45 @@
 import 'package:flutter/material.dart';
 
 class EducationInfoCard extends StatelessWidget {
-  final String education;
-  const EducationInfoCard({Key? key, required this.education})
-    : super(key: key);
+  final String college;
+  final String course;
+  const EducationInfoCard({
+    Key? key,
+    required this.college,
+    required this.course,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: const Color(0xFF181C23),
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(18),
-        side: const BorderSide(color: Color(0xFF00F6FF), width: 1.5),
-      ),
-      elevation: 6,
-      shadowColor: Color(0xFF00F6FF).withOpacity(0.15),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Education',
-              style: TextStyle(
-                color: Color(0xFF00F6FF),
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-                letterSpacing: 1.1,
-                shadows: [
-                  Shadow(
-                    blurRadius: 8,
-                    color: Color(0xFF00F6FF),
-                    offset: Offset(0, 0),
-                  ),
-                ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.school, color: Color(0xFF00F6FF), size: 32),
+          SizedBox(width: 10),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                college,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 19,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              education,
-              style: TextStyle(
-                color: Color(0xFF00F6FF),
-                fontWeight: FontWeight.w600,
-                fontSize: 16,
+              Text(
+                course,
+                style: TextStyle(
+                  color: Colors.grey[400],
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-            ),
-          ],
-        ),
+            ],
+          ),
+        ],
       ),
     );
   }

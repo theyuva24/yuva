@@ -13,6 +13,9 @@ class Post {
   final int shareCount;
   final String? postImage;
   final String postOwnerId;
+  final String postType; // text, image, link, poll
+  final String? linkUrl;
+  final Map<String, dynamic>? pollData;
 
   Post({
     required this.id,
@@ -29,5 +32,8 @@ class Post {
     required this.shareCount,
     this.postImage,
     required this.postOwnerId,
+    required this.postType,
+    this.linkUrl,
+    this.pollData,
   });
 }

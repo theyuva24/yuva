@@ -94,6 +94,7 @@ class RegistrationService {
           'phone': phone,
           'fcmToken': fcmToken,
           'createdAt': FieldValue.serverTimestamp(),
+          'joinedHubs': [], // Always initialize joinedHubs for new users
         });
       }
 

@@ -31,6 +31,7 @@ class PostService {
     String? postImageUrl,
     Map<String, dynamic>? pollData,
     String? linkUrl,
+    required String postType,
   }) async {
     try {
       final user = _auth.currentUser;
@@ -45,6 +46,7 @@ class PostService {
         'postImageUrl': postImageUrl,
         'pollData': pollData,
         'linkUrl': linkUrl,
+        'postType': postType,
         ...ensureEngagementFields({}), // Always set all engagement fields
       };
 
@@ -75,7 +77,7 @@ class PostService {
           if (hubIds.isNotEmpty) {
             final hubsSnap =
                 await firestore
-                    .collection('Hubs')
+                    .collection('hubs') // Standardized to lowercase
                     .where(FieldPath.documentId, whereIn: hubIds.toList())
                     .get();
             for (final doc in hubsSnap.docs) {
@@ -128,6 +130,9 @@ class PostService {
                 shareCount: data['shareCount'] ?? 0,
                 postImage: data['postImageUrl'],
                 postOwnerId: data['userId'] ?? '',
+                postType: data['postType'] ?? 'text',
+                linkUrl: data['linkUrl'],
+                pollData: data['pollData'],
               ),
             );
           }

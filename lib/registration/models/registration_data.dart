@@ -9,6 +9,7 @@ class RegistrationData {
   String? idCardPath;
   String? course;
   List<String> interests = [];
+  DateTime? dateOfJoin;
 
   RegistrationData();
 }

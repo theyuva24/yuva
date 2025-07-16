@@ -4,6 +4,9 @@ import '../service/hub_service.dart';
 import '../models/hub_model.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/gradient_button.dart';
+import '../../registration/widgets/profile_image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'dart:io';
 
 class CreatePostScreen extends StatefulWidget {
   const CreatePostScreen({super.key});
@@ -22,6 +25,13 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   List<Hub> _filteredHubs = [];
   bool _showDropdown = false;
   Hub? _selectedHub;
+  String _postType = 'text';
+  String? _imagePath;
+  String? _uploadedImageUrl;
+  final TextEditingController _linkController = TextEditingController();
+  List<TextEditingController> _pollOptionControllers = [
+    TextEditingController(),
+  ];
 
   @override
   void initState() {
@@ -59,35 +69,78 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   void dispose() {
     _contentController.dispose();
     _hubController.dispose();
+    _linkController.dispose();
+    for (var c in _pollOptionControllers) {
+      c.dispose();
+    }
     super.dispose();
   }
 
-  Future<void> _createPost() async {
-    if (_contentController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter post content')),
-      );
-      return;
-    }
+  Future<String?> _uploadImage(String path) async {
+    final file = File(path);
+    final fileName =
+        'posts/${DateTime.now().millisecondsSinceEpoch}_${file.path.split('/').last}';
+    final ref = FirebaseStorage.instance.ref().child(fileName);
+    final uploadTask = await ref.putFile(file);
+    return await uploadTask.ref.getDownloadURL();
+  }
 
+  Future<void> _createPost() async {
     if (_selectedHub == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please select a hub from the dropdown')),
       );
       return;
     }
-
+    if (_postType == 'text' && _contentController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter post content')),
+      );
+      return;
+    }
+    if (_postType == 'image' && _imagePath == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please select an image')));
+      return;
+    }
+    if (_postType == 'link' && _linkController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please enter a link')));
+      return;
+    }
+    if (_postType == 'poll' &&
+        _pollOptionControllers.any((c) => c.text.trim().isEmpty)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill all poll options')),
+      );
+      return;
+    }
     setState(() {
       _isLoading = true;
     });
-
+    String? imageUrl;
+    if (_postType == 'image' && _imagePath != null) {
+      imageUrl = await _uploadImage(_imagePath!);
+    }
+    Map<String, dynamic>? pollData;
+    if (_postType == 'poll') {
+      pollData = {
+        'options': _pollOptionControllers.map((c) => c.text.trim()).toList(),
+        'votes': List.filled(_pollOptionControllers.length, 0),
+      };
+    }
     try {
       await _postService.createPost(
         hubId: _selectedHub!.id,
         hubName: _selectedHub!.name,
-        postContent: _contentController.text.trim(),
+        postContent: _postType == 'text' ? _contentController.text.trim() : '',
+        postImageUrl: imageUrl,
+        pollData: pollData,
+        linkUrl: _postType == 'link' ? _linkController.text.trim() : null,
+        postType: _postType,
       );
-
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
@@ -107,6 +160,84 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         });
       }
     }
+  }
+
+  Widget _buildTypeSelector() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        _buildTypeButton('text', Icons.text_fields, 'Text'),
+        _buildTypeButton('image', Icons.image, 'Image'),
+        _buildTypeButton('link', Icons.link, 'Link'),
+        _buildTypeButton('poll', Icons.poll, 'Poll'),
+      ],
+    );
+  }
+
+  Widget _buildTypeButton(String type, IconData icon, String label) {
+    final selected = _postType == type;
+    return ElevatedButton.icon(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: selected ? const Color(0xFF00F6FF) : Colors.grey[800],
+        foregroundColor: selected ? Colors.black : Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+      onPressed: () {
+        setState(() {
+          _postType = type;
+        });
+      },
+      icon: Icon(icon),
+      label: Text(label),
+    );
+  }
+
+  Widget _buildPollOptions() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ..._pollOptionControllers.asMap().entries.map((entry) {
+          final idx = entry.key;
+          final controller = entry.value;
+          return Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: controller,
+                  decoration: InputDecoration(
+                    labelText: 'Option ${idx + 1}',
+                    labelStyle: const TextStyle(color: Color(0xFF00F6FF)),
+                  ),
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.remove_circle, color: Colors.red),
+                onPressed:
+                    _pollOptionControllers.length > 1
+                        ? () {
+                          setState(() {
+                            _pollOptionControllers.removeAt(idx);
+                          });
+                        }
+                        : null,
+              ),
+            ],
+          );
+        }),
+        TextButton.icon(
+          onPressed: () {
+            setState(() {
+              _pollOptionControllers.add(TextEditingController());
+            });
+          },
+          icon: const Icon(Icons.add, color: Color(0xFF00F6FF)),
+          label: const Text(
+            'Add Option',
+            style: TextStyle(color: Color(0xFF00F6FF)),
+          ),
+        ),
+      ],
+    );
   }
 
   @override
@@ -141,6 +272,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            _buildTypeSelector(),
+            const SizedBox(height: 16),
             SizedBox(
               height: 120,
               child: Stack(
@@ -231,15 +364,83 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            Expanded(
-              child: TextField(
-                controller: _contentController,
+            if (_postType == 'text')
+              Expanded(
+                child: TextField(
+                  controller: _contentController,
+                  style: const TextStyle(color: Colors.white, fontSize: 18),
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(
+                      Icons.edit,
+                      color: Color(0xFF00F6FF),
+                    ),
+                    labelText: 'Post Content',
+                    labelStyle: const TextStyle(color: Color(0xFF00F6FF)),
+                    hintText: 'What\'s on your mind?',
+                    hintStyle: TextStyle(color: Colors.grey[400]),
+                    filled: true,
+                    fillColor: const Color(0xFF232733),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(
+                        color: Color(0xFF00F6FF),
+                        width: 1.5,
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(
+                        color: Color(0xFF00F6FF),
+                        width: 1.5,
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(
+                        color: Color(0xFF00F6FF),
+                        width: 2,
+                      ),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      vertical: 20,
+                      horizontal: 20,
+                    ),
+                    alignLabelWithHint: true,
+                  ),
+                  maxLines: null,
+                  expands: true,
+                ),
+              ),
+            if (_postType == 'image')
+              Column(
+                children: [
+                  ProfileImagePicker(
+                    imagePath: _imagePath,
+                    onImagePicked: (path) {
+                      setState(() {
+                        _imagePath = path;
+                      });
+                    },
+                  ),
+                  if (_imagePath != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Text(
+                        'Image selected',
+                        style: TextStyle(color: Colors.green[300]),
+                      ),
+                    ),
+                ],
+              ),
+            if (_postType == 'link')
+              TextField(
+                controller: _linkController,
                 style: const TextStyle(color: Colors.white, fontSize: 18),
                 decoration: InputDecoration(
-                  prefixIcon: const Icon(Icons.edit, color: Color(0xFF00F6FF)),
-                  labelText: 'Post Content',
+                  prefixIcon: const Icon(Icons.link, color: Color(0xFF00F6FF)),
+                  labelText: 'Link URL',
                   labelStyle: const TextStyle(color: Color(0xFF00F6FF)),
-                  hintText: 'What\'s on your mind?',
+                  hintText: 'Paste your link here',
                   hintStyle: TextStyle(color: Colors.grey[400]),
                   filled: true,
                   fillColor: const Color(0xFF232733),
@@ -268,12 +469,9 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                     vertical: 20,
                     horizontal: 20,
                   ),
-                  alignLabelWithHint: true,
                 ),
-                maxLines: null,
-                expands: true,
               ),
-            ),
+            if (_postType == 'poll') _buildPollOptions(),
             const SizedBox(height: 16),
             GradientButton(
               onPressed: _isLoading ? null : _createPost,

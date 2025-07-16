@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../connect/pages/hubs_page.dart';
 import 'hub_admin_page.dart';
 import 'challenge_admin_page.dart';
+import 'college_admin_page.dart';
 
 class AdminPage extends StatelessWidget {
   @override
@@ -30,6 +31,14 @@ class AdminPage extends StatelessWidget {
               child: Text('Create Challenge'),
             ),
             SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => CollegeAdminPage()),
+                );
+              },
+              child: Text('Manage Colleges'),
+            ),
           ],
         ),
       ),

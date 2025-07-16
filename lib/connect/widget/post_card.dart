@@ -10,6 +10,7 @@ import '../pages/post_details_page.dart'; // <-- Add this import
 import 'package:google_fonts/google_fonts.dart';
 import 'voting.dart';
 import 'comment.dart' as comment;
+import 'package:url_launcher/url_launcher.dart';
 
 class PostCard extends StatefulWidget {
   final String postId;
@@ -26,6 +27,9 @@ class PostCard extends StatefulWidget {
   final String? postImage;
   final String postOwnerId;
   final VoidCallback? onCardTap; // <-- Add this
+  final String postType; // Added for new content rendering
+  final String? linkUrl; // Added for new content rendering
+  final Map<String, dynamic>? pollData; // Added for new content rendering
 
   const PostCard({
     super.key,
@@ -43,6 +47,9 @@ class PostCard extends StatefulWidget {
     this.postImage,
     required this.postOwnerId,
     this.onCardTap, // <-- Add this
+    this.postType = 'text', // Default to text
+    this.linkUrl,
+    this.pollData,
   });
 
   @override
@@ -58,11 +65,16 @@ class _PostCardState extends State<PostCard> {
   bool _loadingComments = true;
   String? _commentsError;
   bool _isSharing = false;
+  bool _isVoting = false;
+  int? _userVotedOptionIdx;
 
   @override
   void initState() {
     super.initState();
     _fetchComments();
+    if (widget.postType == 'poll' && widget.pollData != null) {
+      _getUserVote();
+    }
   }
 
   void _fetchComments() {
@@ -403,6 +415,74 @@ class _PostCardState extends State<PostCard> {
     });
   }
 
+  Future<void> _getUserVote() async {
+    final user = _auth.currentUser;
+    if (user == null || widget.pollData == null) return;
+    final postId = widget.postId;
+    final voteDoc =
+        await _postService.firestore
+            .collection('posts')
+            .doc(postId)
+            .collection('pollVotes')
+            .doc(user.uid)
+            .get();
+    if (voteDoc.exists) {
+      setState(() {
+        _userVotedOptionIdx = voteDoc.data()?['optionIdx'];
+      });
+    }
+  }
+
+  Future<void> _votePollOption(int idx) async {
+    if (_isVoting || _userVotedOptionIdx != null) return;
+    setState(() {
+      _isVoting = true;
+    });
+    final user = _auth.currentUser;
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('You must be logged in to vote.')),
+      );
+      setState(() {
+        _isVoting = false;
+      });
+      return;
+    }
+    try {
+      final postRef = _postService.firestore
+          .collection('posts')
+          .doc(widget.postId);
+      final pollVotesRef = postRef.collection('pollVotes').doc(user.uid);
+      await _postService.firestore.runTransaction((transaction) async {
+        final postSnap = await transaction.get(postRef);
+        if (!postSnap.exists) throw Exception('Post not found');
+        final pollData = Map<String, dynamic>.from(
+          postSnap.data()!['pollData'] ?? {},
+        );
+        final votes = List<int>.from(pollData['votes'] ?? []);
+        votes[idx] = (votes[idx] ?? 0) + 1;
+        pollData['votes'] = votes;
+        transaction.update(postRef, {'pollData': pollData});
+        transaction.set(pollVotesRef, {'optionIdx': idx});
+      });
+      setState(() {
+        _userVotedOptionIdx = idx;
+        if (widget.pollData != null && widget.pollData!['votes'] != null) {
+          widget.pollData!['votes'][idx] =
+              (widget.pollData!['votes'][idx] ?? 0) + 1;
+        }
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to vote: $e')));
+    } finally {
+      setState(() {
+        _isVoting = false;
+      });
+    }
+  }
+
   void _openDetailsPage() {
     Navigator.push(
       context,
@@ -422,6 +502,9 @@ class _PostCardState extends State<PostCard> {
               shareCount: widget.shareCount,
               postImage: widget.postImage,
               postOwnerId: widget.postOwnerId,
+              postType: widget.postType,
+              linkUrl: widget.linkUrl,
+              pollData: widget.pollData,
             ),
       ),
     );
@@ -543,16 +626,15 @@ class _PostCardState extends State<PostCard> {
                 ],
               ),
               const SizedBox(height: 12),
-              // Post content (NO GestureDetector here)
-              Text(
-                widget.postContent,
-                style: const TextStyle(fontSize: 13),
-                maxLines: 6,
-                overflow: TextOverflow.ellipsis,
-              ),
-              // Post image (if available)
-              if (widget.postImage != null) ...[
-                const SizedBox(height: 10),
+              // Post content
+              if (widget.postType == 'text')
+                Text(
+                  widget.postContent,
+                  style: const TextStyle(fontSize: 13),
+                  maxLines: 6,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              if (widget.postType == 'image' && widget.postImage != null) ...[
                 ClipRRect(
                   borderRadius: BorderRadius.circular(8),
                   child: AspectRatio(
@@ -577,6 +659,137 @@ class _PostCardState extends State<PostCard> {
                   ),
                 ),
               ],
+              if (widget.postType == 'link' && widget.linkUrl != null)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: Card(
+                    color: const Color(0xFF232733),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: ListTile(
+                      leading: const Icon(Icons.link, color: Color(0xFF00F6FF)),
+                      title: Text(
+                        widget.linkUrl!,
+                        style: const TextStyle(
+                          color: Color(0xFF00F6FF),
+                          decoration: TextDecoration.underline,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      trailing: IconButton(
+                        icon: const Icon(
+                          Icons.open_in_new,
+                          color: Color(0xFF00F6FF),
+                        ),
+                        onPressed: () async {
+                          final url = Uri.tryParse(widget.linkUrl!);
+                          if (url != null && await canLaunchUrl(url)) {
+                            await launchUrl(
+                              url,
+                              mode: LaunchMode.externalApplication,
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Could not open link.'),
+                              ),
+                            );
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+              if (widget.postType == 'poll' && widget.pollData != null)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Poll:',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      ...List.generate(
+                        (widget.pollData!['options'] as List).length,
+                        (idx) => Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 2.0),
+                          child: GestureDetector(
+                            onTap:
+                                _userVotedOptionIdx == null && !_isVoting
+                                    ? () => _votePollOption(idx)
+                                    : null,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color:
+                                    _userVotedOptionIdx == idx
+                                        ? const Color(
+                                          0xFF00F6FF,
+                                        ).withOpacity(0.2)
+                                        : Colors.transparent,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color:
+                                      _userVotedOptionIdx == idx
+                                          ? const Color(0xFF00F6FF)
+                                          : Colors.grey[700]!,
+                                ),
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 8,
+                                horizontal: 12,
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    _userVotedOptionIdx == idx
+                                        ? Icons.radio_button_checked
+                                        : Icons.radio_button_off,
+                                    size: 18,
+                                    color:
+                                        _userVotedOptionIdx == idx
+                                            ? const Color(0xFF00F6FF)
+                                            : Colors.grey,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Expanded(
+                                    child: Text(
+                                      widget.pollData!['options'][idx],
+                                      style: const TextStyle(fontSize: 13),
+                                    ),
+                                  ),
+                                  if (widget.pollData!['votes'] != null)
+                                    Text(
+                                      ' (${widget.pollData!['votes'][idx]})',
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      if (_isVoting)
+                        const Padding(
+                          padding: EdgeInsets.only(top: 8.0),
+                          child: LinearProgressIndicator(),
+                        ),
+                      if (_userVotedOptionIdx != null)
+                        const Padding(
+                          padding: EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            'You have voted.',
+                            style: TextStyle(color: Color(0xFF00F6FF)),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
               const SizedBox(height: 12),
               // Engagement section
               SingleChildScrollView(

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../controller/registration_controller.dart';
 import '../../Home screen/home_screen.dart';
 import '../../core/theme/gradient_button.dart';
+import '../widgets/interests_picker.dart';
 
 class Step3Interests extends StatefulWidget {
   const Step3Interests({super.key});
@@ -12,22 +13,6 @@ class Step3Interests extends StatefulWidget {
 }
 
 class _Step3InterestsState extends State<Step3Interests> {
-  static const List<String> allInterests = [
-    'Mathematics',
-    'Science',
-    'Technology',
-    'Sports',
-    'Music',
-    'Art',
-    'Coding',
-    'Reading',
-    'Writing',
-    'Travel',
-    'Photography',
-    'Other',
-  ];
-  final TextEditingController _otherController = TextEditingController();
-
   @override
   Widget build(BuildContext context) {
     final controller = Provider.of<RegistrationController>(context);
@@ -46,58 +31,12 @@ class _Step3InterestsState extends State<Step3Interests> {
               ),
             ),
             const SizedBox(height: 16),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children:
-                  allInterests.map((interest) {
-                    final isSelected = selected.contains(interest);
-                    return FilterChip(
-                      label: Text(
-                        interest,
-                        style: TextStyle(
-                          color: isSelected ? Color(0xFF00F6FF) : Colors.white,
-                        ),
-                      ),
-                      selected: isSelected,
-                      selectedColor: Color(0xFF181C23),
-                      backgroundColor: Colors.transparent,
-                      side: BorderSide(
-                        color: isSelected ? Color(0xFF00F6FF) : Colors.white24,
-                        width: 2,
-                      ),
-                      checkmarkColor: Color(0xFF00F6FF),
-                      onSelected: (val) {
-                        if (isSelected) {
-                          controller.updateInterests(
-                            List.from(selected)..remove(interest),
-                          );
-                        } else if (selected.length < 5) {
-                          controller.updateInterests(
-                            List.from(selected)..add(interest),
-                          );
-                        }
-                      },
-                    );
-                  }).toList(),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _otherController,
-              decoration: const InputDecoration(
-                labelText: 'Suggest another interest',
-                border: OutlineInputBorder(),
-                labelStyle: TextStyle(color: Color(0xFF00F6FF)),
-              ),
-              style: const TextStyle(color: Colors.white),
-              onSubmitted: (val) {
-                if (val.isNotEmpty &&
-                    !selected.contains(val) &&
-                    selected.length < 5) {
-                  controller.updateInterests(List.from(selected)..add(val));
-                  _otherController.clear();
-                }
+            InterestsPicker(
+              initialSelected: selected,
+              onChanged: (newInterests) {
+                controller.updateInterests(newInterests);
               },
+              maxSelection: 5,
             ),
             const SizedBox(height: 32),
             GradientButton(
@@ -105,7 +44,7 @@ class _Step3InterestsState extends State<Step3Interests> {
                   controller.isLoading
                       ? null
                       : () async {
-                        if (selected.isEmpty) {
+                        if (controller.data.interests.isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text(

@@ -6,6 +6,7 @@ import '../widgets/date_picker_field.dart';
 import '../widgets/location_picker.dart';
 import '../../core/theme/gradient_button.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 
 class Step1PersonalInfo extends StatelessWidget {
   const Step1PersonalInfo({super.key});
@@ -100,25 +101,50 @@ class Step1PersonalInfo extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             // Date of Birth field with neon style
-            Container(
-              decoration: BoxDecoration(
-                color: const Color(0xFF181C23),
-                borderRadius: BorderRadius.circular(14),
+            TextFormField(
+              readOnly: true,
+              onTap: () async {
+                FocusScope.of(context).requestFocus(FocusNode());
+                final now = DateTime.now();
+                final minDate = DateTime(now.year - 100, now.month, now.day);
+                final maxDate = DateTime(now.year - 13, now.month, now.day);
+                final picked = await showDatePicker(
+                  context: context,
+                  initialDate: controller.data.dob ?? maxDate,
+                  firstDate: minDate,
+                  lastDate: maxDate,
+                );
+                FocusScope.of(context).requestFocus(FocusNode());
+                if (picked != null) controller.updateDob(picked);
+              },
+              controller: TextEditingController(
+                text:
+                    controller.data.dob != null
+                        ? DateFormat('dd MMM yyyy').format(controller.data.dob!)
+                        : '',
               ),
-              child: Row(
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.only(left: 16.0),
-                    child: Icon(Icons.calendar_today, color: Color(0xFF00F6FF)),
-                  ),
-                  Expanded(
-                    child: DatePickerField(
-                      initialDate: controller.data.dob,
-                      onDatePicked: controller.updateDob,
-                    ),
-                  ),
-                ],
+              decoration: InputDecoration(
+                prefixIcon: const Icon(
+                  Icons.calendar_today,
+                  color: Color(0xFF00F6FF),
+                ),
+                hintText: 'Date of Birth',
+                hintStyle: TextStyle(
+                  color: Colors.grey[400],
+                  fontWeight: FontWeight.w500,
+                ),
+                filled: true,
+                fillColor: const Color(0xFF181C23),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: BorderSide.none,
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  vertical: 20,
+                  horizontal: 20,
+                ),
               ),
+              style: const TextStyle(color: Colors.white, fontSize: 18),
             ),
             const SizedBox(height: 20),
             // Gender dropdown (already styled above)
@@ -182,25 +208,9 @@ class Step1PersonalInfo extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             // Location field with neon style
-            Container(
-              decoration: BoxDecoration(
-                color: const Color(0xFF181C23),
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Row(
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.only(left: 16.0),
-                    child: Icon(Icons.location_on, color: Color(0xFF00F6FF)),
-                  ),
-                  Expanded(
-                    child: LocationPicker(
-                      initialLocation: controller.data.location,
-                      onLocationPicked: controller.updateLocation,
-                    ),
-                  ),
-                ],
-              ),
+            LocationPicker(
+              initialLocation: controller.data.location,
+              onLocationPicked: controller.updateLocation,
             ),
             const SizedBox(height: 32),
             GradientButton(

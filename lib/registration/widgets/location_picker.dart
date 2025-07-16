@@ -60,33 +60,54 @@ class _LocationPickerState extends State<LocationPicker> {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: TextFormField(
-            controller: _controller,
-            decoration: const InputDecoration(
-              labelText: 'City',
-              border: OutlineInputBorder(),
+    return TextFormField(
+      controller: _controller,
+      decoration: InputDecoration(
+        prefixIcon: const Icon(Icons.location_on, color: Color(0xFF00F6FF)),
+        suffixIcon: Padding(
+          padding: const EdgeInsets.only(right: 8.0),
+          child: ElevatedButton.icon(
+            onPressed: _loading ? null : _detectLocation,
+            icon: const Icon(Icons.my_location, size: 18),
+            label:
+                _loading
+                    ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                    : const Text('Detect'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF00F6FF),
+              foregroundColor: Colors.black,
+              minimumSize: const Size(80, 40),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+              textStyle: const TextStyle(fontWeight: FontWeight.bold),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              elevation: 0,
             ),
-            onChanged: widget.onLocationPicked,
           ),
         ),
-        const SizedBox(width: 8),
-        ElevatedButton.icon(
-          onPressed: _loading ? null : _detectLocation,
-          icon: const Icon(Icons.my_location),
-          label:
-              _loading
-                  ? const SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                  : const Text('Detect'),
-          style: ElevatedButton.styleFrom(minimumSize: const Size(80, 48)),
+        hintText: 'City',
+        hintStyle: const TextStyle(
+          color: Colors.grey,
+          fontWeight: FontWeight.w500,
         ),
-      ],
+        filled: true,
+        fillColor: const Color(0xFF181C23),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide.none,
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 20,
+          horizontal: 20,
+        ),
+      ),
+      style: const TextStyle(color: Colors.white, fontSize: 18),
+      onChanged: widget.onLocationPicked,
     );
   }
 }

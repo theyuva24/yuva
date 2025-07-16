@@ -135,6 +135,9 @@ class _ConnectPageState extends State<ConnectPage>
                           shareCount: post.shareCount,
                           postImage: post.postImage,
                           postOwnerId: post.postOwnerId,
+                          postType: post.postType,
+                          linkUrl: post.linkUrl,
+                          pollData: post.pollData,
                           onCardTap: () {
                             Navigator.push(
                               context,
@@ -154,6 +157,9 @@ class _ConnectPageState extends State<ConnectPage>
                                       shareCount: post.shareCount,
                                       postImage: post.postImage,
                                       postOwnerId: post.postOwnerId,
+                                      postType: post.postType,
+                                      linkUrl: post.linkUrl,
+                                      pollData: post.pollData,
                                     ),
                               ),
                             );
@@ -228,6 +234,9 @@ class _ConnectPageState extends State<ConnectPage>
                               shareCount: post.shareCount,
                               postImage: post.postImage,
                               postOwnerId: post.postOwnerId,
+                              postType: post.postType,
+                              linkUrl: post.linkUrl,
+                              pollData: post.pollData,
                               onCardTap: () {
                                 Navigator.push(
                                   context,
@@ -248,6 +257,9 @@ class _ConnectPageState extends State<ConnectPage>
                                           shareCount: post.shareCount,
                                           postImage: post.postImage,
                                           postOwnerId: post.postOwnerId,
+                                          postType: post.postType,
+                                          linkUrl: post.linkUrl,
+                                          pollData: post.pollData,
                                         ),
                                   ),
                                 );

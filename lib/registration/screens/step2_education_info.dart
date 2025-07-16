@@ -4,11 +4,19 @@ import '../controller/registration_controller.dart';
 import '../widgets/id_card_picker.dart';
 import '../../core/theme/gradient_button.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../widgets/college_autocomplete_field.dart';
+import '../widgets/course_autocomplete_field.dart';
 
 class Step2EducationInfo extends StatelessWidget {
   const Step2EducationInfo({super.key});
 
-  static const List<String> years = ['1st', '2nd', 'Graduate'];
+  static const List<String> years = [
+    '1st year',
+    '2nd year',
+    '3rd year',
+    '4th year',
+    '5th year',
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -58,55 +66,16 @@ class Step2EducationInfo extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 32),
-            TextFormField(
+            // College Autocomplete
+            CollegeAutocompleteField(
               initialValue: controller.data.college,
-              decoration: InputDecoration(
-                prefixIcon: const Icon(Icons.school, color: Color(0xFF00F6FF)),
-                hintText: 'College/Institution',
-                hintStyle: TextStyle(
-                  color: Colors.grey[400],
-                  fontWeight: FontWeight.w500,
-                ),
-                filled: true,
-                fillColor: const Color(0xFF181C23),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
-                  borderSide: BorderSide.none,
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  vertical: 20,
-                  horizontal: 20,
-                ),
-              ),
-              style: const TextStyle(color: Colors.white, fontSize: 18),
-              onChanged: controller.updateCollege,
+              onSelected: controller.updateCollege,
             ),
             const SizedBox(height: 20),
-            TextFormField(
+            // Course Autocomplete (optional, similar logic)
+            CourseAutocompleteField(
               initialValue: controller.data.course,
-              decoration: InputDecoration(
-                prefixIcon: const Icon(
-                  Icons.collections_bookmark,
-                  color: Color(0xFF00F6FF),
-                ),
-                hintText: 'Course',
-                hintStyle: TextStyle(
-                  color: Colors.grey[400],
-                  fontWeight: FontWeight.w500,
-                ),
-                filled: true,
-                fillColor: const Color(0xFF181C23),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
-                  borderSide: BorderSide.none,
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  vertical: 20,
-                  horizontal: 20,
-                ),
-              ),
-              style: const TextStyle(color: Colors.white, fontSize: 18),
-              onChanged: controller.updateCourse,
+              onSelected: controller.updateCourse,
             ),
             const SizedBox(height: 20),
             DropdownButtonFormField<String>(
@@ -116,7 +85,10 @@ class Step2EducationInfo extends StatelessWidget {
                       .map(
                         (y) => DropdownMenuItem(
                           value: y,
-                          child: Text(y, style: TextStyle(color: Colors.white)),
+                          child: Text(
+                            y,
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
                         ),
                       )
                       .toList(),
@@ -124,28 +96,11 @@ class Step2EducationInfo extends StatelessWidget {
                 if (val != null) controller.updateYear(val);
               },
               decoration: InputDecoration(
-                prefixIcon: const Icon(
-                  Icons.calendar_month,
-                  color: Color(0xFF00F6FF),
-                ),
+                prefixIcon: const Icon(Icons.calendar_month),
                 hintText: 'Current Year',
-                hintStyle: TextStyle(
-                  color: Colors.grey[400],
-                  fontWeight: FontWeight.w500,
-                ),
-                filled: true,
-                fillColor: const Color(0xFF181C23),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
-                  borderSide: BorderSide.none,
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  vertical: 20,
-                  horizontal: 20,
-                ),
-              ),
-              style: const TextStyle(color: Colors.white, fontSize: 18),
-              dropdownColor: const Color(0xFF181C23),
+              ).applyDefaults(Theme.of(context).inputDecorationTheme),
+              style: Theme.of(context).textTheme.bodyMedium,
+              dropdownColor: Theme.of(context).colorScheme.surface,
             ),
             const SizedBox(height: 20),
             // College ID Image
@@ -168,21 +123,25 @@ class Step2EducationInfo extends StatelessWidget {
                 if (controller.data.college == null ||
                     controller.data.college!.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Please enter your college')),
+                    const SnackBar(
+                      content: Text('Please enter your college or institution'),
+                    ),
                   );
                   return;
                 }
                 if (controller.data.year == null ||
                     controller.data.year!.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Please select your year')),
+                    const SnackBar(
+                      content: Text('Please select your current year'),
+                    ),
                   );
                   return;
                 }
                 if (controller.data.idCardPath == null) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Please upload your college ID card'),
+                      content: Text('Please upload your college ID'),
                     ),
                   );
                   return;
@@ -199,7 +158,7 @@ class Step2EducationInfo extends StatelessWidget {
               borderRadius: 18,
               padding: const EdgeInsets.symmetric(vertical: 20),
               child: const Text(
-                'Complete Registration',
+                'Next',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 20,

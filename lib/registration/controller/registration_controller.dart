@@ -127,6 +127,9 @@ class RegistrationController extends ChangeNotifier {
       final idCardUrl = await _service.uploadIdCard(data.idCardPath);
       debugPrint('RegistrationController: ID card uploaded: $idCardUrl');
 
+      // Set date of join to now
+      data.dateOfJoin = DateTime.now();
+
       await _service.saveUserData(
         data,
         profileUrl: profileUrl,

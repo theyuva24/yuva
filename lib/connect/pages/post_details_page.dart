@@ -20,6 +20,9 @@ class PostDetailsPage extends StatefulWidget {
   final int shareCount;
   final String? postImage;
   final String postOwnerId;
+  final String postType;
+  final String? linkUrl;
+  final Map<String, dynamic>? pollData;
 
   const PostDetailsPage({
     Key? key,
@@ -36,6 +39,9 @@ class PostDetailsPage extends StatefulWidget {
     required this.shareCount,
     this.postImage,
     required this.postOwnerId,
+    required this.postType,
+    this.linkUrl,
+    this.pollData,
   }) : super(key: key);
 
   @override
@@ -182,6 +188,9 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
                 shareCount: widget.shareCount,
                 postImage: widget.postImage,
                 postOwnerId: widget.postOwnerId,
+                postType: widget.postType,
+                linkUrl: widget.linkUrl,
+                pollData: widget.pollData,
                 onCardTap: null, // Disable navigation
               ),
               const SizedBox(height: 16),

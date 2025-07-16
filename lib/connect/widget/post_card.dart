@@ -11,6 +11,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'voting.dart';
 import 'comment.dart' as comment;
 import 'package:url_launcher/url_launcher.dart';
+import 'post_content.dart';
 
 class PostCard extends StatefulWidget {
   final String postId;
@@ -626,172 +627,16 @@ class _PostCardState extends State<PostCard> {
                 ],
               ),
               const SizedBox(height: 12),
-              // Post content
-              if (widget.postType == 'text')
-                Text(
-                  widget.postContent,
-                  style: const TextStyle(fontSize: 13),
-                  maxLines: 6,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              if (widget.postType == 'image' && widget.postImage != null) ...[
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: AspectRatio(
-                    aspectRatio: 16 / 9,
-                    child: Image.network(
-                      widget.postImage!,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          decoration: BoxDecoration(
-                            color: Colors.grey[300],
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Icon(
-                            Icons.image_not_supported,
-                            color: Colors.grey,
-                            size: 40,
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-              ],
-              if (widget.postType == 'link' && widget.linkUrl != null)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: Card(
-                    color: const Color(0xFF232733),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: ListTile(
-                      leading: const Icon(Icons.link, color: Color(0xFF00F6FF)),
-                      title: Text(
-                        widget.linkUrl!,
-                        style: const TextStyle(
-                          color: Color(0xFF00F6FF),
-                          decoration: TextDecoration.underline,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      trailing: IconButton(
-                        icon: const Icon(
-                          Icons.open_in_new,
-                          color: Color(0xFF00F6FF),
-                        ),
-                        onPressed: () async {
-                          final url = Uri.tryParse(widget.linkUrl!);
-                          if (url != null && await canLaunchUrl(url)) {
-                            await launchUrl(
-                              url,
-                              mode: LaunchMode.externalApplication,
-                            );
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Could not open link.'),
-                              ),
-                            );
-                          }
-                        },
-                      ),
-                    ),
-                  ),
-                ),
-              if (widget.postType == 'poll' && widget.pollData != null)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Poll:',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      ...List.generate(
-                        (widget.pollData!['options'] as List).length,
-                        (idx) => Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 2.0),
-                          child: GestureDetector(
-                            onTap:
-                                _userVotedOptionIdx == null && !_isVoting
-                                    ? () => _votePollOption(idx)
-                                    : null,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color:
-                                    _userVotedOptionIdx == idx
-                                        ? const Color(
-                                          0xFF00F6FF,
-                                        ).withOpacity(0.2)
-                                        : Colors.transparent,
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(
-                                  color:
-                                      _userVotedOptionIdx == idx
-                                          ? const Color(0xFF00F6FF)
-                                          : Colors.grey[700]!,
-                                ),
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 8,
-                                horizontal: 12,
-                              ),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    _userVotedOptionIdx == idx
-                                        ? Icons.radio_button_checked
-                                        : Icons.radio_button_off,
-                                    size: 18,
-                                    color:
-                                        _userVotedOptionIdx == idx
-                                            ? const Color(0xFF00F6FF)
-                                            : Colors.grey,
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Expanded(
-                                    child: Text(
-                                      widget.pollData!['options'][idx],
-                                      style: const TextStyle(fontSize: 13),
-                                    ),
-                                  ),
-                                  if (widget.pollData!['votes'] != null)
-                                    Text(
-                                      ' (${widget.pollData!['votes'][idx]})',
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      if (_isVoting)
-                        const Padding(
-                          padding: EdgeInsets.only(top: 8.0),
-                          child: LinearProgressIndicator(),
-                        ),
-                      if (_userVotedOptionIdx != null)
-                        const Padding(
-                          padding: EdgeInsets.only(top: 8.0),
-                          child: Text(
-                            'You have voted.',
-                            style: TextStyle(color: Color(0xFF00F6FF)),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              const SizedBox(height: 12),
-              // Engagement section
+              // Post content (delegated)
+              PostContent(
+                postId: widget.postId,
+                postContent: widget.postContent,
+                postImage: widget.postImage,
+                postType: widget.postType,
+                linkUrl: widget.linkUrl,
+                pollData: widget.pollData,
+              ),
+              // Engagement section (voting, comments, share, report, etc.) remains here
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(

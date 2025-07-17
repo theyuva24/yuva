@@ -12,9 +12,27 @@ service cloud.firestore {
       allow update, delete: if request.auth != null && request.auth.uid == resource.data.createdBy;
     }
 
+    // Allow users to read user profiles
     match /users/{userId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null && request.auth.uid == userId;
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+
+      // Followers subcollection
+      match /followers/{followerId} {
+        allow read: if true;
+        allow create: if request.auth != null
+          && request.auth.uid == followerId
+          && request.resource.data.keys().hasOnly(['followedAt']);
+        allow delete: if request.auth != null && request.auth.uid == followerId;
+      }
+
+      // Following subcollection
+      match /following/{followingId} {
+        allow read: if true;
+        allow create: if request.auth != null
+          && request.auth.uid == userId
+          && request.resource.data.keys().hasOnly(['followedAt']);
+        allow delete: if request.auth != null && request.auth.uid == userId;
+      }
     }
 
     match /users/{document=**} {

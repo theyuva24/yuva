@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../model/challenge_model.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
-import '../../core/services/auth_service.dart';
+import '../../initial pages/auth_service.dart';
 import '../service/submission_service.dart';
 import '../model/submission_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';

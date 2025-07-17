@@ -3,7 +3,7 @@ import '../model/challenge_model.dart';
 import 'submit_entry_page.dart';
 import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../core/theme/gradient_button.dart';
+import '../../universal/theme/gradient_button.dart';
 
 class ChallengeDetailsPage extends StatelessWidget {
   final Challenge challenge;

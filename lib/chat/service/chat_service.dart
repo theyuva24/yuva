@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../core/services/auth_service.dart';
+import '../../initial pages/auth_service.dart';
 import '../model/chat_model.dart';
 import '../model/message_model.dart';
 import 'dart:convert';

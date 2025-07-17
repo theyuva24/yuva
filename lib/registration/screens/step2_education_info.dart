@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../controller/registration_controller.dart';
 import '../widgets/id_card_picker.dart';
-import '../../core/theme/gradient_button.dart';
+import '../../universal/theme/gradient_button.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../widgets/college_autocomplete_field.dart';
 import '../widgets/course_autocomplete_field.dart';

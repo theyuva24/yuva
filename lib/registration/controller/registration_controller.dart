@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/registration_data.dart';
 import '../service/registration_service.dart';
-import '../../core/services/auth_service.dart';
+import '../../initial pages/auth_service.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
 class RegistrationController extends ChangeNotifier {

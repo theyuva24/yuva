@@ -4,8 +4,8 @@ import '../controller/registration_controller.dart';
 import 'step1_personal_info.dart';
 import 'step2_education_info.dart';
 import 'step3_interests.dart';
-import '../../core/services/auth_service.dart';
-import '../../core/theme/app_theme.dart';
+import '../../initial pages/auth_service.dart';
+import '../../universal/theme/app_theme.dart';
 
 /// Registration flow after phone auth
 class RegistrationFlow extends StatelessWidget {

@@ -3,7 +3,7 @@ import '../service/post_service.dart';
 import '../service/hub_service.dart';
 import '../models/hub_model.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../core/theme/gradient_button.dart';
+import '../../universal/theme/gradient_button.dart';
 import '../../registration/widgets/profile_image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';

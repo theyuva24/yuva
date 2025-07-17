@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../controller/registration_controller.dart';
-import '../../Home screen/home_screen.dart';
-import '../../core/theme/gradient_button.dart';
+import '../../universal/screens/home_screen.dart';
+import '../../universal/theme/gradient_button.dart';
 import '../widgets/interests_picker.dart';
 
 class Step3Interests extends StatefulWidget {

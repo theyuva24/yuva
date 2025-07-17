@@ -344,24 +344,36 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
               ],
             ),
-            body: SingleChildScrollView(
-              child: Column(
-                children: [
-                  ProfileHeader(profile: profile, isCurrentUser: isCurrentUser),
-                  const SizedBox(height: 24),
-                  ProfileActions(
-                    isCurrentUser: isCurrentUser,
-                    profile: profile,
-                    isFollowing: isFollowing,
-                    isLoading: isLoading,
-                    onFollowToggle: () => _toggleFollow(profile),
-                    onMessage: () => _openChat(profile),
-                    onEdit: () => _editProfile(profile),
-                    onFollowers: () => _openFollowers(profile),
-                  ),
-                  const SizedBox(height: 24),
-                  ProfileTabs(profile: profile, interests: interests),
-                ],
+            body: RefreshIndicator(
+              onRefresh: () async {
+                await Provider.of<ProfileController>(
+                  context,
+                  listen: false,
+                ).loadProfile(widget.uid, forceRefresh: true);
+              },
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: Column(
+                  children: [
+                    ProfileHeader(
+                      profile: profile,
+                      isCurrentUser: isCurrentUser,
+                    ),
+                    const SizedBox(height: 24),
+                    ProfileActions(
+                      isCurrentUser: isCurrentUser,
+                      profile: profile,
+                      isFollowing: isFollowing,
+                      isLoading: isLoading,
+                      onFollowToggle: () => _toggleFollow(profile),
+                      onMessage: () => _openChat(profile),
+                      onEdit: () => _editProfile(profile),
+                      onFollowers: () => _openFollowers(profile),
+                    ),
+                    const SizedBox(height: 24),
+                    ProfileTabs(profile: profile, interests: interests),
+                  ],
+                ),
               ),
             ),
           );

@@ -3,14 +3,41 @@ import 'package:firebase_storage/firebase_storage.dart';
 import '../models/profile_model.dart';
 import 'dart:io';
 
+Map<String, ProfileModel> _profileCache = {};
+Map<String, DateTime> _profileCacheTime = {};
+const Duration _profileCacheDuration = Duration(minutes: 5);
+
+void clearProfileCache([String? uid]) {
+  if (uid != null) {
+    _profileCache.remove(uid);
+    _profileCacheTime.remove(uid);
+  } else {
+    _profileCache.clear();
+    _profileCacheTime.clear();
+  }
+}
+
 class ProfileService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final _storage = FirebaseStorage.instance;
 
-  Future<ProfileModel?> getProfile(String uid) async {
+  Future<ProfileModel?> getProfile(
+    String uid, {
+    bool forceRefresh = false,
+  }) async {
+    if (!forceRefresh &&
+        _profileCache.containsKey(uid) &&
+        _profileCacheTime[uid] != null &&
+        DateTime.now().difference(_profileCacheTime[uid]!) <
+            _profileCacheDuration) {
+      return _profileCache[uid];
+    }
     final doc = await _firestore.collection('users').doc(uid).get();
     if (doc.exists) {
-      return ProfileModel.fromMap(doc.data()!, uid);
+      final profile = ProfileModel.fromMap(doc.data()!, uid);
+      _profileCache[uid] = profile;
+      _profileCacheTime[uid] = DateTime.now();
+      return profile;
     }
     return null;
   }

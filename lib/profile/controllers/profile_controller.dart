@@ -23,10 +23,10 @@ class ProfileController extends ChangeNotifier {
   String profilePicUrl = '';
   String idCardUrl = '';
 
-  Future<void> loadProfile(String uid) async {
+  Future<void> loadProfile(String uid, {bool forceRefresh = false}) async {
     isLoading = true;
     notifyListeners();
-    profile = await _service.getProfile(uid);
+    profile = await _service.getProfile(uid, forceRefresh: forceRefresh);
     if (profile != null) {
       fullNameController.text = profile!.fullName;
       phoneController.text = profile!.phone;

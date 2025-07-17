@@ -28,6 +28,7 @@ class PostCard extends StatefulWidget {
   final String? postImage;
   final String postOwnerId;
   final VoidCallback? onCardTap; // <-- Add this
+  final VoidCallback? onCommentTap; // <-- Add this
   final String postType; // Added for new content rendering
   final String? linkUrl; // Added for new content rendering
   final Map<String, dynamic>? pollData; // Added for new content rendering
@@ -48,6 +49,7 @@ class PostCard extends StatefulWidget {
     this.postImage,
     required this.postOwnerId,
     this.onCardTap, // <-- Add this
+    this.onCommentTap, // <-- Add this
     this.postType = 'text', // Default to text
     this.linkUrl,
     this.pollData,
@@ -658,7 +660,7 @@ class _PostCardState extends State<PostCard> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         IconButton(
-                          onPressed: _openDetailsPage,
+                          onPressed: widget.onCommentTap ?? _openDetailsPage,
                           icon: const Icon(Icons.chat_bubble_outline),
                           color: Color(0xFF00F6FF),
                           iconSize: 18,

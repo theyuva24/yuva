@@ -53,11 +53,25 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
   List<comment.Comment> _comments = [];
   bool _loadingComments = true;
   String? _commentsError;
+  final TextEditingController _commentController = TextEditingController();
+  bool _isPostingComment = false;
+  final ValueNotifier<bool> _replyBoxFocused = ValueNotifier(false);
+  final ScrollController _scrollController = ScrollController();
+  final FocusNode _commentFieldFocusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
     _fetchComments();
+  }
+
+  @override
+  void dispose() {
+    _commentController.dispose();
+    _replyBoxFocused.dispose();
+    _scrollController.dispose();
+    _commentFieldFocusNode.dispose();
+    super.dispose();
   }
 
   void _fetchComments() {
@@ -112,55 +126,59 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
         });
   }
 
-  Future<void> _handleCommentReply(String parentId) async {
-    final TextEditingController replyController = TextEditingController();
-    showDialog(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Reply'),
-            content: TextField(
-              controller: replyController,
-              decoration: const InputDecoration(
-                hintText: 'Write your reply...',
-                border: OutlineInputBorder(),
-              ),
-              maxLines: 3,
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  if (replyController.text.trim().isNotEmpty) {
-                    final navigator = Navigator.of(context);
-                    final scaffoldMessenger = ScaffoldMessenger.of(context);
-                    try {
-                      await _postService.addComment(
-                        widget.postId,
-                        replyController.text.trim(),
-                        parentCommentId: parentId,
-                      );
-                      navigator.pop();
-                      scaffoldMessenger.showSnackBar(
-                        const SnackBar(
-                          content: Text('Reply added successfully!'),
-                        ),
-                      );
-                    } catch (e) {
-                      scaffoldMessenger.showSnackBar(
-                        SnackBar(content: Text('Failed to add reply: $e')),
-                      );
-                    }
-                  }
-                },
-                child: const Text('Reply'),
-              ),
-            ],
-          ),
+  Future<void> _handleCommentReply(String parentId, String replyText) async {
+    if (replyText.trim().isEmpty) return;
+    try {
+      await _postService.addComment(
+        widget.postId,
+        replyText.trim(),
+        parentCommentId: parentId,
+      );
+      // Optionally show a snackbar or update UI
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to add reply: $e')));
+    }
+  }
+
+  Future<void> _handleAddComment() async {
+    if (_commentController.text.trim().isEmpty || _isPostingComment) return;
+    setState(() {
+      _isPostingComment = true;
+    });
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    try {
+      await _postService.addComment(
+        widget.postId,
+        _commentController.text.trim(),
+      );
+      _commentController.clear();
+      FocusScope.of(context).unfocus(); // Close the keyboard
+      scaffoldMessenger.showSnackBar(
+        const SnackBar(content: Text('Comment added successfully!')),
+      );
+    } catch (e) {
+      scaffoldMessenger.showSnackBar(
+        SnackBar(content: Text('Failed to add comment: $e')),
+      );
+    } finally {
+      setState(() {
+        _isPostingComment = false;
+      });
+    }
+  }
+
+  void _scrollToCommentField() {
+    // Scroll to the bottom and focus the comment field
+    _scrollController.animateTo(
+      _scrollController.position.maxScrollExtent,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
     );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      FocusScope.of(context).requestFocus(_commentFieldFocusNode);
+    });
   }
 
   @override
@@ -168,12 +186,12 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
     return Scaffold(
       appBar: AppBar(title: const Text('Post Details')),
       body: SingleChildScrollView(
+        controller: _scrollController,
         child: Padding(
           padding: const EdgeInsets.all(12.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Show the post at the top (reuse PostCard for consistency, with all actions enabled)
               PostCard(
                 postId: widget.postId,
                 userName: widget.userName,
@@ -191,21 +209,11 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
                 postType: widget.postType,
                 linkUrl: widget.linkUrl,
                 pollData: widget.pollData,
-                onCardTap: null, // Disable navigation
+                onCardTap: null,
+                onCommentTap: _scrollToCommentField,
               ),
               const SizedBox(height: 16),
               const Divider(),
-              Row(
-                children: [
-                  const Icon(Icons.comment, size: 18, color: Colors.grey),
-                  const SizedBox(width: 6),
-                  Text(
-                    'Comments',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
               if (_loadingComments)
                 const Center(child: CircularProgressIndicator()),
               if (_commentsError != null)
@@ -220,11 +228,72 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
                   comments: _comments,
                   onReply: _handleCommentReply,
                   postId: widget.postId,
-                  // You can add onEdit, onDelete, onReport handlers here
+                  onAnyReplyFocusChanged: (focused) {
+                    _replyBoxFocused.value = focused;
+                  },
                 ),
             ],
           ),
         ),
+      ),
+      bottomNavigationBar: ValueListenableBuilder<bool>(
+        valueListenable: _replyBoxFocused,
+        builder: (context, replyFocused, child) {
+          if (replyFocused) return SizedBox.shrink();
+          return Container(
+            padding: EdgeInsets.only(
+              left: 12,
+              right: 12,
+              bottom: MediaQuery.of(context).viewInsets.bottom + 8,
+              top: 6,
+            ),
+            color: Theme.of(context).scaffoldBackgroundColor,
+            child: SafeArea(
+              top: false,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _commentController,
+                      focusNode: _commentFieldFocusNode,
+                      decoration: InputDecoration(
+                        hintText: 'Write a comment...',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(24),
+                          borderSide: BorderSide.none,
+                        ),
+                        filled: true,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                        isDense: true,
+                      ),
+                      minLines: 1,
+                      maxLines: 1,
+                      textInputAction: TextInputAction.send,
+                      onSubmitted: (_) => _handleAddComment(),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  _isPostingComment
+                      ? const SizedBox(
+                        width: 28,
+                        height: 28,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                      : IconButton(
+                        icon: const Icon(
+                          Icons.send_rounded,
+                          color: Color(0xFF00F6FF),
+                        ),
+                        onPressed: _handleAddComment,
+                      ),
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }

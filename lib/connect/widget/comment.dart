@@ -4,6 +4,9 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'voting.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
+import 'dart:async';
 
 // --- MODEL ---
 class Comment {
@@ -181,12 +184,13 @@ class CommentService {
 // --- UI WIDGETS ---
 class CommentTree extends StatelessWidget {
   final List<Comment> comments;
-  final void Function(String parentId)? onReply;
+  final void Function(String parentId, String replyText)? onReply;
   final void Function(Comment comment)? onEdit;
   final void Function(Comment comment)? onDelete;
   final void Function(Comment comment)? onReport;
   final int depth;
   final String postId;
+  final void Function(bool focused)? onAnyReplyFocusChanged;
 
   const CommentTree({
     Key? key,
@@ -197,6 +201,7 @@ class CommentTree extends StatelessWidget {
     this.onReport,
     this.depth = 0,
     required this.postId,
+    this.onAnyReplyFocusChanged,
   }) : super(key: key);
 
   @override
@@ -213,6 +218,7 @@ class CommentTree extends StatelessWidget {
                   onDelete: onDelete,
                   onReport: onReport,
                   postId: postId,
+                  onAnyReplyFocusChanged: onAnyReplyFocusChanged,
                 ),
               )
               .toList(),
@@ -223,11 +229,12 @@ class CommentTree extends StatelessWidget {
 class CommentCard extends StatefulWidget {
   final Comment comment;
   final int depth;
-  final void Function(String parentId)? onReply;
+  final void Function(String parentId, String replyText)? onReply;
   final void Function(Comment comment)? onEdit;
   final void Function(Comment comment)? onDelete;
   final void Function(Comment comment)? onReport;
   final String postId;
+  final void Function(bool focused)? onAnyReplyFocusChanged;
 
   const CommentCard({
     Key? key,
@@ -238,6 +245,7 @@ class CommentCard extends StatefulWidget {
     this.onDelete,
     this.onReport,
     required this.postId,
+    this.onAnyReplyFocusChanged,
   }) : super(key: key);
 
   @override
@@ -248,171 +256,264 @@ class _CommentCardState extends State<CommentCard> {
   bool collapsed = false;
   bool showReplyField = false;
   final TextEditingController replyController = TextEditingController();
+  bool expanded = false;
+  final VotingService _votingService = VotingService();
+  final FocusNode _replyFocusNode = FocusNode();
+  late final KeyboardVisibilityController _keyboardVisibilityController;
+  late final StreamSubscription<bool> _keyboardSubscription;
+
+  @override
+  void dispose() {
+    replyController.dispose();
+    _replyFocusNode.dispose();
+    _keyboardSubscription.cancel();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _replyFocusNode.addListener(_handleReplyFocusChange);
+    _keyboardVisibilityController = KeyboardVisibilityController();
+    _keyboardSubscription = _keyboardVisibilityController.onChange.listen((
+      visible,
+    ) {
+      if (!visible && _replyFocusNode.hasFocus) {
+        _replyFocusNode.unfocus();
+        if (showReplyField) {
+          setState(() {
+            showReplyField = false;
+          });
+        }
+        if (widget.onAnyReplyFocusChanged != null) {
+          widget.onAnyReplyFocusChanged!(false);
+        }
+      }
+    });
+  }
+
+  void _handleReplyFocusChange() {
+    if (widget.onAnyReplyFocusChanged != null) {
+      widget.onAnyReplyFocusChanged!(_replyFocusNode.hasFocus);
+    }
+    // If the reply field loses focus, close it and restore the bottom field
+    if (!_replyFocusNode.hasFocus && showReplyField) {
+      setState(() {
+        showReplyField = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final comment = widget.comment;
     final isDeleted = comment.deleted;
     final isEdited = comment.edited;
+    void handleReplySubmit() async {
+      if (replyController.text.trim().isEmpty || widget.onReply == null) return;
+      widget.onReply!(comment.id, replyController.text.trim());
+      replyController.clear();
+      setState(() => showReplyField = false);
+      if (widget.onAnyReplyFocusChanged != null) {
+        widget.onAnyReplyFocusChanged!(false);
+      }
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(width: widget.depth * 16.0),
-            Expanded(
-              child: Card(
-                margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 0),
-                elevation: 1,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+        IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Draw vertical lines for each depth level
+              for (int i = 0; i < widget.depth; i++)
+                Container(
+                  width: 12,
+                  child: VerticalDivider(
+                    thickness: 2,
+                    color: Colors.grey[300],
+                    width: 12,
+                  ),
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          CircleAvatar(
-                            radius: 14,
-                            backgroundImage:
-                                comment.userProfileImage.isNotEmpty
-                                    ? NetworkImage(comment.userProfileImage)
-                                    : null,
-                            child:
-                                comment.userProfileImage.isEmpty
-                                    ? const Icon(Icons.person, size: 16)
-                                    : null,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            comment.userName,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 13,
+              Expanded(
+                child: Card(
+                  margin: const EdgeInsets.symmetric(
+                    vertical: 4,
+                    horizontal: 0,
+                  ),
+                  elevation: 1,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 14,
+                              backgroundImage:
+                                  comment.userProfileImage.isNotEmpty
+                                      ? NetworkImage(comment.userProfileImage)
+                                      : null,
+                              child:
+                                  comment.userProfileImage.isEmpty
+                                      ? const Icon(Icons.person, size: 16)
+                                      : null,
                             ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            _formatTimeAgo(comment.timestamp),
-                            style: const TextStyle(
-                              fontSize: 11,
+                            const SizedBox(width: 8),
+                            Text(
+                              comment.userName,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              _formatTimeAgo(comment.timestamp),
+                              style: const TextStyle(
+                                fontSize: 11,
+                                color: Colors.grey,
+                              ),
+                            ),
+                            if (isEdited)
+                              const Padding(
+                                padding: EdgeInsets.only(left: 4),
+                                child: Text(
+                                  '(edited)',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        if (!isDeleted)
+                          _buildTruncatedComment(context, comment.content)
+                        else
+                          const Text(
+                            '[deleted]',
+                            style: TextStyle(
+                              fontStyle: FontStyle.italic,
                               color: Colors.grey,
                             ),
                           ),
-                          if (isEdited)
-                            const Padding(
-                              padding: EdgeInsets.only(left: 4),
-                              child: Text(
-                                '(edited)',
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  color: Colors.grey,
-                                ),
+                        Row(
+                          children: [
+                            if (!isDeleted)
+                              VotingBar(
+                                type: VotingTargetType.comment,
+                                postId: widget.postId,
+                                commentId: comment.id,
+                                initialUpvotes: comment.upvotes,
+                                initialDownvotes: comment.downvotes,
+                                initialScore: comment.score,
+                                initiallyUpvoted:
+                                    false, // You can implement logic to check if user has upvoted
+                                initiallyDownvoted:
+                                    false, // You can implement logic to check if user has downvoted
+                                votingService: _votingService,
+                                onVoteChanged: null,
+                              ),
+                            TextButton(
+                              onPressed:
+                                  isDeleted
+                                      ? null
+                                      : () => setState(() {
+                                        showReplyField = !showReplyField;
+                                        if (showReplyField) {
+                                          WidgetsBinding.instance
+                                              .addPostFrameCallback((_) {
+                                                FocusScope.of(
+                                                  context,
+                                                ).requestFocus(_replyFocusNode);
+                                              });
+                                        } else {
+                                          replyController.clear();
+                                          _replyFocusNode.unfocus();
+                                          if (widget.onAnyReplyFocusChanged !=
+                                              null) {
+                                            widget.onAnyReplyFocusChanged!(
+                                              false,
+                                            );
+                                          }
+                                        }
+                                      }),
+                              child: const Text(
+                                'Reply',
+                                style: TextStyle(fontSize: 12),
                               ),
                             ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      if (!isDeleted)
-                        Text(
-                          comment.content,
-                          style: const TextStyle(fontSize: 14),
-                        )
-                      else
-                        const Text(
-                          '[deleted]',
-                          style: TextStyle(
-                            fontStyle: FontStyle.italic,
-                            color: Colors.grey,
-                          ),
-                        ),
-                      Row(
-                        children: [
-                          TextButton(
-                            onPressed:
-                                isDeleted
-                                    ? null
-                                    : () => setState(
-                                      () => showReplyField = !showReplyField,
-                                    ),
-                            child: const Text(
-                              'Reply',
-                              style: TextStyle(fontSize: 12),
-                            ),
-                          ),
-                          IconButton(
-                            icon: Icon(
-                              collapsed ? Icons.add : Icons.remove,
-                              size: 18,
-                            ),
-                            onPressed:
-                                () => setState(() => collapsed = !collapsed),
-                            tooltip: collapsed ? 'Expand' : 'Collapse',
-                          ),
-                          if (widget.onEdit != null && !isDeleted)
-                            IconButton(
-                              icon: const Icon(Icons.edit, size: 16),
-                              onPressed: () => widget.onEdit!(comment),
-                              tooltip: 'Edit',
-                            ),
-                          if (widget.onDelete != null && !isDeleted)
-                            IconButton(
-                              icon: const Icon(Icons.delete, size: 16),
-                              onPressed: () => widget.onDelete!(comment),
-                              tooltip: 'Delete',
-                            ),
-                          if (widget.onReport != null)
-                            IconButton(
-                              icon: const Icon(Icons.flag, size: 16),
-                              onPressed: () => widget.onReport!(comment),
-                              tooltip: 'Report',
-                            ),
-                        ],
-                      ),
-                      if (showReplyField && !isDeleted)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 4.0),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: TextField(
-                                  controller: replyController,
-                                  decoration: const InputDecoration(
-                                    hintText: 'Write a reply...',
-                                    border: OutlineInputBorder(),
-                                    isDense: true,
-                                    contentPadding: EdgeInsets.symmetric(
-                                      vertical: 8,
-                                      horizontal: 8,
-                                    ),
-                                  ),
-                                  minLines: 1,
-                                  maxLines: 3,
-                                ),
-                              ),
+                            if (widget.onEdit != null && !isDeleted)
                               IconButton(
-                                icon: const Icon(Icons.send, size: 18),
-                                onPressed: () {
-                                  if (replyController.text.trim().isNotEmpty &&
-                                      widget.onReply != null) {
-                                    widget.onReply!(comment.id);
-                                    replyController.clear();
-                                    setState(() => showReplyField = false);
-                                  }
-                                },
+                                icon: const Icon(Icons.edit, size: 16),
+                                onPressed: () => widget.onEdit!(comment),
+                                tooltip: 'Edit',
                               ),
-                            ],
-                          ),
+                            if (widget.onDelete != null && !isDeleted)
+                              IconButton(
+                                icon: const Icon(Icons.delete, size: 16),
+                                onPressed: () => widget.onDelete!(comment),
+                                tooltip: 'Delete',
+                              ),
+                            if (widget.onReport != null)
+                              IconButton(
+                                icon: const Icon(Icons.flag, size: 16),
+                                onPressed: () => widget.onReport!(comment),
+                                tooltip: 'Report',
+                              ),
+                          ],
                         ),
-                    ],
+                        if (showReplyField && !isDeleted)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4.0),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: TextField(
+                                    controller: replyController,
+                                    focusNode: _replyFocusNode,
+                                    decoration: InputDecoration(
+                                      hintText: 'Write a reply...',
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(24),
+                                        borderSide: BorderSide.none,
+                                      ),
+                                      filled: true,
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                            horizontal: 12,
+                                            vertical: 8,
+                                          ),
+                                      isDense: true,
+                                    ),
+                                    minLines: 1,
+                                    maxLines: 1,
+                                    style: const TextStyle(fontSize: 14),
+                                    textInputAction: TextInputAction.send,
+                                    onSubmitted: (_) => handleReplySubmit(),
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.send, size: 18),
+                                  onPressed: handleReplySubmit,
+                                ),
+                              ],
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         if (!collapsed && comment.replies.isNotEmpty)
           CommentTree(
@@ -423,6 +524,7 @@ class _CommentCardState extends State<CommentCard> {
             onReport: widget.onReport,
             depth: widget.depth + 1,
             postId: widget.postId,
+            onAnyReplyFocusChanged: widget.onAnyReplyFocusChanged,
           ),
       ],
     );
@@ -436,5 +538,60 @@ class _CommentCardState extends State<CommentCard> {
     if (diff.inHours < 24) return '${diff.inHours}h ago';
     if (diff.inDays < 7) return '${diff.inDays}d ago';
     return '${dateTime.year}/${dateTime.month}/${dateTime.day}';
+  }
+
+  Widget _buildTruncatedComment(BuildContext context, String content) {
+    const int maxLines = 3;
+    final textSpan = TextSpan(
+      text: content,
+      style: const TextStyle(fontSize: 14),
+    );
+    final textPainter = TextPainter(
+      text: textSpan,
+      maxLines: maxLines,
+      textDirection: TextDirection.ltr,
+    )..layout(maxWidth: MediaQuery.of(context).size.width - 100);
+    final isOverflowing = textPainter.didExceedMaxLines;
+    if (expanded || !isOverflowing) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(content, style: const TextStyle(fontSize: 14)),
+          if (isOverflowing)
+            GestureDetector(
+              onTap: () => setState(() => expanded = false),
+              child: const Padding(
+                padding: EdgeInsets.only(top: 2),
+                child: Text(
+                  'Show less',
+                  style: TextStyle(color: Colors.blue, fontSize: 13),
+                ),
+              ),
+            ),
+        ],
+      );
+    } else {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            content,
+            style: const TextStyle(fontSize: 14),
+            maxLines: maxLines,
+            overflow: TextOverflow.ellipsis,
+          ),
+          GestureDetector(
+            onTap: () => setState(() => expanded = true),
+            child: const Padding(
+              padding: EdgeInsets.only(top: 2),
+              child: Text(
+                'Read more',
+                style: TextStyle(color: Colors.blue, fontSize: 13),
+              ),
+            ),
+          ),
+        ],
+      );
+    }
   }
 }

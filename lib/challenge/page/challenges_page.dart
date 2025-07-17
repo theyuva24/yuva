@@ -23,7 +23,9 @@ class _ChallengesPageState extends State<ChallengesPage> {
 
   void _refreshChallenges() {
     setState(() {
-      _challengesFuture = _challengeService.fetchAllChallenges();
+      _challengesFuture = _challengeService.fetchAllChallenges(
+        forceRefresh: true,
+      );
     });
   }
 

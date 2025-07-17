@@ -6,6 +6,15 @@ import '../models/hub_model.dart';
 import 'notification_service.dart';
 import '../widget/comment.dart';
 
+List<Post>? _cachedPosts;
+DateTime? _cacheTime;
+const Duration _cacheDuration = Duration(minutes: 5);
+
+void clearPostsCache() {
+  _cachedPosts = null;
+  _cacheTime = null;
+}
+
 class PostService {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -55,6 +64,50 @@ class PostService {
     } catch (e) {
       throw Exception('Failed to create post: $e');
     }
+  }
+
+  /// Fetch posts with in-memory caching
+  Future<List<Post>> fetchPosts({bool forceRefresh = false}) async {
+    if (!forceRefresh &&
+        _cachedPosts != null &&
+        _cacheTime != null &&
+        DateTime.now().difference(_cacheTime!) < _cacheDuration) {
+      return _cachedPosts!;
+    }
+    // Fetch from Firestore
+    final snapshot =
+        await firestore
+            .collection('posts')
+            .orderBy('postingTime', descending: true)
+            .get();
+    final posts = <Post>[];
+    for (final doc in snapshot.docs) {
+      final data = doc.data();
+      posts.add(
+        Post(
+          id: doc.id,
+          userName: data['userName'] ?? 'Anonymous',
+          userProfileImage: data['userProfileImage'] ?? '',
+          hubId: data['hubId'] ?? '',
+          hubName: data['hubName'] ?? '',
+          hubProfileImage: data['hubProfileImage'] ?? '',
+          postContent: data['postContent'] ?? '',
+          timestamp: _formatTimestamp(data['postingTime']),
+          upvotes: data['upvotes'] ?? 0,
+          downvotes: data['downvotes'] ?? 0,
+          commentCount: data['commentCount'] ?? 0,
+          shareCount: data['shareCount'] ?? 0,
+          postImage: data['postImageUrl'],
+          postOwnerId: data['userId'] ?? '',
+          postType: data['postType'] ?? 'text',
+          linkUrl: data['linkUrl'],
+          pollData: data['pollData'],
+        ),
+      );
+    }
+    _cachedPosts = posts;
+    _cacheTime = DateTime.now();
+    return posts;
   }
 
   // Get all posts with real-time updates

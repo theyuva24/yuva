@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'core/theme/app_theme.dart';
+import 'universal/theme/app_theme.dart';
 import 'firebase_options.dart';
 import 'initial pages/presentation/screens/splash_screen.dart';
 

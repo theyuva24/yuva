@@ -4,7 +4,7 @@ import '../controller/registration_controller.dart';
 import '../widgets/profile_image_picker.dart';
 import '../widgets/date_picker_field.dart';
 import '../widgets/location_picker.dart';
-import '../../core/theme/gradient_button.dart';
+import '../../universal/theme/gradient_button.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 

@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:yuva/challenge/page/challenges_page.dart';
-import '../connect/pages/connect_page.dart';
-import 'pages/post_page.dart';
-import 'pages/notification_page.dart';
-import '../connect/pages/hubs_page.dart';
+import '../../connect/pages/connect_page.dart';
+import '../../connect/pages/post_page.dart';
+import 'notification_page.dart';
+import '../../connect/pages/hubs_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:yuva/profile/profile_page.dart';
-import '../../chat/page/chats_page.dart'; // Import ChatsPage
+import '../../../chat/page/chats_page.dart'; // Import ChatsPage
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import '../../profile/controllers/profile_controller.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -63,7 +65,11 @@ class HomeScreenState extends State<HomeScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ProfilePage(uid: user.uid),
+                  builder:
+                      (context) => ChangeNotifierProvider(
+                        create: (_) => ProfileController(),
+                        child: ProfilePage(uid: user.uid),
+                      ),
                 ),
               );
             }

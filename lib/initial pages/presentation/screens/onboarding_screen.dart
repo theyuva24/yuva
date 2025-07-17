@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../../core/services/auth_service.dart';
+import '../../auth_service.dart';
 import '../../features/auth/phone/phone_auth_screen.dart';
-import '../../../core/theme/gradient_button.dart';
+import '../../../universal/theme/gradient_button.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});

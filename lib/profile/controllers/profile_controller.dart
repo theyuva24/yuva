@@ -81,6 +81,8 @@ class ProfileController extends ChangeNotifier {
       interests: interests,
       profilePicUrl: profilePicUrl,
       idCardUrl: idCardUrl,
+      followers: profile?.followers ?? [],
+      following: profile?.following ?? [],
     );
     await _service.updateProfile(updated);
     profile = updated;

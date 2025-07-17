@@ -6,9 +6,9 @@ import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'phone_auth_controller.dart';
 import '../../../../registration/screens/registration_flow.dart';
-import '../../../../core/services/auth_service.dart';
-import '../../../../Home screen/home_screen.dart';
-import 'package:yuva/core/theme/gradient_button.dart';
+import '../../../auth_service.dart';
+import '../../../../universal/screens/home_screen.dart';
+import 'package:yuva/universal/theme/gradient_button.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 

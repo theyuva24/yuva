@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../connect/pages/create_post_screen.dart';
-import '../home_screen.dart';
+import 'create_post_screen.dart';
+import '../../universal/screens/home_screen.dart';
 
 class PostPage extends StatelessWidget {
   const PostPage({super.key});

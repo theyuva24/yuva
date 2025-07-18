@@ -4,9 +4,10 @@ import '../controller/registration_controller.dart';
 import '../widgets/profile_image_picker.dart';
 import '../widgets/date_picker_field.dart';
 import '../widgets/location_picker.dart';
-import '../../universal/theme/gradient_button.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../../universal/theme/app_theme.dart';
 
 class Step1PersonalInfo extends StatelessWidget {
   const Step1PersonalInfo({super.key});
@@ -17,7 +18,7 @@ class Step1PersonalInfo extends StatelessWidget {
     String? genderValue = controller.data.gender;
     return SingleChildScrollView(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 32),
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 32.h),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -53,19 +54,22 @@ class Step1PersonalInfo extends StatelessWidget {
                 'Create your account',
                 style: TextStyle(
                   color: Colors.grey[300],
-                  fontSize: 20,
+                  fontSize: 20.sp,
                   fontWeight: FontWeight.w400,
-                  letterSpacing: 0.5,
+                  letterSpacing: 0.5.w,
                 ),
               ),
             ),
-            const SizedBox(height: 32),
+            SizedBox(height: 32.h),
             Center(
               child: Container(
-                padding: const EdgeInsets.all(4),
+                padding: EdgeInsets.all(4.w),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(color: Color(0xFF00F6FF), width: 3),
+                  border: Border.all(
+                    color: const Color(0xFF00F6FF),
+                    width: 3.w,
+                  ),
                   // boxShadow removed to eliminate radiant glow
                 ),
                 child: ProfileImagePicker(
@@ -74,32 +78,39 @@ class Step1PersonalInfo extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 32),
+            SizedBox(height: 32.h),
+            // Full Name field
             TextFormField(
               initialValue: controller.data.fullName,
               textCapitalization: TextCapitalization.words,
               decoration: InputDecoration(
-                prefixIcon: const Icon(Icons.person, color: Color(0xFF00F6FF)),
-                hintText: 'Username',
+                prefixIcon: const Icon(
+                  Icons.person,
+                  color: AppThemeLight.primary,
+                ),
+                hintText: 'Full Name',
+                labelText: 'Full Name',
                 hintStyle: TextStyle(
-                  color: Colors.grey[400],
+                  color: AppThemeLight.textLight,
                   fontWeight: FontWeight.w500,
                 ),
                 filled: true,
-                fillColor: const Color(0xFF181C23),
+                fillColor: AppThemeLight.surface,
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(14.r),
                   borderSide: BorderSide.none,
                 ),
-                contentPadding: const EdgeInsets.symmetric(
-                  vertical: 20,
-                  horizontal: 20,
+                contentPadding: EdgeInsets.symmetric(
+                  vertical: 20.h,
+                  horizontal: 20.w,
                 ),
               ),
-              style: const TextStyle(color: Colors.white, fontSize: 18),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(color: AppThemeLight.textDark),
               onChanged: controller.updateName,
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20.h),
             // Date of Birth field with neon style
             TextFormField(
               readOnly: true,
@@ -126,38 +137,45 @@ class Step1PersonalInfo extends StatelessWidget {
               decoration: InputDecoration(
                 prefixIcon: const Icon(
                   Icons.calendar_today,
-                  color: Color(0xFF00F6FF),
+                  color: AppThemeLight.primary,
                 ),
                 hintText: 'Date of Birth',
                 hintStyle: TextStyle(
-                  color: Colors.grey[400],
+                  color: AppThemeLight.textLight,
                   fontWeight: FontWeight.w500,
                 ),
                 filled: true,
-                fillColor: const Color(0xFF181C23),
+                fillColor: AppThemeLight.surface,
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(14.r),
                   borderSide: BorderSide.none,
                 ),
-                contentPadding: const EdgeInsets.symmetric(
-                  vertical: 20,
-                  horizontal: 20,
+                contentPadding: EdgeInsets.symmetric(
+                  vertical: 20.h,
+                  horizontal: 20.w,
                 ),
               ),
-              style: const TextStyle(color: Colors.white, fontSize: 18),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(color: AppThemeLight.textDark),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20.h),
             // Gender dropdown (already styled above)
             DropdownButtonFormField<String>(
               value: genderValue,
-              items: const [
+              items: [
                 DropdownMenuItem(
                   value: 'M',
                   child: Row(
                     children: [
-                      Icon(Icons.male, color: Color(0xFF00F6FF)),
-                      SizedBox(width: 8),
-                      Text('Male'),
+                      const Icon(Icons.male, color: AppThemeLight.primary),
+                      SizedBox(width: 8.w),
+                      Text(
+                        'Male',
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          color: AppThemeLight.textDark,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -165,9 +183,14 @@ class Step1PersonalInfo extends StatelessWidget {
                   value: 'F',
                   child: Row(
                     children: [
-                      Icon(Icons.female, color: Color(0xFF00F6FF)),
-                      SizedBox(width: 8),
-                      Text('Female'),
+                      const Icon(Icons.female, color: AppThemeLight.primary),
+                      SizedBox(width: 8.w),
+                      Text(
+                        'Female',
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          color: AppThemeLight.textDark,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -175,9 +198,17 @@ class Step1PersonalInfo extends StatelessWidget {
                   value: 'Other',
                   child: Row(
                     children: [
-                      Icon(Icons.transgender, color: Color(0xFF00F6FF)),
-                      SizedBox(width: 8),
-                      Text('Other'),
+                      const Icon(
+                        Icons.transgender,
+                        color: AppThemeLight.primary,
+                      ),
+                      SizedBox(width: 8.w),
+                      Text(
+                        'Other',
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          color: AppThemeLight.textDark,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -186,35 +217,41 @@ class Step1PersonalInfo extends StatelessWidget {
                 if (val != null) controller.updateGender(val);
               },
               decoration: InputDecoration(
-                prefixIcon: const Icon(Icons.people, color: Color(0xFF00F6FF)),
+                prefixIcon: const Icon(
+                  Icons.people,
+                  color: AppThemeLight.primary,
+                ),
                 hintText: 'Gender',
                 hintStyle: TextStyle(
-                  color: Colors.grey[400],
+                  color: AppThemeLight.textLight,
                   fontWeight: FontWeight.w500,
                 ),
                 filled: true,
-                fillColor: const Color(0xFF181C23),
+                fillColor: AppThemeLight.surface,
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(14.r),
                   borderSide: BorderSide.none,
                 ),
-                contentPadding: const EdgeInsets.symmetric(
-                  vertical: 20,
-                  horizontal: 20,
+                contentPadding: EdgeInsets.symmetric(
+                  vertical: 20.h,
+                  horizontal: 20.w,
                 ),
               ),
-              style: const TextStyle(color: Colors.white, fontSize: 18),
-              dropdownColor: const Color(0xFF181C23),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(color: AppThemeLight.textDark),
+              dropdownColor: AppThemeLight.surface,
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20.h),
             // Location field with neon style
             LocationPicker(
               initialLocation: controller.data.location,
               onLocationPicked: controller.updateLocation,
             ),
-            const SizedBox(height: 32),
+            SizedBox(height: 32.h),
             GradientButton(
-              onPressed: () {
+              text: 'Next',
+              onTap: () {
                 if (controller.data.profilePicPath == null ||
                     controller.data.profilePicPath!.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -258,17 +295,6 @@ class Step1PersonalInfo extends StatelessWidget {
                 }
                 controller.nextStep();
               },
-              borderRadius: 18,
-              padding: const EdgeInsets.symmetric(vertical: 20),
-              child: const Text(
-                'Next',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                  color: Colors.black,
-                  letterSpacing: 1.2,
-                ),
-              ),
             ),
           ],
         ),

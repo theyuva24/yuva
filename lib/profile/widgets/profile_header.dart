@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/profile_model.dart';
-import 'package:yuva/universal/theme/neon_theme.dart';
+import '../../universal/theme/app_theme.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ProfileHeader extends StatelessWidget {
   final ProfileModel profile;
@@ -16,27 +17,27 @@ class ProfileHeader extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        const SizedBox(height: 16),
+        SizedBox(height: 16.h),
         Center(
           child: Stack(
             alignment: Alignment.center,
             children: [
               Container(
-                width: 140,
-                height: 140,
+                width: 140.w,
+                height: 140.w,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: NeonColors.neonCyan.withOpacity(0.7),
-                      blurRadius: 18,
-                      spreadRadius: 2,
+                      color: AppThemeLight.primary.withOpacity(0.7),
+                      blurRadius: 18.r,
+                      spreadRadius: 2.r,
                     ),
                   ],
                 ),
               ),
               CircleAvatar(
-                radius: 60,
+                radius: 60.r,
                 backgroundImage:
                     (profile.profilePicUrl.isNotEmpty)
                         ? NetworkImage(profile.profilePicUrl) as ImageProvider
@@ -45,21 +46,21 @@ class ProfileHeader extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16.h),
         Center(
           child: Text(
             profile.fullName,
-            style: const TextStyle(
-              fontSize: 32,
+            style: TextStyle(
+              fontSize: 32.sp,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: Colors.black,
             ),
           ),
         ),
         Center(
           child: Text(
             profile.location,
-            style: const TextStyle(fontSize: 18, color: Colors.white70),
+            style: TextStyle(fontSize: 18.sp, color: Colors.black54),
           ),
         ),
       ],

@@ -6,6 +6,7 @@ import '../model/chat_model.dart';
 import 'chat_page.dart';
 import 'hub_chat_page.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../universal/theme/app_theme.dart';
 
 class ChatsPage extends StatelessWidget {
   const ChatsPage({Key? key}) : super(key: key);
@@ -84,141 +85,157 @@ class ChatsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
-      return const Center(child: Text('Not logged in'));
+      return const Center(
+        child: Text(
+          'Not logged in',
+          style: TextStyle(color: AppThemeLight.textDark),
+        ),
+      );
     }
-    return Scaffold(
-      backgroundColor: const Color(0xFF181C23),
-      body: FutureBuilder<List<Map<String, dynamic>>>(
-        future: fetchUnifiedChats(user.uid),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Center(
-              child: CircularProgressIndicator(color: Color(0xFF00F6FF)),
-            );
-          }
-          final chats = snapshot.data!;
-          if (chats.isEmpty) {
-            return const Center(
-              child: Padding(
-                padding: EdgeInsets.only(top: 64),
-                child: Text(
-                  'No chats yet',
-                  style: TextStyle(fontSize: 18, color: Color(0xFF00F6FF)),
-                ),
-              ),
-            );
-          }
-          return ListView.builder(
-            itemCount: chats.length,
-            itemBuilder: (context, index) {
-              final chat = chats[index];
-              return ListTile(
-                leading:
-                    chat['imageUrl'].isNotEmpty
-                        ? Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: Color(0xFF00F6FF),
-                              width: 2,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Color(0xFF00F6FF).withOpacity(0.4),
-                                blurRadius: 8,
-                                spreadRadius: 1,
-                              ),
-                            ],
-                          ),
-                          child: CircleAvatar(
-                            backgroundImage: NetworkImage(chat['imageUrl']),
-                            backgroundColor: Color(0xFF181C23),
-                          ),
-                        )
-                        : Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: Color(0xFF00F6FF),
-                              width: 2,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Color(0xFF00F6FF).withOpacity(0.4),
-                                blurRadius: 8,
-                                spreadRadius: 1,
-                              ),
-                            ],
-                          ),
-                          child: CircleAvatar(
-                            backgroundColor: Color(0xFF181C23),
-                            child: Icon(
-                              chat['type'] == 'hub'
-                                  ? Icons.groups
-                                  : Icons.person,
-                              color: Color(0xFF00F6FF),
-                            ),
-                          ),
-                        ),
-                title: Text(
-                  chat['name'],
-                  style: GoogleFonts.orbitron(
-                    textStyle: const TextStyle(
-                      color: Color(0xFF00F6FF),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      letterSpacing: 1,
-                      shadows: [
-                        Shadow(color: Color(0xFF00F6FF), blurRadius: 8),
-                      ],
+    return Theme(
+      data: AppThemeLight.theme,
+      child: Scaffold(
+        backgroundColor: AppThemeLight.background,
+        body: FutureBuilder<List<Map<String, dynamic>>>(
+          future: fetchUnifiedChats(user.uid),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return const Center(
+                child: CircularProgressIndicator(color: AppThemeLight.primary),
+              );
+            }
+            final chats = snapshot.data!;
+            if (chats.isEmpty) {
+              return const Center(
+                child: Padding(
+                  padding: EdgeInsets.only(top: 64),
+                  child: Text(
+                    'No chats yet',
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: AppThemeLight.primary,
                     ),
                   ),
                 ),
-                subtitle: Text(
-                  chat['lastMsg'] ?? '',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(color: Colors.white70),
-                ),
-                trailing:
-                    chat['lastMsgTime'] != null
-                        ? Text(
-                          TimeOfDay.fromDateTime(
-                            chat['lastMsgTime'],
-                          ).format(context),
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Color(0xFF00F6FF),
-                          ),
-                        )
-                        : null,
-                onTap: () {
-                  if (chat['type'] == 'hub') {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder:
-                            (context) => HubChatPage(
-                              hubId: chat['id'],
-                              hubName: chat['name'],
-                            ),
-                      ),
-                    );
-                  } else {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder:
-                            (context) => ChatPage(
-                              chatId: chat['id'],
-                              otherUserId: chat['otherUserId'],
-                            ),
-                      ),
-                    );
-                  }
-                },
               );
-            },
-          );
-        },
+            }
+            return ListView.builder(
+              itemCount: chats.length,
+              itemBuilder: (context, index) {
+                final chat = chats[index];
+                return ListTile(
+                  tileColor: AppThemeLight.surface,
+                  leading:
+                      chat['imageUrl'].isNotEmpty
+                          ? Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: AppThemeLight.primary,
+                                width: 2,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppThemeLight.primary.withOpacity(
+                                    0.12,
+                                  ),
+                                  blurRadius: 8,
+                                  spreadRadius: 1,
+                                ),
+                              ],
+                            ),
+                            child: CircleAvatar(
+                              backgroundImage: NetworkImage(chat['imageUrl']),
+                              backgroundColor: AppThemeLight.surface,
+                            ),
+                          )
+                          : Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: AppThemeLight.primary,
+                                width: 2,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppThemeLight.primary.withOpacity(
+                                    0.12,
+                                  ),
+                                  blurRadius: 8,
+                                  spreadRadius: 1,
+                                ),
+                              ],
+                            ),
+                            child: CircleAvatar(
+                              backgroundColor: AppThemeLight.surface,
+                              child: Icon(
+                                chat['type'] == 'hub'
+                                    ? Icons.groups
+                                    : Icons.person,
+                                color: AppThemeLight.primary,
+                              ),
+                            ),
+                          ),
+                  title: Text(
+                    chat['name'],
+                    style: GoogleFonts.orbitron(
+                      textStyle: const TextStyle(
+                        color: AppThemeLight.primary,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        letterSpacing: 1,
+                        shadows: [
+                          Shadow(color: AppThemeLight.primary, blurRadius: 8),
+                        ],
+                      ),
+                    ),
+                  ),
+                  subtitle: Text(
+                    chat['lastMsg'] ?? '',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(color: AppThemeLight.textLight),
+                  ),
+                  trailing:
+                      chat['lastMsgTime'] != null
+                          ? Text(
+                            TimeOfDay.fromDateTime(
+                              chat['lastMsgTime'],
+                            ).format(context),
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: AppThemeLight.primary,
+                            ),
+                          )
+                          : null,
+                  onTap: () {
+                    if (chat['type'] == 'hub') {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder:
+                              (context) => HubChatPage(
+                                hubId: chat['id'],
+                                hubName: chat['name'],
+                              ),
+                        ),
+                      );
+                    } else {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder:
+                              (context) => ChatPage(
+                                chatId: chat['id'],
+                                otherUserId: chat['otherUserId'],
+                              ),
+                        ),
+                      );
+                    }
+                  },
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }

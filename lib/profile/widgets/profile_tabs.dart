@@ -2,14 +2,13 @@ import 'package:flutter/material.dart';
 import '../models/profile_model.dart';
 import 'education_section.dart';
 import 'interests_section.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../connect/widget/post_card.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../universal/theme/app_theme.dart';
 
 class ProfileTabs extends StatelessWidget {
   final ProfileModel profile;
-  final List<String> interests;
-  const ProfileTabs({Key? key, required this.profile, required this.interests})
-    : super(key: key);
+  const ProfileTabs({Key? key, required this.profile}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -17,23 +16,19 @@ class ProfileTabs extends StatelessWidget {
       length: 2,
       child: Column(
         children: [
-          TabBar(
-            indicatorColor: const Color(0xFF00F6FF),
-            labelColor: const Color(0xFF00F6FF),
-            unselectedLabelColor: Colors.white54,
-            labelStyle: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-              shadows: [
-                Shadow(
-                  blurRadius: 8,
-                  color: Color(0xFF00F6FF),
-                  offset: Offset(0, 0),
-                ),
-              ],
+          Container(
+            color: AppThemeLight.background,
+            child: const TabBar(
+              indicatorColor: AppThemeLight.primary,
+              labelColor: AppThemeLight.textDark,
+              unselectedLabelColor: AppThemeLight.textLight,
+              labelStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              unselectedLabelStyle: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+              tabs: [Tab(text: "About Me"), Tab(text: "Posts")],
             ),
-            indicatorWeight: 3,
-            tabs: const [Tab(text: "About Me"), Tab(text: "Posts")],
           ),
           SizedBox(
             height: 500, // Adjust as needed
@@ -48,7 +43,7 @@ class ProfileTabs extends StatelessWidget {
                       const Text(
                         "Education",
                         style: TextStyle(
-                          color: Colors.white,
+                          color: Colors.black,
                           fontWeight: FontWeight.bold,
                           fontSize: 22,
                         ),
@@ -59,13 +54,13 @@ class ProfileTabs extends StatelessWidget {
                       const Text(
                         "Interests",
                         style: TextStyle(
-                          color: Colors.white,
+                          color: Colors.black,
                           fontWeight: FontWeight.bold,
                           fontSize: 22,
                         ),
                       ),
                       const SizedBox(height: 12),
-                      InterestsSection(interests: interests),
+                      InterestsSection(profile: profile),
                     ],
                   ),
                 ),
@@ -85,7 +80,7 @@ class ProfileTabs extends StatelessWidget {
                       return const Center(
                         child: Text(
                           'No posts yet.',
-                          style: TextStyle(color: Colors.white70),
+                          style: TextStyle(color: Colors.black54),
                         ),
                       );
                     }

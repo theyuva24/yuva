@@ -12,6 +12,7 @@ import 'voting.dart';
 import 'comment.dart' as comment;
 import 'package:url_launcher/url_launcher.dart';
 import 'post_content.dart';
+import '../../universal/theme/app_theme.dart';
 
 class PostCard extends StatefulWidget {
   final String postId;
@@ -533,26 +534,32 @@ class _PostCardState extends State<PostCard> {
                   // User profile section
                   Expanded(
                     child: GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder:
-                                (context) =>
-                                    ProfilePage(uid: widget.postOwnerId),
-                          ),
-                        );
-                      },
+                      onTap:
+                          (widget.userName == 'Anonymous')
+                              ? null
+                              : () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (context) => ProfilePage(
+                                          uid: widget.postOwnerId,
+                                        ),
+                                  ),
+                                );
+                              },
                       child: Row(
                         children: [
                           CircleAvatar(
                             radius: 18,
-                            backgroundImage: NetworkImage(
-                              widget.userProfileImage,
-                            ),
-                            onBackgroundImageError: (exception, stackTrace) {},
+                            backgroundImage:
+                                (widget.userProfileImage != null &&
+                                        widget.userProfileImage.isNotEmpty)
+                                    ? NetworkImage(widget.userProfileImage)
+                                    : null,
                             child:
-                                widget.userProfileImage.isEmpty
+                                (widget.userProfileImage == null ||
+                                        widget.userProfileImage.isEmpty)
                                     ? const Icon(
                                       Icons.person,
                                       color: Colors.white,
@@ -662,14 +669,17 @@ class _PostCardState extends State<PostCard> {
                         IconButton(
                           onPressed: widget.onCommentTap ?? _openDetailsPage,
                           icon: const Icon(Icons.chat_bubble_outline),
-                          color: Color(0xFF00F6FF),
+                          color: AppThemeLight.primary,
                           iconSize: 18,
                           padding: EdgeInsets.zero,
                           constraints: BoxConstraints(),
                         ),
                         Text(
                           '${widget.commentCount}',
-                          style: TextStyle(color: Colors.white70, fontSize: 12),
+                          style: TextStyle(
+                            color: AppThemeLight.textLight,
+                            fontSize: 12,
+                          ),
                         ),
                       ],
                     ),
@@ -684,11 +694,11 @@ class _PostCardState extends State<PostCard> {
                                 height: 16,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
-                                  color: Color(0xFF00F6FF),
+                                  color: AppThemeLight.primary,
                                 ),
                               )
                               : const Icon(Icons.share_outlined),
-                      color: Color(0xFF00F6FF),
+                      color: AppThemeLight.primary,
                       iconSize: 18,
                       padding: EdgeInsets.zero,
                       constraints: BoxConstraints(),

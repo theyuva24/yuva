@@ -3,6 +3,7 @@ import '../model/challenge_model.dart';
 import '../service/submission_service.dart';
 import '../widget/submission_card.dart';
 import '../model/submission_model.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class SubmissionsGalleryPage extends StatefulWidget {
   final Challenge challenge;
@@ -28,7 +29,9 @@ class _SubmissionsGalleryPageState extends State<SubmissionsGalleryPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Submissions')),
+      appBar: AppBar(
+        title: Text('Submissions', style: TextStyle(fontSize: 20.sp)),
+      ),
       body: FutureBuilder<List<Submission>>(
         future: _submissionsFuture,
         builder: (context, snapshot) {
@@ -36,11 +39,21 @@ class _SubmissionsGalleryPageState extends State<SubmissionsGalleryPage> {
             return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError) {
-            return Center(child: Text('Error: \\${snapshot.error}'));
+            return Center(
+              child: Text(
+                'Error: \\${snapshot.error}',
+                style: TextStyle(fontSize: 16.sp),
+              ),
+            );
           }
           final submissions = snapshot.data ?? [];
           if (submissions.isEmpty) {
-            return const Center(child: Text('No submissions yet.'));
+            return Center(
+              child: Text(
+                'No submissions yet.',
+                style: TextStyle(fontSize: 16.sp),
+              ),
+            );
           }
           return ListView.builder(
             itemCount: submissions.length,

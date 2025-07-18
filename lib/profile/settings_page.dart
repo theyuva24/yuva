@@ -4,6 +4,7 @@ import '../initial pages/auth_service.dart';
 import '../profile/models/profile_model.dart';
 import 'package:share_plus/share_plus.dart';
 import '../initial pages/presentation/screens/onboarding_screen.dart';
+import 'package:yuva/universal/theme/app_theme.dart';
 
 class SettingsPage extends StatelessWidget {
   final ProfileModel profile;
@@ -14,31 +15,42 @@ class SettingsPage extends StatelessWidget {
     final isAdmin = profile.phone == '9876543210';
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Settings'),
-        backgroundColor: const Color(0xFF0A0E17),
+        title: const Text(
+          'Settings',
+          style: TextStyle(color: AppThemeLight.textDark),
+        ),
+        backgroundColor: AppThemeLight.surface,
+        iconTheme: const IconThemeData(color: AppThemeLight.textDark),
       ),
-      backgroundColor: const Color(0xFF0A0E17),
+      backgroundColor: AppThemeLight.background,
       body: ListView(
         children: [
           ListTile(
-            leading: const Icon(Icons.info, color: Colors.white),
+            leading: const Icon(Icons.info, color: AppThemeLight.textDark),
             title: const Text(
               'About Yuva',
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: AppThemeLight.textDark),
             ),
             onTap: () {
               showDialog(
                 context: context,
                 builder:
                     (context) => AlertDialog(
-                      title: const Text('About Yuva'),
+                      title: const Text(
+                        'About Yuva',
+                        style: TextStyle(color: AppThemeLight.textDark),
+                      ),
                       content: const Text(
                         'Yuva is a modern learning platform.',
+                        style: TextStyle(color: AppThemeLight.textDark),
                       ),
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.pop(context),
-                          child: const Text('OK'),
+                          child: const Text(
+                            'OK',
+                            style: TextStyle(color: AppThemeLight.primary),
+                          ),
                         ),
                       ],
                     ),
@@ -46,22 +58,34 @@ class SettingsPage extends StatelessWidget {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.privacy_tip, color: Colors.white),
+            leading: const Icon(
+              Icons.privacy_tip,
+              color: AppThemeLight.textDark,
+            ),
             title: const Text(
               'Privacy Policy',
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: AppThemeLight.textDark),
             ),
             onTap: () {
               showDialog(
                 context: context,
                 builder:
                     (context) => AlertDialog(
-                      title: const Text('Privacy Policy'),
-                      content: const Text('Privacy policy details go here.'),
+                      title: const Text(
+                        'Privacy Policy',
+                        style: TextStyle(color: AppThemeLight.textDark),
+                      ),
+                      content: const Text(
+                        'Privacy policy details go here.',
+                        style: TextStyle(color: AppThemeLight.textDark),
+                      ),
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.pop(context),
-                          child: const Text('OK'),
+                          child: const Text(
+                            'OK',
+                            style: TextStyle(color: AppThemeLight.primary),
+                          ),
                         ),
                       ],
                     ),
@@ -69,33 +93,48 @@ class SettingsPage extends StatelessWidget {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.share, color: Colors.white),
+            leading: const Icon(Icons.share, color: AppThemeLight.textDark),
             title: const Text(
               'Share App',
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: AppThemeLight.textDark),
             ),
             onTap: () {
               Share.share('Check out Yuva app!');
             },
           ),
           ListTile(
-            leading: const Icon(Icons.logout, color: Colors.white),
-            title: const Text('Logout', style: TextStyle(color: Colors.white)),
+            leading: const Icon(Icons.logout, color: AppThemeLight.textDark),
+            title: const Text(
+              'Logout',
+              style: TextStyle(color: AppThemeLight.textDark),
+            ),
             onTap: () async {
               final shouldLogout = await showDialog<bool>(
                 context: context,
                 builder:
                     (context) => AlertDialog(
-                      title: const Text('Logout'),
-                      content: const Text('Are you sure you want to logout?'),
+                      title: const Text(
+                        'Logout',
+                        style: TextStyle(color: AppThemeLight.textDark),
+                      ),
+                      content: const Text(
+                        'Are you sure you want to logout?',
+                        style: TextStyle(color: AppThemeLight.textDark),
+                      ),
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.pop(context, false),
-                          child: const Text('Cancel'),
+                          child: const Text(
+                            'Cancel',
+                            style: TextStyle(color: AppThemeLight.primary),
+                          ),
                         ),
                         TextButton(
                           onPressed: () => Navigator.pop(context, true),
-                          child: const Text('Logout'),
+                          child: const Text(
+                            'Logout',
+                            style: TextStyle(color: AppThemeLight.primary),
+                          ),
                         ),
                       ],
                     ),
@@ -113,9 +152,12 @@ class SettingsPage extends StatelessWidget {
             ListTile(
               leading: const Icon(
                 Icons.admin_panel_settings,
-                color: Colors.white,
+                color: AppThemeLight.textDark,
               ),
-              title: const Text('Admin', style: TextStyle(color: Colors.white)),
+              title: const Text(
+                'Admin',
+                style: TextStyle(color: AppThemeLight.textDark),
+              ),
               onTap: () {
                 Navigator.of(
                   context,

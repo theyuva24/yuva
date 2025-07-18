@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
+import '../../universal/theme/app_theme.dart';
 
 class LocationPicker extends StatefulWidget {
   final String? initialLocation;
@@ -63,7 +64,7 @@ class _LocationPickerState extends State<LocationPicker> {
     return TextFormField(
       controller: _controller,
       decoration: InputDecoration(
-        prefixIcon: const Icon(Icons.location_on, color: Color(0xFF00F6FF)),
+        prefixIcon: const Icon(Icons.location_on, color: AppThemeLight.primary),
         suffixIcon: Padding(
           padding: const EdgeInsets.only(right: 8.0),
           child: ElevatedButton.icon(
@@ -78,8 +79,8 @@ class _LocationPickerState extends State<LocationPicker> {
                     )
                     : const Text('Detect'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF00F6FF),
-              foregroundColor: Colors.black,
+              backgroundColor: AppThemeLight.primary,
+              foregroundColor: Colors.white,
               minimumSize: const Size(80, 40),
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
               textStyle: const TextStyle(fontWeight: FontWeight.bold),
@@ -92,11 +93,11 @@ class _LocationPickerState extends State<LocationPicker> {
         ),
         hintText: 'City',
         hintStyle: const TextStyle(
-          color: Colors.grey,
+          color: AppThemeLight.textLight,
           fontWeight: FontWeight.w500,
         ),
         filled: true,
-        fillColor: const Color(0xFF181C23),
+        fillColor: AppThemeLight.surface,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide.none,
@@ -106,7 +107,7 @@ class _LocationPickerState extends State<LocationPicker> {
           horizontal: 20,
         ),
       ),
-      style: const TextStyle(color: Colors.white, fontSize: 18),
+      style: const TextStyle(color: AppThemeLight.textDark, fontSize: 18),
       onChanged: widget.onLocationPicked,
     );
   }

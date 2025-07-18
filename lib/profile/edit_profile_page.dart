@@ -28,6 +28,7 @@ extension _ProfileModelCopyWith on ProfileModel {
     String? idCardUrl,
     List<String>? followers,
     List<String>? following,
+    String? uniqueName,
   }) {
     return ProfileModel(
       uid: uid,
@@ -44,6 +45,7 @@ extension _ProfileModelCopyWith on ProfileModel {
       idCardUrl: idCardUrl ?? this.idCardUrl,
       followers: followers ?? this.followers,
       following: following ?? this.following,
+      uniqueName: uniqueName ?? this.uniqueName,
     );
   }
 }
@@ -123,6 +125,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       phone: _mobileController.text,
       dob: _dob,
       profilePicUrl: newProfilePicUrl,
+      uniqueName: widget.profile.uniqueName,
     );
     await ProfileService().updateProfile(updatedProfile);
     if (mounted) {

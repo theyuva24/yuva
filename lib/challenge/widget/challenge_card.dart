@@ -3,6 +3,7 @@ import '../model/challenge_model.dart';
 import '../page/challenge_details_page.dart';
 import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../universal/theme/app_theme.dart';
 
 class ChallengeCard extends StatelessWidget {
   final Challenge challenge;
@@ -30,13 +31,13 @@ class ChallengeCard extends StatelessWidget {
         height: 220,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Color(0xFF00F6FF), width: 2),
+          border: Border.all(color: AppThemeLight.primary, width: 2),
           boxShadow: [
             BoxShadow(
-              color: Color(0xFF00F6FF).withOpacity(0.25),
-              blurRadius: 24,
-              spreadRadius: 2,
-              offset: const Offset(0, 0),
+              color: AppThemeLight.primary.withOpacity(0.08),
+              blurRadius: 12,
+              spreadRadius: 1,
+              offset: const Offset(0, 2),
             ),
           ],
         ),
@@ -68,7 +69,7 @@ class ChallengeCard extends StatelessWidget {
                   end: Alignment.bottomCenter,
                   colors: [
                     Colors.transparent,
-                    Color(0xFF181C23).withOpacity(0.85),
+                    AppThemeLight.surface.withOpacity(0.92),
                   ],
                   stops: const [0.5, 1.0],
                 ),
@@ -89,13 +90,12 @@ class ChallengeCard extends StatelessWidget {
                       challenge.title,
                       style: GoogleFonts.orbitron(
                         textStyle: const TextStyle(
-                          color: Color(0xFF00F6FF),
+                          color: AppThemeLight.textDark,
                           fontWeight: FontWeight.bold,
                           fontSize: 22,
                           letterSpacing: 1.5,
                           shadows: [
-                            Shadow(color: Color(0xFF00F6FF), blurRadius: 12),
-                            Shadow(color: Colors.black26, blurRadius: 4),
+                            Shadow(color: Colors.black12, blurRadius: 4),
                           ],
                         ),
                       ),
@@ -106,9 +106,9 @@ class ChallengeCard extends StatelessWidget {
                     Text(
                       challenge.description,
                       style: const TextStyle(
-                        color: Colors.white70,
+                        color: AppThemeLight.textLight,
                         fontSize: 15,
-                        shadows: [Shadow(color: Colors.black26, blurRadius: 4)],
+                        shadows: [Shadow(color: Colors.black12, blurRadius: 2)],
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -118,19 +118,23 @@ class ChallengeCard extends StatelessWidget {
                       children: [
                         Icon(
                           Icons.emoji_events,
-                          color: Color(0xFF00F6FF),
+                          color: AppThemeLight.primary,
                           size: 20,
                         ),
                         const SizedBox(width: 6),
                         Text(
                           challenge.prize,
                           style: const TextStyle(
-                            color: Color(0xFF00F6FF),
+                            color: AppThemeLight.primary,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
                         const Spacer(),
-                        Icon(Icons.timer, color: Color(0xFF00F6FF), size: 18),
+                        Icon(
+                          Icons.timer,
+                          color: AppThemeLight.primary,
+                          size: 18,
+                        ),
                         const SizedBox(width: 4),
                         Text(
                           isExpired
@@ -140,7 +144,9 @@ class ChallengeCard extends StatelessWidget {
                               : 'Last day',
                           style: TextStyle(
                             color:
-                                isExpired ? Colors.red[200] : Color(0xFF00F6FF),
+                                isExpired
+                                    ? Colors.red[200]
+                                    : AppThemeLight.primary,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -154,7 +160,7 @@ class ChallengeCard extends StatelessWidget {
                         Text(
                           dateStr,
                           style: const TextStyle(
-                            color: Colors.white70,
+                            color: AppThemeLight.textLight,
                             fontSize: 13,
                           ),
                         ),

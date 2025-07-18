@@ -10,6 +10,76 @@ class RegistrationService {
   final _storage = FirebaseStorage.instance;
   final _auth = FirebaseAuth.instance;
 
+  // Generates a random student/GenZ-style unique name
+  Future<String> generateUniqueName() async {
+    final adjectives = [
+      'Chill',
+      'Vibe',
+      'Epic',
+      'Swift',
+      'Nova',
+      'Pixel',
+      'Flex',
+      'Hype',
+      'Snazzy',
+      'Lit',
+      'Rad',
+      'Fresh',
+      'Savvy',
+      'Quirky',
+      'Zesty',
+      'Witty',
+      'Buzzy',
+      'Snappy',
+      'Groovy',
+      'Peppy',
+    ];
+    final nouns = [
+      'Scholar',
+      'Nerd',
+      'Guru',
+      'Whiz',
+      'Ace',
+      'Wiz',
+      'Pro',
+      'Brain',
+      'Geek',
+      'Champ',
+      'Scout',
+      'Maven',
+      'Scribe',
+      'Coder',
+      'Dreamer',
+      'Creator',
+      'Spark',
+      'Legend',
+      'Star',
+      'Buddy',
+    ];
+    final random = DateTime.now().millisecondsSinceEpoch;
+    String uniqueName;
+    bool exists = true;
+    int attempt = 0;
+    do {
+      final adj = adjectives[(random + attempt) % adjectives.length];
+      final noun = nouns[(random * 7 + attempt * 13) % nouns.length];
+      final number = (random + attempt * 17) % 10000;
+      uniqueName = ' $adj$noun _ ${number.toString().padLeft(4, '0')}';
+      final query =
+          await _firestore
+              .collection('users')
+              .where('uniqueName', isEqualTo: uniqueName)
+              .get();
+      exists = query.docs.isNotEmpty;
+      attempt++;
+    } while (exists && attempt < 20);
+    if (exists) {
+      // fallback if too many attempts
+      uniqueName = 'Student${random}';
+    }
+    return uniqueName;
+  }
+
   Future<String?> uploadProfileImage(String? path) async {
     if (path == null) return null;
     try {
@@ -56,6 +126,11 @@ class RegistrationService {
         'RegistrationService: Data to save: ${data.fullName}, ${data.college}, ${data.interests}',
       );
 
+      // Generate and assign a unique name if not already set
+      if (data.username == null || data.username!.isEmpty) {
+        data.username = await generateUniqueName();
+      }
+
       // Check if user data already exists
       final existingDoc = await _firestore.collection('users').doc(uid).get();
 
@@ -75,6 +150,7 @@ class RegistrationService {
           'interests': data.interests,
           'phone': phone,
           'fcmToken': fcmToken,
+          'uniqueName': data.username, // Save as uniqueName
           'updatedAt': FieldValue.serverTimestamp(),
         });
       } else {
@@ -93,6 +169,7 @@ class RegistrationService {
           'interests': data.interests,
           'phone': phone,
           'fcmToken': fcmToken,
+          'uniqueName': data.username, // Save as uniqueName
           'createdAt': FieldValue.serverTimestamp(),
           'joinedHubs': [], // Always initialize joinedHubs for new users
         });

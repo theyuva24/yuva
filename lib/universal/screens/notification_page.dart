@@ -3,6 +3,8 @@ import '../../connect/service/notification_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../../universal/theme/app_theme.dart';
 
 class NotificationPage extends StatelessWidget {
   const NotificationPage({super.key});
@@ -10,21 +12,23 @@ class NotificationPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final NotificationService notificationService = NotificationService();
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     return Container(
-      color: const Color(0xFF181C23),
+      color: colorScheme.background,
       child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
         stream: notificationService.getUserNotificationsStream(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(color: Color(0xFF00F6FF)),
+            return Center(
+              child: CircularProgressIndicator(color: colorScheme.primary),
             );
           }
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return const Center(
+            return Center(
               child: Text(
                 'No notifications yet.',
-                style: TextStyle(fontSize: 18, color: Color(0xFF00F6FF)),
+                style: TextStyle(fontSize: 18.sp, color: colorScheme.primary),
               ),
             );
           }
@@ -47,51 +51,48 @@ class NotificationPage extends StatelessWidget {
                 message = 'You have a new notification.';
               }
               return Container(
-                margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                margin: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
                 decoration: BoxDecoration(
                   color:
                       read
-                          ? const Color(0xFF232733)
-                          : const Color(0xFF00F6FF).withOpacity(0.08),
-                  borderRadius: BorderRadius.circular(14),
+                          ? colorScheme.surface
+                          : colorScheme.primary.withOpacity(0.08),
+                  borderRadius: BorderRadius.circular(14.r),
                   border: Border.all(
-                    color: read ? Colors.white24 : const Color(0xFF00F6FF),
-                    width: 1.5,
+                    color: read ? colorScheme.outline : colorScheme.primary,
+                    width: 1.5.w,
                   ),
                   boxShadow: [
                     if (!read)
                       BoxShadow(
-                        color: const Color(0xFF00F6FF).withOpacity(0.18),
-                        blurRadius: 8,
-                        spreadRadius: 1,
+                        color: colorScheme.primary.withOpacity(0.12),
+                        blurRadius: 8.r,
+                        spreadRadius: 1.r,
                       ),
                   ],
                 ),
                 child: ListTile(
                   leading: Icon(
                     type == 'like' ? Icons.thumb_up : Icons.comment,
-                    color:
-                        type == 'like' ? Color(0xFF00F6FF) : Color(0xFF00F6FF),
+                    color: colorScheme.primary,
                   ),
                   title: Text(
                     message,
-                    style: GoogleFonts.orbitron(
-                      textStyle: const TextStyle(
-                        color: Color(0xFF00F6FF),
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                        letterSpacing: 1,
-                        shadows: [
-                          Shadow(color: Color(0xFF00F6FF), blurRadius: 8),
-                        ],
-                      ),
+                    style: TextStyle(
+                      color: colorScheme.primary,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15.sp,
+                      letterSpacing: 1.w,
                     ),
                   ),
                   subtitle:
                       time != null
                           ? Text(
                             _formatTime(time),
-                            style: const TextStyle(color: Colors.white70),
+                            style: TextStyle(
+                              color: theme.textTheme.bodyMedium?.color,
+                              fontSize: 13.sp,
+                            ),
                           )
                           : null,
                   tileColor: Colors.transparent,

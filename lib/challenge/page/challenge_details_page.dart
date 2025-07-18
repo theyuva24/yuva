@@ -3,7 +3,7 @@ import '../model/challenge_model.dart';
 import 'submit_entry_page.dart';
 import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../universal/theme/gradient_button.dart';
+import '../../universal/theme/app_theme.dart';
 
 class ChallengeDetailsPage extends StatelessWidget {
   final Challenge challenge;
@@ -27,23 +27,23 @@ class ChallengeDetailsPage extends StatelessWidget {
         totalDuration > 0 ? (elapsed / totalDuration).clamp(0.0, 1.0) : 1.0;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF181C23),
+      backgroundColor: AppThemeLight.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF181C23),
+        backgroundColor: AppThemeLight.surface,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Color(0xFF00F6FF)),
+        iconTheme: const IconThemeData(color: AppThemeLight.primary),
         title: Text(
           challenge.title,
           style: GoogleFonts.orbitron(
             textStyle: const TextStyle(
               fontSize: 26,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF00F6FF),
+              color: AppThemeLight.primary,
               letterSpacing: 2,
               shadows: [
                 Shadow(
-                  blurRadius: 16,
-                  color: Color(0xFF00F6FF),
+                  blurRadius: 4,
+                  color: Colors.black12,
                   offset: Offset(0, 0),
                 ),
               ],
@@ -75,9 +75,9 @@ class ChallengeDetailsPage extends StatelessWidget {
                   LinearProgressIndicator(
                     value: progress,
                     minHeight: 8,
-                    backgroundColor: Colors.white24,
+                    backgroundColor: AppThemeLight.surface,
                     valueColor: AlwaysStoppedAnimation<Color>(
-                      progress < 1.0 ? Color(0xFF00F6FF) : Colors.redAccent,
+                      progress < 1.0 ? AppThemeLight.primary : Colors.redAccent,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -88,14 +88,14 @@ class ChallengeDetailsPage extends StatelessWidget {
                         'Start: ${_formatDate(startDate)}',
                         style: const TextStyle(
                           fontSize: 12,
-                          color: Color(0xFF00F6FF),
+                          color: AppThemeLight.primary,
                         ),
                       ),
                       Text(
                         'End: ${_formatDate(endDate)}',
                         style: const TextStyle(
                           fontSize: 12,
-                          color: Color(0xFF00F6FF),
+                          color: AppThemeLight.primary,
                         ),
                       ),
                     ],
@@ -109,13 +109,13 @@ class ChallengeDetailsPage extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Container(
                 decoration: BoxDecoration(
-                  color: const Color(0xFF232733),
+                  color: AppThemeLight.surface,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Color(0xFF00F6FF), width: 2),
+                  border: Border.all(color: AppThemeLight.primary, width: 2),
                   boxShadow: [
                     BoxShadow(
-                      color: Color(0xFF00F6FF).withOpacity(0.12),
-                      blurRadius: 16,
+                      color: AppThemeLight.primary.withOpacity(0.06),
+                      blurRadius: 8,
                       spreadRadius: 1,
                     ),
                   ],
@@ -126,7 +126,10 @@ class ChallengeDetailsPage extends StatelessWidget {
                   children: [
                     Text(
                       challenge.description,
-                      style: const TextStyle(fontSize: 16, color: Colors.white),
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: AppThemeLight.textDark,
+                      ),
                     ),
                     const SizedBox(height: 20),
                     Row(
@@ -145,7 +148,8 @@ class ChallengeDetailsPage extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: GradientButton(
-                onPressed: () {
+                text: 'Submit Entry',
+                onTap: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -154,17 +158,6 @@ class ChallengeDetailsPage extends StatelessWidget {
                     ),
                   );
                 },
-                borderRadius: 18,
-                padding: const EdgeInsets.symmetric(vertical: 20),
-                child: const Text(
-                  'Submit Entry',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
-                    color: Colors.black,
-                    letterSpacing: 1.2,
-                  ),
-                ),
               ),
             ),
             const SizedBox(height: 24),
@@ -190,13 +183,13 @@ class _InfoBox extends StatelessWidget {
       width: 90,
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
       decoration: BoxDecoration(
-        color: const Color(0xFF181C23),
+        color: AppThemeLight.background,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Color(0xFF00F6FF), width: 1.5),
+        border: Border.all(color: AppThemeLight.primary, width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: Color(0xFF00F6FF).withOpacity(0.08),
-            blurRadius: 8,
+            color: AppThemeLight.primary.withOpacity(0.04),
+            blurRadius: 6,
             spreadRadius: 1,
           ),
         ],
@@ -207,7 +200,7 @@ class _InfoBox extends StatelessWidget {
             label,
             style: const TextStyle(
               fontSize: 12,
-              color: Color(0xFF00F6FF),
+              color: AppThemeLight.primary,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -217,7 +210,7 @@ class _InfoBox extends StatelessWidget {
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: AppThemeLight.textDark,
             ),
             textAlign: TextAlign.center,
           ),

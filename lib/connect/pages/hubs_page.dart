@@ -3,6 +3,8 @@ import '../models/hub_model.dart';
 import '../service/hub_service.dart';
 import 'hub_details_page.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../../universal/theme/app_theme.dart';
 
 class HubsPage extends StatelessWidget {
   const HubsPage({super.key});
@@ -40,7 +42,7 @@ class HubsPage extends StatelessWidget {
 
             return AlertDialog(
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(16.r),
               ),
               title: const Text(
                 'Create Hub',
@@ -48,7 +50,7 @@ class HubsPage extends StatelessWidget {
               ),
               content: SingleChildScrollView(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  padding: EdgeInsets.symmetric(vertical: 8.h),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -60,7 +62,7 @@ class HubsPage extends StatelessWidget {
                           border: OutlineInputBorder(),
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      SizedBox(height: 16.h),
                       TextField(
                         controller: descriptionController,
                         decoration: const InputDecoration(
@@ -82,12 +84,14 @@ class HubsPage extends StatelessWidget {
                   onPressed: isLoading ? null : _createHub,
                   child:
                       isLoading
-                          ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ? SizedBox(
+                            width: 20.w,
+                            height: 20.w,
+                            child: const CircularProgressIndicator(
+                              strokeWidth: 2,
+                            ),
                           )
-                          : const Text('Create'),
+                          : Text('Create', style: TextStyle(fontSize: 16.sp)),
                 ),
               ],
             );
@@ -101,52 +105,40 @@ class HubsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final HubService hubService = HubService();
     return Scaffold(
-      backgroundColor: const Color(0xFF181C23),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF181C23),
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Color(0xFF00F6FF)),
+        iconTheme: Theme.of(context).appBarTheme.iconTheme,
+        centerTitle: true,
         title: Text(
           'Hubs',
-          style: GoogleFonts.orbitron(
-            textStyle: const TextStyle(
-              fontSize: 26,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF00F6FF),
-              letterSpacing: 2,
-              shadows: [
-                Shadow(
-                  blurRadius: 16,
-                  color: Color(0xFF00F6FF),
-                  offset: Offset(0, 0),
-                ),
-              ],
-            ),
-          ),
+          style: Theme.of(context).appBarTheme.titleTextStyle,
         ),
       ),
+      // FAB for adding a hub is intentionally hidden as per request
       body: StreamBuilder<List<Hub>>(
         stream: hubService.getHubsStream(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
-              child: CircularProgressIndicator(color: Color(0xFF00F6FF)),
+              child: CircularProgressIndicator(color: AppThemeLight.primary),
             );
           }
           if (snapshot.hasError) {
-            return const Center(
+            return Center(
               child: Text(
                 'Error loading hubs',
-                style: TextStyle(color: Color(0xFF00F6FF)),
+                style: Theme.of(context).textTheme.labelLarge,
               ),
             );
           }
           final hubs = snapshot.data ?? [];
           if (hubs.isEmpty) {
-            return const Center(
+            return Center(
               child: Text(
                 'No hubs available.',
-                style: TextStyle(color: Color(0xFF00F6FF)),
+                style: Theme.of(context).textTheme.labelLarge,
               ),
             );
           }
@@ -155,16 +147,16 @@ class HubsPage extends StatelessWidget {
             itemBuilder: (context, index) {
               final hub = hubs[index];
               return Container(
-                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF232733),
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: Color(0xFF00F6FF), width: 1.5),
+                  color: AppThemeLight.surface,
+                  borderRadius: BorderRadius.circular(14.r),
+                  border: Border.all(color: AppThemeLight.border, width: 1.5.w),
                   boxShadow: [
                     BoxShadow(
-                      color: Color(0xFF00F6FF).withOpacity(0.12),
-                      blurRadius: 12,
-                      spreadRadius: 1,
+                      color: AppThemeLight.primary.withOpacity(0.08),
+                      blurRadius: 8.r,
+                      spreadRadius: 1.r,
                     ),
                   ],
                 ),
@@ -172,37 +164,30 @@ class HubsPage extends StatelessWidget {
                   leading: Container(
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      border: Border.all(color: Color(0xFF00F6FF), width: 2),
+                      border: Border.all(
+                        color: AppThemeLight.primary,
+                        width: 2.w,
+                      ),
                       boxShadow: [
                         BoxShadow(
-                          color: Color(0xFF00F6FF).withOpacity(0.4),
-                          blurRadius: 8,
-                          spreadRadius: 1,
+                          color: AppThemeLight.primary.withOpacity(0.12),
+                          blurRadius: 8.r,
+                          spreadRadius: 1.r,
                         ),
                       ],
                     ),
                     child: CircleAvatar(
                       backgroundImage: NetworkImage(hub.imageUrl),
-                      backgroundColor: Color(0xFF181C23),
+                      backgroundColor: AppThemeLight.background,
                     ),
                   ),
                   title: Text(
                     hub.name,
-                    style: GoogleFonts.orbitron(
-                      textStyle: const TextStyle(
-                        color: Color(0xFF00F6FF),
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        letterSpacing: 1,
-                        shadows: [
-                          Shadow(color: Color(0xFF00F6FF), blurRadius: 8),
-                        ],
-                      ),
-                    ),
+                    style: Theme.of(context).textTheme.titleLarge,
                   ),
                   subtitle: Text(
                     hub.description,
-                    style: const TextStyle(color: Colors.white70),
+                    style: Theme.of(context).textTheme.bodyMedium,
                   ),
                   onTap: () {
                     Navigator.push(
@@ -217,12 +202,6 @@ class HubsPage extends StatelessWidget {
             },
           );
         },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showCreateHubDialog(context, hubService),
-        backgroundColor: const Color(0xFF00F6FF),
-        child: const Icon(Icons.add, color: Colors.black),
-        tooltip: 'Create Hub',
       ),
     );
   }

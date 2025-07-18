@@ -3,6 +3,8 @@ import '../service/challenge_service.dart';
 import '../widget/challenge_card.dart';
 import '../model/challenge_model.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../../universal/theme/app_theme.dart';
 
 class ChallengesPage extends StatefulWidget {
   const ChallengesPage({Key? key}) : super(key: key);
@@ -32,7 +34,7 @@ class _ChallengesPageState extends State<ChallengesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF181C23),
+      backgroundColor: AppThemeLight.background,
       // Removed the AppBar as requested
       body: RefreshIndicator(
         onRefresh: () async => _refreshChallenges(),
@@ -43,15 +45,20 @@ class _ChallengesPageState extends State<ChallengesPage> {
               return ListView(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(top: 80.0),
+                    padding: EdgeInsets.only(top: 80.h),
                     child: Center(
                       child: Column(
-                        children: const [
-                          CircularProgressIndicator(color: Color(0xFF00F6FF)),
-                          SizedBox(height: 16),
+                        children: [
+                          const CircularProgressIndicator(
+                            color: AppThemeLight.primary,
+                          ),
+                          SizedBox(height: 16.h),
                           Text(
                             'Loading challenges...',
-                            style: TextStyle(color: Color(0xFF00F6FF)),
+                            style: TextStyle(
+                              color: AppThemeLight.primary,
+                              fontSize: 16.sp,
+                            ),
                           ),
                         ],
                       ),
@@ -64,26 +71,32 @@ class _ChallengesPageState extends State<ChallengesPage> {
               return ListView(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(top: 80.0),
+                    padding: EdgeInsets.only(top: 80.h),
                     child: Center(
                       child: Column(
                         children: [
                           const Icon(
                             Icons.error_outline,
-                            color: Color(0xFF00F6FF),
+                            color: AppThemeLight.primary,
                             size: 48,
                           ),
-                          const SizedBox(height: 16),
+                          SizedBox(height: 16.h),
                           Text(
                             'Error: ${snapshot.error}',
-                            style: const TextStyle(color: Color(0xFF00F6FF)),
+                            style: TextStyle(
+                              color: AppThemeLight.primary,
+                              fontSize: 16.sp,
+                            ),
                           ),
-                          const SizedBox(height: 8),
+                          SizedBox(height: 8.h),
                           TextButton(
                             onPressed: _refreshChallenges,
-                            child: const Text(
+                            child: Text(
                               'Retry',
-                              style: TextStyle(color: Color(0xFF00F6FF)),
+                              style: TextStyle(
+                                color: AppThemeLight.primary,
+                                fontSize: 15.sp,
+                              ),
                             ),
                           ),
                         ],
@@ -98,21 +111,21 @@ class _ChallengesPageState extends State<ChallengesPage> {
               return ListView(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(top: 80.0),
+                    padding: EdgeInsets.only(top: 80.h),
                     child: Center(
                       child: Column(
-                        children: const [
-                          Icon(
+                        children: [
+                          const Icon(
                             Icons.emoji_events_outlined,
-                            color: Color(0xFF00F6FF),
+                            color: AppThemeLight.primary,
                             size: 48,
                           ),
-                          SizedBox(height: 16),
+                          SizedBox(height: 16.h),
                           Text(
                             'No challenges available yet.',
                             style: TextStyle(
-                              fontSize: 18,
-                              color: Color(0xFF00F6FF),
+                              fontSize: 18.sp,
+                              color: AppThemeLight.primary,
                             ),
                           ),
                         ],
@@ -123,9 +136,9 @@ class _ChallengesPageState extends State<ChallengesPage> {
               );
             }
             return ListView.separated(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
               itemCount: challenges.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 16),
+              separatorBuilder: (_, __) => SizedBox(height: 16.h),
               itemBuilder: (context, index) {
                 return ChallengeCard(challenge: challenges[index]);
               },

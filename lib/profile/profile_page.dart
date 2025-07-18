@@ -11,10 +11,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../chat/service/chat_service.dart';
 import '../../chat/page/chat_page.dart';
 import '../initial pages/auth_service.dart';
-import 'package:yuva/universal/theme/neon_theme.dart';
-import 'package:yuva/universal/theme/gradient_button.dart';
+import 'package:yuva/universal/theme/app_theme.dart';
 import 'services/profile_service.dart';
 import 'settings_page.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 // 1. Add a stateful widget wrapper for follow state
 class _OtherUserProfileHeader extends StatefulWidget {
@@ -88,28 +88,28 @@ class _OtherUserProfileHeaderState extends State<_OtherUserProfileHeader> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        const SizedBox(height: 16),
+        SizedBox(height: 16.h),
         // Profile Picture with Neon Glow
         Center(
           child: Stack(
             alignment: Alignment.center,
             children: [
               Container(
-                width: 140,
-                height: 140,
+                width: 140.w,
+                height: 140.w,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: NeonColors.neonCyan.withOpacity(0.7),
-                      blurRadius: 18,
-                      spreadRadius: 2,
+                      color: AppThemeLight.primary.withOpacity(0.7),
+                      blurRadius: 18.r,
+                      spreadRadius: 2.r,
                     ),
                   ],
                 ),
               ),
               CircleAvatar(
-                radius: 60,
+                radius: 60.r,
                 backgroundImage:
                     (profile.profilePicUrl.isNotEmpty)
                         ? NetworkImage(profile.profilePicUrl) as ImageProvider
@@ -118,60 +118,63 @@ class _OtherUserProfileHeaderState extends State<_OtherUserProfileHeader> {
             ],
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16.h),
         Center(
           child: Text(
             profile.fullName,
-            style: const TextStyle(
-              fontSize: 32,
+            style: TextStyle(
+              fontSize: 32.sp,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: Colors.black,
             ),
           ),
         ),
         Center(
           child: Text(
             profile.location,
-            style: const TextStyle(fontSize: 18, color: Colors.white70),
+            style: TextStyle(fontSize: 18.sp, color: Colors.black54),
           ),
         ),
-        const SizedBox(height: 24),
+        SizedBox(height: 24.h),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          padding: EdgeInsets.symmetric(horizontal: 16.w),
           child: Row(
             children: [
               Expanded(
                 child: OutlinedButton(
                   onPressed: isLoading ? null : _toggleFollow,
                   style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: NeonColors.neonCyan, width: 2),
-                    foregroundColor: NeonColors.neonCyan,
+                    side: BorderSide(color: AppThemeLight.primary, width: 2.w),
+                    foregroundColor: AppThemeLight.primary,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(16.r),
                     ),
-                    minimumSize: const Size(0, 48),
+                    minimumSize: Size(0, 48.h),
                   ),
                   child:
                       isLoading
-                          ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ? SizedBox(
+                            width: 20.w,
+                            height: 20.w,
+                            child: const CircularProgressIndicator(
+                              strokeWidth: 2,
+                            ),
                           )
-                          : const Text(
+                          : Text(
                             "Follow",
                             style: TextStyle(
-                              fontSize: 20,
+                              fontSize: 20.sp,
                               fontWeight: FontWeight.bold,
-                              color: NeonColors.neonCyan,
+                              color: AppThemeLight.primary,
                             ),
                           ),
                 ),
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: 16.w),
               Expanded(
                 child: GradientButton(
-                  onPressed: () async {
+                  text: "Message",
+                  onTap: () async {
                     final chatService = ChatService();
                     final chat = await chatService.getOrCreateChatWith(
                       profile.uid,
@@ -187,21 +190,12 @@ class _OtherUserProfileHeaderState extends State<_OtherUserProfileHeader> {
                       ),
                     );
                   },
-                  gradient: NeonGradients.button,
-                  child: const Text(
-                    "Message",
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
                 ),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16.h),
       ],
     );
   }
@@ -313,7 +307,7 @@ class _ProfilePageState extends State<ProfilePage> {
         builder: (context, controller, _) {
           if (controller.isLoading || controller.profile == null) {
             return Scaffold(
-              backgroundColor: const Color(0xFF0A0E17),
+              backgroundColor: AppThemeLight.background,
               body: const Center(child: CircularProgressIndicator()),
             );
           }
@@ -322,18 +316,18 @@ class _ProfilePageState extends State<ProfilePage> {
           final currentUserId = AuthService().currentUser?.uid;
           final isCurrentUser = currentUserId == profile.uid;
           return Scaffold(
-            backgroundColor: const Color(0xFF0A0E17),
+            backgroundColor: AppThemeLight.background,
             appBar: AppBar(
-              backgroundColor: const Color(0xFF0A0E17),
+              backgroundColor: AppThemeLight.background,
               elevation: 0,
               leading: IconButton(
-                icon: const Icon(Icons.arrow_back, color: Colors.white),
+                icon: const Icon(Icons.arrow_back, color: Colors.black),
                 onPressed: () => Navigator.of(context).pop(),
               ),
               actions: [
                 if (isCurrentUser)
                   IconButton(
-                    icon: const Icon(Icons.settings, color: Colors.white),
+                    icon: const Icon(Icons.settings, color: Colors.black),
                     onPressed: () {
                       Navigator.of(context).push(
                         MaterialPageRoute(
@@ -359,10 +353,9 @@ class _ProfilePageState extends State<ProfilePage> {
                       profile: profile,
                       isCurrentUser: isCurrentUser,
                     ),
-                    const SizedBox(height: 24),
                     ProfileActions(
-                      isCurrentUser: isCurrentUser,
                       profile: profile,
+                      isCurrentUser: isCurrentUser,
                       isFollowing: isFollowing,
                       isLoading: isLoading,
                       onFollowToggle: () => _toggleFollow(profile),
@@ -370,8 +363,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       onEdit: () => _editProfile(profile),
                       onFollowers: () => _openFollowers(profile),
                     ),
-                    const SizedBox(height: 24),
-                    ProfileTabs(profile: profile, interests: interests),
+                    ProfileTabs(profile: profile),
                   ],
                 ),
               ),

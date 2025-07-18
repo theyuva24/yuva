@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import '../../universal/theme/app_theme.dart';
 import '../models/profile_model.dart';
-import 'package:yuva/universal/theme/neon_theme.dart';
-import 'package:yuva/universal/theme/gradient_button.dart';
+import '../../chat/page/chat_page.dart';
+import '../../chat/service/chat_service.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ProfileActions extends StatelessWidget {
   final bool isCurrentUser;
@@ -36,8 +38,8 @@ class ProfileActions extends StatelessWidget {
               child: OutlinedButton(
                 onPressed: onFollowers,
                 style: OutlinedButton.styleFrom(
-                  side: BorderSide(color: NeonColors.neonCyan, width: 2),
-                  foregroundColor: NeonColors.neonCyan,
+                  side: BorderSide(color: AppThemeLight.primary, width: 2),
+                  foregroundColor: AppThemeLight.primary,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -48,26 +50,13 @@ class ProfileActions extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: NeonColors.neonCyan,
+                    color: AppThemeLight.primary,
                   ),
                 ),
               ),
             ),
             const SizedBox(width: 16),
-            Expanded(
-              child: GradientButton(
-                onPressed: onEdit,
-                gradient: NeonGradients.button,
-                child: const Text(
-                  "Edit",
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
-              ),
-            ),
+            Expanded(child: GradientButton(text: "Edit", onTap: onEdit)),
           ],
         ),
       );
@@ -80,8 +69,8 @@ class ProfileActions extends StatelessWidget {
               child: OutlinedButton(
                 onPressed: isLoading ? null : onFollowToggle,
                 style: OutlinedButton.styleFrom(
-                  side: BorderSide(color: NeonColors.neonCyan, width: 2),
-                  foregroundColor: NeonColors.neonCyan,
+                  side: BorderSide(color: AppThemeLight.primary, width: 2),
+                  foregroundColor: AppThemeLight.primary,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -99,26 +88,13 @@ class ProfileActions extends StatelessWidget {
                           style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
-                            color: NeonColors.neonCyan,
+                            color: AppThemeLight.primary,
                           ),
                         ),
               ),
             ),
             const SizedBox(width: 16),
-            Expanded(
-              child: GradientButton(
-                onPressed: onMessage,
-                gradient: NeonGradients.button,
-                child: const Text(
-                  "Message",
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
-              ),
-            ),
+            Expanded(child: GradientButton(text: "Message", onTap: onMessage)),
           ],
         ),
       );

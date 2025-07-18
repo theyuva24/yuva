@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../controller/registration_controller.dart';
 import '../widgets/id_card_picker.dart';
-import '../../universal/theme/gradient_button.dart';
+import '../../universal/theme/app_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../widgets/college_autocomplete_field.dart';
 import '../widgets/course_autocomplete_field.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class Step2EducationInfo extends StatelessWidget {
   const Step2EducationInfo({super.key});
@@ -23,7 +24,7 @@ class Step2EducationInfo extends StatelessWidget {
     final controller = Provider.of<RegistrationController>(context);
     return SingleChildScrollView(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 32),
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 32.h),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -59,25 +60,25 @@ class Step2EducationInfo extends StatelessWidget {
                 'Academic Information',
                 style: TextStyle(
                   color: Colors.grey[300],
-                  fontSize: 20,
+                  fontSize: 20.sp,
                   fontWeight: FontWeight.w400,
-                  letterSpacing: 0.5,
+                  letterSpacing: 0.5.w,
                 ),
               ),
             ),
-            const SizedBox(height: 32),
+            SizedBox(height: 32.h),
             // College Autocomplete
             CollegeAutocompleteField(
               initialValue: controller.data.college,
               onSelected: controller.updateCollege,
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20.h),
             // Course Autocomplete (optional, similar logic)
             CourseAutocompleteField(
               initialValue: controller.data.course,
               onSelected: controller.updateCourse,
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20.h),
             DropdownButtonFormField<String>(
               value: controller.data.year,
               items:
@@ -87,7 +88,8 @@ class Step2EducationInfo extends StatelessWidget {
                           value: y,
                           child: Text(
                             y,
-                            style: Theme.of(context).textTheme.bodyMedium,
+                            style: Theme.of(context).textTheme.bodyLarge
+                                ?.copyWith(color: AppThemeLight.textDark),
                           ),
                         ),
                       )
@@ -96,36 +98,50 @@ class Step2EducationInfo extends StatelessWidget {
                 if (val != null) controller.updateYear(val);
               },
               decoration: InputDecoration(
-                prefixIcon: const Icon(Icons.calendar_month),
+                prefixIcon: const Icon(
+                  Icons.calendar_month,
+                  color: AppThemeLight.primary,
+                ),
                 hintText: 'Current Year',
-              ).applyDefaults(Theme.of(context).inputDecorationTheme),
-              style: Theme.of(context).textTheme.bodyMedium,
-              dropdownColor: Theme.of(context).colorScheme.surface,
+                hintStyle: TextStyle(color: AppThemeLight.textLight),
+                filled: true,
+                fillColor: AppThemeLight.surface,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14.r),
+                  borderSide: BorderSide.none,
+                ),
+                contentPadding: EdgeInsets.symmetric(
+                  vertical: 20.h,
+                  horizontal: 20.w,
+                ),
+              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(color: AppThemeLight.textDark),
+              dropdownColor: AppThemeLight.surface,
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20.h),
             // College ID Image
-            const Text(
+            Text(
               'College ID Image',
-              style: TextStyle(
-                color: Colors.white,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: AppThemeLight.textDark,
                 fontWeight: FontWeight.bold,
-                fontSize: 16,
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8.h),
             IdCardPicker(
               imagePath: controller.data.idCardPath,
               onImagePicked: controller.updateIdCard,
             ),
-            const SizedBox(height: 32),
+            SizedBox(height: 32.h),
             GradientButton(
-              onPressed: () {
+              text: 'Next',
+              onTap: () {
                 if (controller.data.college == null ||
                     controller.data.college!.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Please enter your college or institution'),
-                    ),
+                    const SnackBar(content: Text('Please select your college')),
                   );
                   return;
                 }
@@ -155,17 +171,6 @@ class Step2EducationInfo extends StatelessWidget {
                 }
                 controller.nextStep();
               },
-              borderRadius: 18,
-              padding: const EdgeInsets.symmetric(vertical: 20),
-              child: const Text(
-                'Next',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                  color: Colors.black,
-                  letterSpacing: 1.2,
-                ),
-              ),
             ),
           ],
         ),

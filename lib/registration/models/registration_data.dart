@@ -10,6 +10,7 @@ class RegistrationData {
   String? course;
   List<String> interests = [];
   DateTime? dateOfJoin;
+  String? username; // Added for unique username
 
   RegistrationData();
 }

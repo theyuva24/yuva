@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:flutter/services.dart' show rootBundle;
+import '../../universal/theme/app_theme.dart';
 
 class InterestsPicker extends StatefulWidget {
   final List<String> initialSelected;
@@ -126,12 +127,18 @@ class _InterestsPickerState extends State<InterestsPicker> {
       children: [
         TextField(
           controller: _searchController,
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
             labelText: 'Search interests',
-            border: OutlineInputBorder(),
-            labelStyle: TextStyle(color: Color(0xFF00F6FF)),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide(color: AppThemeLight.border),
+            ),
+            labelStyle: TextStyle(color: AppThemeLight.primary),
+            filled: true,
+            fillColor: AppThemeLight.surface,
+            hintStyle: TextStyle(color: AppThemeLight.textLight),
           ),
-          style: const TextStyle(color: Colors.white),
+          style: TextStyle(color: AppThemeLight.textDark),
         ),
         const SizedBox(height: 12),
         if (_selected.isNotEmpty)
@@ -143,8 +150,8 @@ class _InterestsPickerState extends State<InterestsPicker> {
                     .map(
                       (interest) => Chip(
                         label: Text(interest),
-                        backgroundColor: const Color(0xFF00F6FF),
-                        labelStyle: const TextStyle(color: Colors.black),
+                        backgroundColor: AppThemeLight.primary,
+                        labelStyle: TextStyle(color: AppThemeLight.surface),
                         deleteIcon: const Icon(Icons.close, size: 18),
                         onDeleted: () => _removeInterest(interest),
                       ),
@@ -160,17 +167,12 @@ class _InterestsPickerState extends State<InterestsPicker> {
               (interest) => FilterChip(
                 label: Text(
                   interest,
-                  style: TextStyle(
-                    color:
-                        _selected.contains(interest)
-                            ? const Color(0xFF00F6FF)
-                            : Colors.white,
-                  ),
+                  style: TextStyle(color: AppThemeLight.textDark),
                 ),
                 selected: false,
-                backgroundColor: Colors.transparent,
-                side: const BorderSide(color: Colors.white24, width: 2),
-                checkmarkColor: const Color(0xFF00F6FF),
+                backgroundColor: AppThemeLight.surface,
+                side: BorderSide(color: AppThemeLight.border, width: 2),
+                checkmarkColor: AppThemeLight.primary,
                 onSelected: (_) => _addInterest(interest),
               ),
             ),
@@ -178,11 +180,11 @@ class _InterestsPickerState extends State<InterestsPicker> {
               FilterChip(
                 label: Text(
                   'Add "$query"',
-                  style: const TextStyle(color: Color(0xFF00F6FF)),
+                  style: TextStyle(color: AppThemeLight.primary),
                 ),
                 selected: false,
-                backgroundColor: Colors.transparent,
-                side: const BorderSide(color: Color(0xFF00F6FF), width: 2),
+                backgroundColor: AppThemeLight.surface,
+                side: BorderSide(color: AppThemeLight.primary, width: 2),
                 onSelected: (_) => _addInterest(query),
               ),
           ],

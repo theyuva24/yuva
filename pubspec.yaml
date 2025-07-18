@@ -28,7 +28,8 @@ dependencies:
   firebase_messaging: ^15.2.9
   flutter_local_notifications: ^17.1.2
   pin_code_fields: ^8.0.1
-  flutter_keyboard_visibility: ^5.4.1
+  flutter_keyboard_visibility: ^6.0.0
+  flutter_screenutil: ^5.9.0
 
 
 dev_dependencies:

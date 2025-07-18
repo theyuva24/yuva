@@ -41,6 +41,8 @@ class PostService {
     Map<String, dynamic>? pollData,
     String? linkUrl,
     required String postType,
+    String? userName,
+    String? userProfileImage,
   }) async {
     try {
       final user = _auth.currentUser;
@@ -56,6 +58,9 @@ class PostService {
         'pollData': pollData,
         'linkUrl': linkUrl,
         'postType': postType,
+        'userName': userName,
+        'userProfileImage': userProfileImage,
+        'anonymous': (userName == 'Anonymous'),
         ...ensureEngagementFields({}), // Always set all engagement fields
       };
 

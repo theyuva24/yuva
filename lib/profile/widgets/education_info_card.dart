@@ -1,45 +1,72 @@
 import 'package:flutter/material.dart';
+import '../../universal/theme/app_theme.dart';
 
 class EducationInfoCard extends StatelessWidget {
   final String college;
   final String course;
+  final String year;
   const EducationInfoCard({
     Key? key,
     required this.college,
     required this.course,
+    required this.year,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(Icons.school, color: Color(0xFF00F6FF), size: 32),
-          SizedBox(width: 10),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                college,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 19,
-                  fontWeight: FontWeight.w600,
-                ),
+    return Card(
+      color: AppThemeLight.surface,
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: const BorderSide(color: AppThemeLight.primary, width: 1.5),
+      ),
+      elevation: 4,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'College',
+              style: TextStyle(
+                color: AppThemeLight.primary,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
               ),
-              Text(
-                course,
-                style: TextStyle(
-                  color: Colors.grey[400],
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                ),
+            ),
+            Text(
+              college,
+              style: const TextStyle(fontSize: 18, color: Colors.black),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Course',
+              style: TextStyle(
+                color: AppThemeLight.primary,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
               ),
-            ],
-          ),
-        ],
+            ),
+            Text(
+              course,
+              style: const TextStyle(fontSize: 18, color: Colors.black),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Year',
+              style: TextStyle(
+                color: AppThemeLight.primary,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+            Text(
+              year,
+              style: const TextStyle(fontSize: 18, color: Colors.black),
+            ),
+          ],
+        ),
       ),
     );
   }

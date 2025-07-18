@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'create_post_screen.dart';
 import '../../universal/screens/home_screen.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class PostPage extends StatelessWidget {
   const PostPage({super.key});
@@ -25,6 +26,14 @@ class PostPage extends StatelessWidget {
     });
 
     // Return a loading screen while navigating
-    return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    return Scaffold(
+      body: Center(
+        child: SizedBox(
+          width: 32.w,
+          height: 32.w,
+          child: const CircularProgressIndicator(),
+        ),
+      ),
+    );
   }
 }

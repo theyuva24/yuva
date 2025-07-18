@@ -8,7 +8,7 @@ import 'phone_auth_controller.dart';
 import '../../../../registration/screens/registration_flow.dart';
 import '../../../auth_service.dart';
 import '../../../../universal/screens/home_screen.dart';
-import 'package:yuva/universal/theme/gradient_button.dart';
+import 'package:yuva/universal/theme/app_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 
@@ -320,400 +320,222 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFF181C23),
-      body: Stack(
-        children: [
-          // Neon lines background
-          Positioned.fill(child: CustomPaint(painter: _NeonLinesPainter())),
-          SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const SizedBox(height: 40),
-                    // Neon YUVA logo
-                    Center(
-                      child: Text(
-                        'YUVA',
-                        style: GoogleFonts.orbitron(
-                          textStyle: const TextStyle(
-                            fontSize: 56,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF00F6FF),
-                            letterSpacing: 4,
-                            shadows: [
-                              Shadow(
-                                blurRadius: 32,
-                                color: Color(0xFF00F6FF),
-                                offset: Offset(0, 0),
-                              ),
-                              Shadow(
-                                blurRadius: 8,
-                                color: Color(0xFF00F6FF),
-                                offset: Offset(0, 0),
-                              ),
-                            ],
+      backgroundColor: AppThemeLight.background,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const SizedBox(height: 40),
+                Center(
+                  child: Text(
+                    'YUVA',
+                    style: GoogleFonts.orbitron(
+                      textStyle: theme.textTheme.displaySmall?.copyWith(
+                        color: AppThemeLight.primary,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 4,
+                        shadows: [
+                          Shadow(
+                            blurRadius: 8,
+                            color: AppThemeLight.primary.withOpacity(0.3),
+                            offset: Offset(0, 0),
                           ),
-                        ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Login to explore opportunities',
-                      style: TextStyle(
-                        color: Colors.grey[400],
-                        fontSize: 18,
-                        fontWeight: FontWeight.w400,
-                        letterSpacing: 0.5,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 40),
-                    if (_successMessage != null) ...[
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.green[50],
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.green[300]!),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.check_circle_outline,
-                              color: Colors.green[700],
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                _successMessage!,
-                                style: const TextStyle(color: Colors.green),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                    ],
-                    if (_error != null) ...[
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.red[50],
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.red[300]!),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(Icons.error_outline, color: Colors.red[700]),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                _error!,
-                                style: const TextStyle(color: Colors.red),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                    ],
-                    if (!_codeSent) ...[
-                      Container(
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF232733),
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: const Color(0xFF00F6FF).withOpacity(0.2),
-                            width: 1.5,
-                          ),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 2,
-                        ),
-                        child: Row(
-                          children: [
-                            Container(
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF181C23),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              padding: const EdgeInsets.all(10),
-                              child: const Icon(
-                                Icons.phone,
-                                color: Color(0xFF00F6FF),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: TextFormField(
-                                controller: _phoneController,
-                                keyboardType: TextInputType.phone,
-                                inputFormatters: [
-                                  FilteringTextInputFormatter.allow(
-                                    RegExp(r'[0-9+\-\s]'),
-                                  ),
-                                ],
-                                decoration: const InputDecoration(
-                                  labelText: null,
-                                  hintText: 'Enter your phone number',
-                                  border: InputBorder.none,
-                                  isDense: true,
-                                ),
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                ),
-                                validator: (value) {
-                                  if (value == null || value.trim().isEmpty) {
-                                    return 'Please enter your phone number';
-                                  }
-                                  if (!_isValidPhoneNumber(value.trim())) {
-                                    return 'Please enter a valid phone number';
-                                  }
-                                  return null;
-                                },
-                                onChanged: (value) {
-                                  if (_error != null) {
-                                    setState(() {
-                                      _error = null;
-                                    });
-                                  }
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 32),
-                      SizedBox(
-                        height: 56,
-                        child: GradientButton(
-                          onPressed: _loading ? null : _startPhoneAuth,
-                          borderRadius: 16,
-                          gradient: const LinearGradient(
-                            colors: [
-                              Color(0xFF00FF85), // green
-                              Color(0xFF00F6FF), // cyan
-                              Color(0xFF00B2FF), // blue
-                            ],
-                            begin: Alignment.centerLeft,
-                            end: Alignment.centerRight,
-                          ),
-                          child:
-                              _loading
-                                  ? const SizedBox(
-                                    height: 20,
-                                    width: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: Colors.black,
-                                    ),
-                                  )
-                                  : const Text(
-                                    'SEND OTP',
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.bold,
-                                      letterSpacing: 1.2,
-                                    ),
-                                  ),
-                        ),
-                      ),
-                    ] else ...[
-                      const SizedBox(height: 8),
-                      Center(
-                        child: Column(
-                          children: [
-                            Text(
-                              'Enter the OTP code',
-                              style: TextStyle(
-                                color: Colors.grey[300],
-                                fontSize: 22,
-                                fontWeight: FontWeight.w500,
-                                letterSpacing: 0.5,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Sent to $_currentPhoneNumber',
-                              style: TextStyle(
-                                color: Colors.grey[500],
-                                fontSize: 16,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 32),
-                      PinCodeTextField(
-                        appContext: context,
-                        length: 6,
-                        controller: _otpController,
-                        focusNode: _otpFocusNode,
-                        autoFocus: true,
-                        keyboardType: TextInputType.number,
-                        animationType: AnimationType.fade,
-                        pinTheme: PinTheme(
-                          shape: PinCodeFieldShape.box,
-                          borderRadius: BorderRadius.circular(16),
-                          fieldHeight: 60,
-                          fieldWidth: 50,
-                          activeColor: Color(0xFF00F6FF),
-                          selectedColor: Color(0xFF00F6FF),
-                          inactiveColor: Colors.white24,
-                          activeFillColor: Colors.transparent,
-                          selectedFillColor: Colors.transparent,
-                          inactiveFillColor: Colors.transparent,
-                          borderWidth: 2,
-                        ),
-                        textStyle: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          shadows: [
-                            Shadow(
-                              blurRadius: 16,
-                              color: Color(0xFF00F6FF),
-                              offset: Offset(0, 0),
-                            ),
-                          ],
-                        ),
-                        enableActiveFill: false,
-                        onChanged: (value) {
-                          if (_error != null) {
-                            setState(() {
-                              _error = null;
-                            });
-                          }
-                          if (value.length == 6) {
-                            _verifyOtp();
-                          }
-                        },
-                      ),
-                      const SizedBox(height: 32),
-                      GradientButton(
-                        onPressed: _loading ? null : _verifyOtp,
-                        borderRadius: 24,
-                        gradient: const LinearGradient(
-                          colors: [
-                            Color(0xFF00FF85),
-                            Color(0xFF00F6FF),
-                            Color(0xFF00B2FF),
-                          ],
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
-                        ),
-                        child:
-                            _loading
-                                ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: Colors.black,
-                                  ),
-                                )
-                                : const Text(
-                                  'VERIFY',
-                                  style: TextStyle(
-                                    fontSize: 24,
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 2,
-                                  ),
-                                ),
-                      ),
-                      const SizedBox(height: 24),
-                      Center(
-                        child: TextButton(
-                          onPressed:
-                              (_resendTimer > 0 || _loading)
-                                  ? null
-                                  : _resendOtp,
-                          child: Text(
-                            _resendTimer > 0
-                                ? 'Resend code in 00:${_resendTimer.toString().padLeft(2, '0')}'
-                                : 'Resend code',
-                            style: TextStyle(
-                              color: Colors.grey[400],
-                              fontSize: 18,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                    const SizedBox(height: 40),
-                  ],
+                  ),
                 ),
-              ),
+                const SizedBox(height: 16),
+                Text(
+                  'Login to explore opportunities',
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    color: AppThemeLight.textLight,
+                    fontWeight: FontWeight.w400,
+                    letterSpacing: 0.5,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 40),
+                if (_successMessage != null) ...[
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.green[50],
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.green[300]!),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.check_circle_outline,
+                          color: Colors.green[700],
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            _successMessage!,
+                            style: const TextStyle(color: Colors.green),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+                if (_error != null) ...[
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.red[50],
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.red[300]!),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.error_outline, color: Colors.red[700]),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            _error!,
+                            style: const TextStyle(color: Colors.red),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+                if (!_codeSent) ...[
+                  TextFormField(
+                    controller: _phoneController,
+                    keyboardType: TextInputType.phone,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r'[0-9+\-\s]')),
+                    ],
+                    decoration: InputDecoration(
+                      labelText: 'Phone Number',
+                      hintText: 'Enter your phone number',
+                      prefixIcon: Icon(
+                        Icons.phone,
+                        color: AppThemeLight.primary,
+                      ),
+                    ),
+                    style: theme.textTheme.bodyLarge,
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Please enter your phone number';
+                      }
+                      if (!_isValidPhoneNumber(value.trim())) {
+                        return 'Please enter a valid phone number';
+                      }
+                      return null;
+                    },
+                    onChanged: (value) {
+                      if (_error != null) {
+                        setState(() {
+                          _error = null;
+                        });
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 32),
+                  GradientButton(
+                    text: 'SEND OTP',
+                    onTap: _loading ? () {} : _startPhoneAuth,
+                  ),
+                ] else ...[
+                  const SizedBox(height: 8),
+                  Center(
+                    child: Column(
+                      children: [
+                        Text(
+                          'Enter the OTP code',
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            color: AppThemeLight.textDark,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Sent to $_currentPhoneNumber',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: AppThemeLight.textLight,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  PinCodeTextField(
+                    appContext: context,
+                    length: 6,
+                    controller: _otpController,
+                    focusNode: _otpFocusNode,
+                    autoFocus: true,
+                    keyboardType: TextInputType.number,
+                    animationType: AnimationType.fade,
+                    pinTheme: PinTheme(
+                      shape: PinCodeFieldShape.box,
+                      borderRadius: BorderRadius.circular(16),
+                      fieldHeight: 60,
+                      fieldWidth: 50,
+                      activeColor: AppThemeLight.primary,
+                      selectedColor: AppThemeLight.secondary,
+                      inactiveColor: AppThemeLight.border,
+                      activeFillColor: Colors.transparent,
+                      selectedFillColor: Colors.transparent,
+                      inactiveFillColor: Colors.transparent,
+                      borderWidth: 2,
+                    ),
+                    textStyle: theme.textTheme.headlineMedium?.copyWith(
+                      color: AppThemeLight.textDark,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    enableActiveFill: false,
+                    onChanged: (value) {
+                      if (_error != null) {
+                        setState(() {
+                          _error = null;
+                        });
+                      }
+                      if (value.length == 6) {
+                        _verifyOtp();
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 32),
+                  GradientButton(
+                    text: 'VERIFY',
+                    onTap: _loading ? () {} : _verifyOtp,
+                  ),
+                  const SizedBox(height: 24),
+                  Center(
+                    child: TextButton(
+                      onPressed:
+                          (_resendTimer > 0 || _loading) ? null : _resendOtp,
+                      child: Text(
+                        _resendTimer > 0
+                            ? 'Resend code in 00: ${_resendTimer.toString().padLeft(2, '0')}'
+                            : 'Resend code',
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          color: AppThemeLight.textLight,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 40),
+              ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }
-}
-
-// Neon lines painter
-class _NeonLinesPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paintCyan =
-        Paint()
-          ..color = const Color(0xFF00F6FF).withOpacity(0.7)
-          ..strokeWidth = 4
-          ..style = PaintingStyle.stroke
-          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 16);
-    final paintMagenta =
-        Paint()
-          ..color = const Color(0xFFFF00E0).withOpacity(0.7)
-          ..strokeWidth = 4
-          ..style = PaintingStyle.stroke
-          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 16);
-    // Top left curve
-    canvas.drawArc(
-      Rect.fromCircle(center: const Offset(-40, -40), radius: 160),
-      0.2,
-      1.5,
-      false,
-      paintCyan,
-    );
-    // Bottom left curve
-    canvas.drawArc(
-      Rect.fromCircle(center: Offset(-60, size.height + 60), radius: 180),
-      3.8,
-      1.5,
-      false,
-      paintCyan,
-    );
-    // Top right magenta
-    canvas.drawArc(
-      Rect.fromCircle(center: Offset(size.width + 40, 0), radius: 140),
-      3.5,
-      1.2,
-      false,
-      paintMagenta,
-    );
-    // Bottom right magenta
-    canvas.drawArc(
-      Rect.fromCircle(
-        center: Offset(size.width + 60, size.height + 60),
-        radius: 180,
-      ),
-      3.8,
-      1.5,
-      false,
-      paintMagenta,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

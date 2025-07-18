@@ -6,6 +6,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../universal/theme/app_theme.dart';
 
 // --- Models ---
 class Post {
@@ -390,12 +391,12 @@ class _VotingBarState extends State<VotingBar> {
                 _isUpvoted
                     ? const Icon(
                       Icons.arrow_upward,
-                      color: Color(0xFF00F6FF),
+                      color: AppThemeLight.primary,
                       size: 22,
                     )
                     : const Icon(
                       Icons.arrow_upward_outlined,
-                      color: Colors.white70,
+                      color: AppThemeLight.textLight,
                       size: 22,
                     ),
             tooltip: _isUpvoted ? 'You upvoted' : 'Upvote',
@@ -419,12 +420,12 @@ class _VotingBarState extends State<VotingBar> {
                 _isDownvoted
                     ? const Icon(
                       Icons.arrow_downward,
-                      color: Color(0xFF00F6FF),
+                      color: AppThemeLight.primary,
                       size: 22,
                     )
                     : const Icon(
                       Icons.arrow_downward_outlined,
-                      color: Colors.white70,
+                      color: AppThemeLight.textLight,
                       size: 22,
                     ),
             tooltip: _isDownvoted ? 'You downvoted' : 'Downvote',

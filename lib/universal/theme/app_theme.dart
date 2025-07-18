@@ -1,180 +1,120 @@
 import 'package:flutter/material.dart';
-import 'neon_theme.dart';
 
-class AppTheme {
-  // Neon dark theme color palette
-  static const Color deepCharcoal = Color(0xFF0D0D0D); // App Background
-  static const Color darkSurface = Color(0xFF1A1A1A); // Card/Input Background
-  static const Color softGrayBorder = Color(0xFF2A2A2A); // Divider/Border
-  static const Color neonCyan = Color(0xFF00FFFF); // Primary Accent
-  static const Color limeGreen = Color(0xFF00FF85); // Secondary Accent
-  static const Color magentaPink = Color(0xFFFF2CBE); // Highlight Accent
-  static const Color violet = Color(0xFFB53FFF); // Optional Gradient End
-  static const Color textPrimary = Color(0xFFF5F5F5); // Primary Text
-  static const Color textSecondary = Color(0xFF9CA3AF); // Secondary Text
-  static const Color placeholderText = Color(0xFF666666); // Placeholder Text
-  static const Color inputFieldShadow = Color(0x8000FFFF); // Cyan with blur
-  static const Color buttonElevation = Color(0x6600FF85); // Green glow
+class AppThemeLight {
+  // Core Colors
+  static const Color background = Color(0xFFF6F3FB); // Lavender background
+  static const Color primary = Color(0xFFB39DDB); // Lavender (Purple 200)
+  static const Color secondary = Color(
+    0xFF9575CD,
+  ); // Slightly deeper lavender (Purple 400)
+  static const Color accent = Color(0xFF7E57C2); // Accent purple (Purple 600)
+  static const Color surface = Color(0xFFFFFFFF); // White for cards/fields
+  static const Color textDark = Color(0xFF2D1457); // Deep purple for text
+  static const Color textLight = Color(
+    0xFF7C6FAF,
+  ); // Soft lavender for secondary text
+  static const Color border = Color(0xFFE1D7F0); // Light lavender border
 
-  // Gradients
-  static const LinearGradient sendOtpGradient = LinearGradient(
-    colors: [limeGreen, neonCyan],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
-  static const LinearGradient optionalGradient = LinearGradient(
-    colors: [magentaPink, violet],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
+  // Gradient for Call-to-Action Buttons
+  static const LinearGradient actionGradient = LinearGradient(
+    colors: [primary, accent],
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight,
   );
 
-  static final ThemeData darkTheme = ThemeData(
-    useMaterial3: true,
-    brightness: Brightness.dark,
-    scaffoldBackgroundColor: deepCharcoal,
-    fontFamily: 'Inter',
-
-    colorScheme: const ColorScheme.dark(
-      background: deepCharcoal,
-      surface: darkSurface,
-      primary: neonCyan,
-      secondary: limeGreen,
-      error: magentaPink,
-      onPrimary: Colors.black,
-      onBackground: textPrimary,
-      onSurface: textPrimary,
-      outline: softGrayBorder,
-    ),
-
-    appBarTheme: const AppBarTheme(
-      backgroundColor: deepCharcoal,
-      foregroundColor: neonCyan,
-      elevation: 0,
-      centerTitle: true,
-    ),
-
-    cardColor: darkSurface,
-    dividerColor: softGrayBorder,
-
-    elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: limeGreen,
-        foregroundColor: Colors.black,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        textStyle: const TextStyle(
-          fontWeight: FontWeight.bold,
-          letterSpacing: 1,
+  static ThemeData get theme {
+    return ThemeData(
+      brightness: Brightness.light,
+      useMaterial3: true,
+      fontFamily: 'Urbanist',
+      scaffoldBackgroundColor: background,
+      colorScheme: ColorScheme.light(
+        primary: primary,
+        secondary: secondary,
+        surface: surface,
+        background: background,
+        onPrimary: Colors.white,
+        onSurface: textDark,
+      ),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: surface,
+        elevation: 0,
+        iconTheme: IconThemeData(color: textDark),
+        titleTextStyle: TextStyle(
+          color: textDark,
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
         ),
-        elevation: 8,
-        shadowColor: buttonElevation,
       ),
-    ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: Colors.white,
+        hintStyle: const TextStyle(color: textLight),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: border),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: border),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: primary, width: 1.5),
+        ),
+        prefixIconColor: primary,
+      ),
+      textTheme: const TextTheme(
+        bodyLarge: TextStyle(color: textDark, fontSize: 18),
+        bodyMedium: TextStyle(color: textLight, fontSize: 16),
+        labelLarge: TextStyle(color: primary, fontWeight: FontWeight.w500),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ButtonStyle(
+          backgroundColor: MaterialStateProperty.all(primary),
+          foregroundColor: MaterialStateProperty.all(Colors.white),
+          padding: MaterialStateProperty.all(
+            EdgeInsets.symmetric(vertical: 14, horizontal: 24),
+          ),
+          shape: MaterialStateProperty.all(
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          ),
+        ),
+      ),
+      dividerColor: border,
+    );
+  }
+}
 
-    inputDecorationTheme: InputDecorationTheme(
-      filled: true,
-      fillColor: darkSurface,
-      hintStyle: const TextStyle(color: placeholderText),
-      prefixIconColor: neonCyan,
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(color: softGrayBorder),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(color: softGrayBorder),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(color: neonCyan, width: 2),
-      ),
-      errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(color: magentaPink, width: 2),
-      ),
-    ),
+class GradientButton extends StatelessWidget {
+  final String text;
+  final VoidCallback onTap;
 
-    shadowColor: inputFieldShadow,
+  const GradientButton({super.key, required this.text, required this.onTap});
 
-    textTheme: const TextTheme(
-      headlineLarge: TextStyle(
-        fontSize: 32,
-        fontWeight: FontWeight.bold,
-        color: neonCyan,
-        shadows: [Shadow(blurRadius: 12, color: neonCyan)],
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        decoration: BoxDecoration(
+          gradient: AppThemeLight.actionGradient,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          text,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 1,
+          ),
+        ),
       ),
-      bodyMedium: TextStyle(fontSize: 16, color: textPrimary),
-      labelSmall: TextStyle(fontSize: 12, color: textSecondary),
-      bodySmall: TextStyle(
-        fontSize: 14,
-        color: placeholderText,
-      ), // Placeholder text
-    ),
-  );
-
-  static final ThemeData neonTheme = ThemeData(
-    useMaterial3: true,
-    brightness: Brightness.dark,
-    scaffoldBackgroundColor: NeonColors.background,
-    fontFamily: 'Orbitron',
-    colorScheme: const ColorScheme.dark(
-      background: NeonColors.background,
-      surface: NeonColors.inputFill,
-      primary: NeonColors.neonCyan,
-      secondary: NeonColors.neonGreen,
-      error: NeonColors.neonMagenta,
-      onPrimary: Colors.black,
-      onBackground: Colors.white,
-      onSurface: Colors.white,
-      outline: NeonColors.neonCyan,
-    ),
-    appBarTheme: const AppBarTheme(
-      backgroundColor: NeonColors.background,
-      foregroundColor: NeonColors.neonCyan,
-      elevation: 0,
-      centerTitle: true,
-    ),
-    cardColor: NeonColors.inputFill,
-    dividerColor: NeonColors.neonCyan,
-    elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: NeonColors.neonGreen,
-        foregroundColor: Colors.black,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        textStyle: NeonTextStyles.button,
-        elevation: 8,
-        shadowColor: NeonColors.neonGreen.withOpacity(0.4),
-      ),
-    ),
-    inputDecorationTheme: InputDecorationTheme(
-      filled: true,
-      fillColor: NeonColors.inputFill,
-      hintStyle: const TextStyle(color: Colors.grey),
-      prefixIconColor: NeonColors.neonCyan,
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(color: NeonColors.neonCyan),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(color: NeonColors.neonCyan, width: 1),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(color: NeonColors.neonCyan, width: 2),
-      ),
-      errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(color: NeonColors.neonMagenta, width: 2),
-      ),
-    ),
-    shadowColor: NeonColors.neonCyan.withOpacity(0.2),
-    textTheme: TextTheme(
-      headlineLarge: NeonTextStyles.logo,
-      bodyMedium: const TextStyle(fontSize: 16, color: Colors.white),
-      labelSmall: const TextStyle(fontSize: 12, color: Colors.grey),
-      bodySmall: const TextStyle(fontSize: 14, color: Colors.grey),
-    ),
-  );
-  // To use the neon theme globally:
-  // MaterialApp(theme: AppTheme.neonTheme, ...)
+    );
+  }
 }

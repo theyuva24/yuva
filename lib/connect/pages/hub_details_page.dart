@@ -9,6 +9,7 @@ import '../../chat/page/hub_chat_page.dart'; // Import HubChatPage
 import '../service/hub_service.dart';
 import 'post_details_page.dart'; // Import PostDetailsPage
 import 'package:google_fonts/google_fonts.dart';
+import '../../universal/theme/app_theme.dart';
 
 class HubDetailsPage extends StatefulWidget {
   final Hub hub;
@@ -80,221 +81,229 @@ class _HubDetailsPageState extends State<HubDetailsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF181C23),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF181C23),
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Color(0xFF00F6FF)),
+        iconTheme: Theme.of(context).appBarTheme.iconTheme,
+        centerTitle: true,
         title: Text(
           widget.hub.name,
-          style: GoogleFonts.orbitron(
-            textStyle: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF00F6FF),
-              letterSpacing: 2,
-              shadows: [
-                Shadow(
-                  blurRadius: 16,
-                  color: Color(0xFF00F6FF),
-                  offset: Offset(0, 0),
-                ),
-              ],
-            ),
-          ),
+          style: Theme.of(context).appBarTheme.titleTextStyle,
         ),
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Color(0xFF00F6FF), width: 3),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Color(0xFF00F6FF).withOpacity(0.4),
-                        blurRadius: 16,
-                        spreadRadius: 2,
-                      ),
-                    ],
-                  ),
-                  child: CircleAvatar(
-                    radius: 32,
-                    backgroundImage: NetworkImage(widget.hub.imageUrl),
-                    backgroundColor: Color(0xFF181C23),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: ClipRRect(
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(24),
+                  topRight: Radius.circular(24),
+                ),
+                child: Image.network(
+                  widget.hub.imageUrl,
+                  height: 200,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Card(
+                color: AppThemeLight.surface,
+                elevation: 3,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(0),
+                    topRight: Radius.circular(0),
+                    bottomLeft: Radius.circular(18),
+                    bottomRight: Radius.circular(18),
                   ),
                 ),
-                const SizedBox(width: 16),
-                Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 16,
+                    horizontal: 16,
+                  ),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
                         widget.hub.name,
-                        style: GoogleFonts.orbitron(
-                          textStyle: const TextStyle(
-                            color: Color(0xFF00F6FF),
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                            letterSpacing: 1,
-                            shadows: [
-                              Shadow(color: Color(0xFF00F6FF), blurRadius: 8),
-                            ],
-                          ),
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: AppThemeLight.textDark,
+                          fontSize: 20,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 6),
                       Text(
                         widget.hub.description,
-                        style: const TextStyle(color: Colors.white70),
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: AppThemeLight.textLight,
+                          fontSize: 14,
+                        ),
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 14),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _loading
+                              ? const SizedBox(
+                                width: 28,
+                                height: 28,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: AppThemeLight.primary,
+                                ),
+                              )
+                              : ElevatedButton(
+                                onPressed: _isJoined ? _leaveHub : _joinHub,
+                                child: Text(_isJoined ? 'Leave' : 'Join'),
+                              ),
+                          if (_isJoined) ...[
+                            const SizedBox(width: 12),
+                            ElevatedButton.icon(
+                              icon: const Icon(
+                                Icons.message,
+                                color: AppThemeLight.primary,
+                                size: 18,
+                              ),
+                              label: const Text('Message'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppThemeLight.surface,
+                                foregroundColor: AppThemeLight.primary,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                elevation: 0,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
+                                textStyle: const TextStyle(fontSize: 14),
+                              ),
+                              onPressed: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder:
+                                        (context) => HubChatPage(
+                                          hubId: widget.hub.id,
+                                          hubName: widget.hub.name,
+                                        ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
+                        ],
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(width: 16),
-                _loading
-                    ? const CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Color(0xFF00F6FF),
-                    )
-                    : ElevatedButton(
-                      onPressed: _isJoined ? _leaveHub : _joinHub,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            _isJoined ? Colors.grey : const Color(0xFF00F6FF),
-                        foregroundColor: Colors.black,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        elevation: 4,
-                        shadowColor: const Color(0xFF00F6FF),
-                      ),
-                      child: Text(
-                        _isJoined ? 'Leave' : 'Join',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                if (_isJoined)
-                  ElevatedButton.icon(
-                    icon: const Icon(Icons.message, color: Color(0xFF00F6FF)),
-                    label: const Text(
-                      'Message',
-                      style: TextStyle(
-                        color: Color(0xFF00F6FF),
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF232733),
-                      foregroundColor: const Color(0xFF00F6FF),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      elevation: 0,
-                    ),
-                    onPressed: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder:
-                              (context) => HubChatPage(
-                                hubId: widget.hub.id,
-                                hubName: widget.hub.name,
-                              ),
-                        ),
-                      );
-                    },
-                  ),
-              ],
+              ),
             ),
-          ),
-          const Divider(color: Color(0xFF00F6FF)),
-          Expanded(
-            child: StreamBuilder<List<Post>>(
-              stream: postService.getPostsStream(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(
-                    child: CircularProgressIndicator(color: Color(0xFF00F6FF)),
-                  );
-                }
-                if (snapshot.hasError) {
-                  return const Center(
-                    child: Text(
-                      'Error loading posts',
-                      style: TextStyle(color: Color(0xFF00F6FF)),
-                    ),
-                  );
-                }
-                final posts =
-                    (snapshot.data ?? [])
-                        .where((post) => post.hubName == widget.hub.name)
-                        .toList();
-                if (posts.isEmpty) {
-                  return const Center(
-                    child: Text(
-                      'No posts in this hub yet.',
-                      style: TextStyle(color: Color(0xFF00F6FF)),
-                    ),
-                  );
-                }
-                return ListView.builder(
-                  itemCount: posts.length,
-                  itemBuilder: (context, index) {
-                    final post = posts[index];
-                    return PostCard(
-                      postId: post.id,
-                      userName: post.userName,
-                      userProfileImage: post.userProfileImage,
-                      hubName: post.hubName,
-                      hubProfileImage: post.hubProfileImage,
-                      postContent: post.postContent,
-                      timestamp: post.timestamp,
-                      upvotes: post.upvotes,
-                      downvotes: post.downvotes,
-                      commentCount: post.commentCount,
-                      shareCount: post.shareCount,
-                      postImage: post.postImage,
-                      postOwnerId: post.postOwnerId,
-                      postType: post.postType,
-                      linkUrl: post.linkUrl,
-                      pollData: post.pollData,
-                      onCardTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder:
-                                (context) => PostDetailsPage(
-                                  postId: post.id,
-                                  userName: post.userName,
-                                  userProfileImage: post.userProfileImage,
-                                  hubName: post.hubName,
-                                  hubProfileImage: post.hubProfileImage,
-                                  postContent: post.postContent,
-                                  timestamp: post.timestamp,
-                                  upvotes: post.upvotes,
-                                  downvotes: post.downvotes,
-                                  commentCount: post.commentCount,
-                                  shareCount: post.shareCount,
-                                  postImage: post.postImage,
-                                  postOwnerId: post.postOwnerId,
-                                  postType: post.postType,
-                                  linkUrl: post.linkUrl,
-                                  pollData: post.pollData,
-                                ),
-                          ),
-                        );
-                      },
+            const SizedBox(height: 8),
+            Divider(color: Theme.of(context).dividerColor),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: StreamBuilder<List<Post>>(
+                stream: postService.getPostsStream(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(
+                        color: AppThemeLight.primary,
+                      ),
                     );
-                  },
-                );
-              },
+                  }
+                  if (snapshot.hasError) {
+                    return Center(
+                      child: Text(
+                        'Error loading posts',
+                        style: Theme.of(context).textTheme.labelLarge,
+                      ),
+                    );
+                  }
+                  final posts =
+                      (snapshot.data ?? [])
+                          .where((post) => post.hubName == widget.hub.name)
+                          .toList();
+                  if (posts.isEmpty) {
+                    return Center(
+                      child: Text(
+                        'No posts in this hub yet.',
+                        style: Theme.of(context).textTheme.labelLarge,
+                      ),
+                    );
+                  }
+                  return Column(
+                    children:
+                        posts
+                            .map(
+                              (post) => PostCard(
+                                postId: post.id,
+                                userName: post.userName,
+                                userProfileImage: post.userProfileImage,
+                                hubName: post.hubName,
+                                hubProfileImage: post.hubProfileImage,
+                                postContent: post.postContent,
+                                timestamp: post.timestamp,
+                                upvotes: post.upvotes,
+                                downvotes: post.downvotes,
+                                commentCount: post.commentCount,
+                                shareCount: post.shareCount,
+                                postImage: post.postImage,
+                                postOwnerId: post.postOwnerId,
+                                postType: post.postType,
+                                linkUrl: post.linkUrl,
+                                pollData: post.pollData,
+                                onCardTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) => PostDetailsPage(
+                                            postId: post.id,
+                                            userName: post.userName,
+                                            userProfileImage:
+                                                post.userProfileImage,
+                                            hubName: post.hubName,
+                                            hubProfileImage:
+                                                post.hubProfileImage,
+                                            postContent: post.postContent,
+                                            timestamp: post.timestamp,
+                                            upvotes: post.upvotes,
+                                            downvotes: post.downvotes,
+                                            commentCount: post.commentCount,
+                                            shareCount: post.shareCount,
+                                            postImage: post.postImage,
+                                            postOwnerId: post.postOwnerId,
+                                            postType: post.postType,
+                                            linkUrl: post.linkUrl,
+                                            pollData: post.pollData,
+                                          ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            )
+                            .toList(),
+                  );
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

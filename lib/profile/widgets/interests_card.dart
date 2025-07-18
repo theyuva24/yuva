@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../universal/theme/app_theme.dart';
 
 class InterestsCard extends StatelessWidget {
   final List<String> interests;
@@ -7,63 +8,38 @@ class InterestsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: const Color(0xFF181C23),
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      color: AppThemeLight.surface,
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(18),
-        side: const BorderSide(color: Color(0xFF00F6FF), width: 1.5),
+        borderRadius: BorderRadius.circular(16),
+        side: const BorderSide(color: AppThemeLight.primary, width: 1.5),
       ),
-      elevation: 6,
-      shadowColor: Color(0xFF00F6FF).withOpacity(0.15),
+      elevation: 4,
       child: Padding(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Interests',
-              style: TextStyle(
-                color: Color(0xFF00F6FF),
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-                letterSpacing: 1.1,
-                shadows: [
-                  Shadow(
-                    blurRadius: 8,
-                    color: Color(0xFF00F6FF),
-                    offset: Offset(0, 0),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              children:
-                  interests
-                      .map(
-                        (interest) => Chip(
-                          label: Text(
-                            interest,
-                            style: TextStyle(
-                              color: Color(0xFF00F6FF),
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          backgroundColor: const Color(0xFF181C23),
-                          shape: StadiumBorder(
-                            side: BorderSide(
-                              color: Color(0xFF00F6FF),
-                              width: 1.2,
-                            ),
-                          ),
-                          elevation: 2,
-                          shadowColor: Color(0xFF00F6FF).withOpacity(0.2),
+        child: Wrap(
+          spacing: 12,
+          runSpacing: 10,
+          children:
+              interests
+                  .map(
+                    (interest) => Chip(
+                      label: Text(
+                        interest,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      backgroundColor: AppThemeLight.primary.withOpacity(0.15),
+                      labelStyle: const TextStyle(color: AppThemeLight.primary),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(24),
+                        side: const BorderSide(
+                          color: AppThemeLight.primary,
+                          width: 1.5,
                         ),
-                      )
-                      .toList(),
-            ),
-          ],
+                      ),
+                    ),
+                  )
+                  .toList(),
         ),
       ),
     );

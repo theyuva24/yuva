@@ -15,6 +15,7 @@ class ProfileModel {
   final String idCardUrl;
   final List<String> followers;
   final List<String> following;
+  final String uniqueName;
 
   ProfileModel({
     required this.uid,
@@ -31,6 +32,7 @@ class ProfileModel {
     required this.idCardUrl,
     required this.followers,
     required this.following,
+    required this.uniqueName,
   });
 
   factory ProfileModel.fromMap(Map<String, dynamic> map, String uid) {
@@ -54,6 +56,7 @@ class ProfileModel {
       idCardUrl: map['idCardUrl'] ?? '',
       followers: List<String>.from(map['followers'] ?? []),
       following: List<String>.from(map['following'] ?? []),
+      uniqueName: map['uniqueName'] ?? '',
     );
   }
 
@@ -72,6 +75,7 @@ class ProfileModel {
       'idCardUrl': idCardUrl,
       'followers': followers,
       'following': following,
+      'uniqueName': uniqueName,
     };
   }
 }

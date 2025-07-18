@@ -6,6 +6,7 @@ import '../../initial pages/auth_service.dart';
 import '../service/submission_service.dart';
 import '../model/submission_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class SubmitEntryPage extends StatefulWidget {
   final Challenge challenge;
@@ -100,73 +101,81 @@ class _SubmitEntryPageState extends State<SubmitEntryPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Submit Entry')),
+      appBar: AppBar(
+        title: Text('Submit Entry', style: TextStyle(fontSize: 20.sp)),
+      ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(16.w),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 'Challenge: ${widget.challenge.title}',
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold),
               ),
-              const SizedBox(height: 24),
-              Text('Image', style: TextStyle(fontWeight: FontWeight.w600)),
-              const SizedBox(height: 8),
+              SizedBox(height: 24.h),
+              Text(
+                'Image',
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16.sp),
+              ),
+              SizedBox(height: 8.h),
               GestureDetector(
                 onTap: _pickImage,
                 child:
                     _selectedImage != null
-                        ? Image.file(_selectedImage!, height: 150)
+                        ? Image.file(_selectedImage!, height: 150.h)
                         : Container(
-                          height: 150,
+                          height: 150.h,
                           width: double.infinity,
                           color: Colors.grey[200],
-                          child: const Icon(
+                          child: Icon(
                             Icons.add_a_photo,
-                            size: 40,
+                            size: 40.sp,
                             color: Colors.grey,
                           ),
                         ),
               ),
-              const SizedBox(height: 24),
-              Text('Video', style: TextStyle(fontWeight: FontWeight.w600)),
-              const SizedBox(height: 8),
+              SizedBox(height: 24.h),
+              Text(
+                'Video',
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16.sp),
+              ),
+              SizedBox(height: 8.h),
               GestureDetector(
                 onTap: _pickVideo,
                 child:
                     _selectedVideo != null
                         ? Row(
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.videocam,
-                              size: 40,
+                              size: 40.sp,
                               color: Colors.deepPurple,
                             ),
-                            const SizedBox(width: 12),
+                            SizedBox(width: 12.w),
                             Expanded(
                               child: Text(_selectedVideo!.path.split('/').last),
                             ),
                           ],
                         )
                         : Container(
-                          height: 60,
+                          height: 60.h,
                           width: double.infinity,
                           color: Colors.grey[200],
-                          child: const Icon(
+                          child: Icon(
                             Icons.add_to_photos,
-                            size: 40,
+                            size: 40.sp,
                             color: Colors.grey,
                           ),
                         ),
               ),
-              const SizedBox(height: 24),
-              Text('Caption', style: TextStyle(fontWeight: FontWeight.w600)),
-              const SizedBox(height: 8),
+              SizedBox(height: 24.h),
+              Text(
+                'Caption',
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16.sp),
+              ),
+              SizedBox(height: 8.h),
               TextField(
                 controller: _captionController,
                 maxLines: 3,
@@ -175,22 +184,25 @@ class _SubmitEntryPageState extends State<SubmitEntryPage> {
                   hintText: 'Enter a caption for your entry',
                 ),
               ),
-              const SizedBox(height: 32),
+              SizedBox(height: 32.h),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: _submitting ? null : _submit,
                   child:
                       _submitting
-                          ? const SizedBox(
-                            width: 24,
-                            height: 24,
-                            child: CircularProgressIndicator(
+                          ? SizedBox(
+                            width: 24.w,
+                            height: 24.w,
+                            child: const CircularProgressIndicator(
                               strokeWidth: 2,
                               color: Colors.white,
                             ),
                           )
-                          : const Text('Submit Entry'),
+                          : Text(
+                            'Submit Entry',
+                            style: TextStyle(fontSize: 16.sp),
+                          ),
                 ),
               ),
             ],

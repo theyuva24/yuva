@@ -4,6 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'onboarding_screen.dart';
 import '../../../universal/screens/home_screen.dart';
 import '../../auth_service.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../../../universal/theme/app_theme.dart';
 
 class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
@@ -52,122 +54,45 @@ class SplashScreen extends StatelessWidget {
     });
 
     return Scaffold(
-      backgroundColor: const Color(0xFF181C23),
-      body: Stack(
-        children: [
-          Positioned.fill(child: CustomPaint(painter: _NeonLinesPainter())),
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  width: 120,
-                  height: 120,
-                  decoration: BoxDecoration(
-                    color: Colors.transparent,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF00F6FF).withOpacity(0.7),
-                        blurRadius: 32,
-                        spreadRadius: 8,
-                      ),
-                    ],
-                    border: Border.all(
-                      color: const Color(0xFF00F6FF),
-                      width: 4,
-                    ),
+      backgroundColor: AppThemeLight.background,
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 120.w,
+              height: 120.w,
+              decoration: BoxDecoration(
+                color: Colors.transparent,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: AppThemeLight.primary.withOpacity(0.2),
+                    blurRadius: 32.r,
+                    spreadRadius: 8.r,
                   ),
-                  child: const Icon(
-                    Icons.school,
-                    color: Color(0xFF00F6FF),
-                    size: 64,
-                  ),
-                ),
-                const SizedBox(height: 32),
-                Text(
-                  'YUVA',
-                  style: TextStyle(
-                    fontSize: 48,
-                    fontWeight: FontWeight.bold,
-                    color: const Color(0xFF00F6FF),
-                    letterSpacing: 4,
-                    shadows: [
-                      Shadow(
-                        blurRadius: 32,
-                        color: const Color(0xFF00F6FF),
-                        offset: Offset(0, 0),
-                      ),
-                      Shadow(
-                        blurRadius: 8,
-                        color: const Color(0xFF00F6FF),
-                        offset: Offset(0, 0),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+                ],
+                border: Border.all(color: AppThemeLight.primary, width: 4.w),
+              ),
+              child: Icon(
+                Icons.school,
+                color: AppThemeLight.primary,
+                size: 64.sp,
+              ),
             ),
-          ),
-        ],
+            SizedBox(height: 32.h),
+            Text(
+              'YUVA',
+              style: TextStyle(
+                fontSize: 48.sp,
+                fontWeight: FontWeight.bold,
+                color: AppThemeLight.primary,
+                letterSpacing: 4.w,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
-}
-
-// Neon lines painter (reuse from OTP screen)
-class _NeonLinesPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paintCyan =
-        Paint()
-          ..color = const Color(0xFF00F6FF).withOpacity(0.7)
-          ..strokeWidth = 4
-          ..style = PaintingStyle.stroke
-          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 16);
-    final paintMagenta =
-        Paint()
-          ..color = const Color(0xFFFF00E0).withOpacity(0.7)
-          ..strokeWidth = 4
-          ..style = PaintingStyle.stroke
-          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 16);
-    // Top left curve
-    canvas.drawArc(
-      Rect.fromCircle(center: const Offset(-40, -40), radius: 160),
-      0.2,
-      1.5,
-      false,
-      paintCyan,
-    );
-    // Bottom left curve
-    canvas.drawArc(
-      Rect.fromCircle(center: Offset(-60, size.height + 60), radius: 180),
-      3.8,
-      1.5,
-      false,
-      paintCyan,
-    );
-    // Top right magenta
-    canvas.drawArc(
-      Rect.fromCircle(center: Offset(size.width + 40, 0), radius: 140),
-      3.5,
-      1.2,
-      false,
-      paintMagenta,
-    );
-    // Bottom right magenta
-    canvas.drawArc(
-      Rect.fromCircle(
-        center: Offset(size.width + 60, size.height + 60),
-        radius: 180,
-      ),
-      3.8,
-      1.5,
-      false,
-      paintMagenta,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

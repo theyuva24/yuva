@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../controller/registration_controller.dart';
 import '../../universal/screens/home_screen.dart';
-import '../../universal/theme/gradient_button.dart';
+import '../../universal/theme/app_theme.dart';
 import '../widgets/interests_picker.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class Step3Interests extends StatefulWidget {
   const Step3Interests({super.key});
@@ -19,18 +20,19 @@ class _Step3InterestsState extends State<Step3Interests> {
     final selected = controller.data.interests;
     return SingleChildScrollView(
       child: Padding(
-        padding: const EdgeInsets.all(24.0),
+        padding: EdgeInsets.all(24.w),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
+            Text(
               'Choose your interests (max 5):',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF00F6FF),
+                color: AppThemeLight.primary,
+                fontSize: 16.sp,
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
             InterestsPicker(
               initialSelected: selected,
               onChanged: (newInterests) {
@@ -38,11 +40,24 @@ class _Step3InterestsState extends State<Step3Interests> {
               },
               maxSelection: 5,
             ),
-            const SizedBox(height: 32),
+            SizedBox(height: 32.h),
+            if (controller.isLoading)
+              Padding(
+                padding: EdgeInsets.only(bottom: 16.h),
+                child: SizedBox(
+                  width: 20.w,
+                  height: 20.w,
+                  child: const CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
             GradientButton(
-              onPressed:
+              text: 'Create My Account',
+              onTap:
                   controller.isLoading
-                      ? null
+                      ? () {}
                       : () async {
                         if (controller.data.interests.isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -112,24 +127,6 @@ class _Step3InterestsState extends State<Step3Interests> {
                           );
                         }
                       },
-              child:
-                  controller.isLoading
-                      ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                      : const Text(
-                        'Create My Account',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                          color: Colors.black,
-                        ),
-                      ),
             ),
           ],
         ),
@@ -144,20 +141,20 @@ class _ProfileSetupDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return Dialog(
       backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
       child: Padding(
-        padding: const EdgeInsets.all(32.0),
+        padding: EdgeInsets.all(32.w),
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          children: const [
-            SizedBox(height: 16),
-            CircularProgressIndicator(color: Color(0xFF6C63FF)),
-            SizedBox(height: 24),
+          children: [
+            SizedBox(height: 16.h),
+            const CircularProgressIndicator(color: Color(0xFF6C63FF)),
+            SizedBox(height: 24.h),
             Text(
               'Setting up your profile...',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 16),
+            SizedBox(height: 16.h),
           ],
         ),
       ),

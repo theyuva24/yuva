@@ -10,16 +10,19 @@ import '../../../chat/page/chats_page.dart'; // Import ChatsPage
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../profile/controllers/profile_controller.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:yuva/universal/theme/app_theme.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final int initialTabIndex;
+  const HomeScreen({super.key, this.initialTabIndex = 0});
 
   @override
   State<HomeScreen> createState() => HomeScreenState();
 }
 
 class HomeScreenState extends State<HomeScreen> {
-  int _currentIndex = 0;
+  late int _currentIndex;
 
   // Getter to access current index
   int get currentIndex => _currentIndex;
@@ -31,10 +34,15 @@ class HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialTabIndex;
+  }
+
   final List<Widget> _pages = [
     const ChallengesPage(),
     const ConnectPage(),
-    const PostPage(),
     const ChatsPage(), // Add ChatsPage here
     const NotificationPage(),
   ];
@@ -42,7 +50,6 @@ class HomeScreenState extends State<HomeScreen> {
   final List<String> _pageTitles = [
     'Challenges',
     'Connect',
-    'Post',
     'Chats', // Add Chats title
     'Notifications',
   ];
@@ -56,8 +63,9 @@ class HomeScreenState extends State<HomeScreen> {
     }
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFF181C23),
+        backgroundColor: AppThemeLight.surface,
         elevation: 0,
+        centerTitle: true,
         leading: IconButton(
           onPressed: () {
             final user = FirebaseAuth.instance.currentUser;
@@ -77,43 +85,27 @@ class HomeScreenState extends State<HomeScreen> {
           icon: Container(
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: Color(0xFF00F6FF), width: 2),
-              boxShadow: [
-                BoxShadow(
-                  color: Color(0xFF00F6FF).withOpacity(0.5),
-                  blurRadius: 12,
-                  spreadRadius: 1,
-                ),
-              ],
+              border: Border.all(color: AppThemeLight.primary, width: 2.w),
             ),
             child: const CircleAvatar(
-              backgroundColor: Color(0xFF181C23),
-              child: Icon(Icons.person, color: Color(0xFF00F6FF), size: 24),
+              backgroundColor: AppThemeLight.surface,
+              child: Icon(Icons.person, color: AppThemeLight.primary, size: 24),
             ),
           ),
         ),
         title: Text(
           _pageTitles[_currentIndex],
-          style: GoogleFonts.orbitron(
-            textStyle: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 24,
-              color: Color(0xFF00F6FF),
-              letterSpacing: 2,
-              shadows: [
-                Shadow(
-                  blurRadius: 16,
-                  color: Color(0xFF00F6FF),
-                  offset: Offset(0, 0),
-                ),
-              ],
-            ),
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 24,
+            color: AppThemeLight.textDark,
+            letterSpacing: 2,
           ),
         ),
         actions: [
           if (_currentIndex == 1)
             IconButton(
-              icon: const Icon(Icons.groups, color: Color(0xFF00F6FF)),
+              icon: const Icon(Icons.groups, color: AppThemeLight.primary),
               tooltip: 'Hubs',
               onPressed: () {
                 Navigator.push(
@@ -133,15 +125,19 @@ class HomeScreenState extends State<HomeScreen> {
             _currentIndex = index;
           });
         },
-        selectedItemColor: const Color(0xFF00F6FF),
-        unselectedItemColor: Colors.white70,
-        backgroundColor: const Color(0xFF181C23),
+        selectedItemColor: AppThemeLight.primary,
+        unselectedItemColor: AppThemeLight.textLight,
+        backgroundColor: AppThemeLight.surface,
         elevation: 12,
-        selectedLabelStyle: GoogleFonts.orbitron(
+        selectedLabelStyle: const TextStyle(
           fontWeight: FontWeight.bold,
           letterSpacing: 1,
+          color: AppThemeLight.primary,
         ),
-        unselectedLabelStyle: GoogleFonts.orbitron(letterSpacing: 1),
+        unselectedLabelStyle: const TextStyle(
+          letterSpacing: 1,
+          color: AppThemeLight.textLight,
+        ),
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.emoji_events_outlined),
@@ -150,10 +146,6 @@ class HomeScreenState extends State<HomeScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.people_outline),
             label: 'Connect',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.add_box_outlined),
-            label: 'Post',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.chat_bubble_outline),

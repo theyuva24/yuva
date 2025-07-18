@@ -11,6 +11,22 @@ class RegistrationController extends ChangeNotifier {
   final RegistrationService _service = RegistrationService();
   final AuthService _authService = AuthService();
 
+  RegistrationController() {
+    _initUniqueName();
+  }
+
+  void _initUniqueName() async {
+    if (data.username == null || data.username!.isEmpty) {
+      data.username = await _service.generateUniqueName();
+      notifyListeners();
+    }
+  }
+
+  void updateUniqueName(String name) {
+    data.username = name;
+    notifyListeners();
+  }
+
   void updateProfilePic(String? path) {
     data.profilePicPath = path;
     notifyListeners();

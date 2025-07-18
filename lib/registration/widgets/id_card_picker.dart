@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../universal/theme/app_theme.dart';
 
 class IdCardPicker extends StatelessWidget {
   final String? imagePath;
@@ -47,10 +48,10 @@ class IdCardPicker extends StatelessWidget {
         width: double.infinity,
         height: 160,
         decoration: BoxDecoration(
-          color: const Color(0xFF181C23),
+          color: AppThemeLight.surface,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: const Color(0xFF00F6FF),
+            color: AppThemeLight.primary,
             width: 2,
             style: BorderStyle.solid,
           ),
@@ -69,17 +70,17 @@ class IdCardPicker extends StatelessWidget {
                 : Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
-                  children: const [
+                  children: [
                     Icon(
                       Icons.cloud_upload,
                       size: 48,
-                      color: Color(0xFF00F6FF),
+                      color: AppThemeLight.primary,
                     ),
-                    SizedBox(height: 12),
+                    const SizedBox(height: 12),
                     Text(
                       'Click here to upload ID',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: AppThemeLight.textDark,
                         fontWeight: FontWeight.bold,
                         fontSize: 18,
                       ),

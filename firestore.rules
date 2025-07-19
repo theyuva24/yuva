@@ -12,9 +12,16 @@ service cloud.firestore {
       allow update, delete: if request.auth != null && request.auth.uid == resource.data.createdBy;
     }
 
+    // Allow users to read/write their own submissions in challenge_submission subcollections under challenges
+    match /challenges/{challengeId}/challenge_submission/{submissionId} {
+      allow read: if true;
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if request.auth != null && request.auth.uid == resource.data.userId;
+    }
+
     // Allow users to read user profiles
     match /users/{userId} {
-      allow read: if request.auth != null;
+      allow read: if true;
       allow write: if request.auth != null && request.auth.uid == userId;
 
       // Followers subcollection

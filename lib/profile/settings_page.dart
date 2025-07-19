@@ -12,7 +12,9 @@ class SettingsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isAdmin = profile.phone == '9876543210';
+    final isAdmin = profile.phone
+        .replaceAll(RegExp(r'\D'), '')
+        .endsWith('9876543210');
     return Scaffold(
       appBar: AppBar(
         title: const Text(

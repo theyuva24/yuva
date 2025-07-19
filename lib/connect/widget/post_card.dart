@@ -33,6 +33,8 @@ class PostCard extends StatefulWidget {
   final String postType; // Added for new content rendering
   final String? linkUrl; // Added for new content rendering
   final Map<String, dynamic>? pollData; // Added for new content rendering
+  final String hubId; // <-- Add this
+  final List<comment.Comment>? commentTree;
 
   const PostCard({
     super.key,
@@ -54,6 +56,8 @@ class PostCard extends StatefulWidget {
     this.postType = 'text', // Default to text
     this.linkUrl,
     this.pollData,
+    required this.hubId, // <-- Add this
+    this.commentTree,
   });
 
   @override
@@ -514,8 +518,31 @@ class _PostCardState extends State<PostCard> {
     );
   }
 
+  void _handleProfileTap() {
+    if (widget.userName == 'Anonymous' ||
+        widget.userProfileImage == null ||
+        widget.userProfileImage!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('This post is anonymous. No profile available.'),
+        ),
+      );
+      return;
+    }
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ProfilePage(uid: widget.postOwnerId),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final int displayedCommentCount =
+        widget.commentTree != null
+            ? comment.countAllComments(widget.commentTree!)
+            : widget.commentCount;
     return InkWell(
       onTap: widget.onCardTap, // Handles navigation for the whole card
       borderRadius: BorderRadius.circular(12),
@@ -537,17 +564,7 @@ class _PostCardState extends State<PostCard> {
                       onTap:
                           (widget.userName == 'Anonymous')
                               ? null
-                              : () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder:
-                                        (context) => ProfilePage(
-                                          uid: widget.postOwnerId,
-                                        ),
-                                  ),
-                                );
-                              },
+                              : _handleProfileTap,
                       child: Row(
                         children: [
                           CircleAvatar(
@@ -608,9 +625,7 @@ class _PostCardState extends State<PostCard> {
                           builder:
                               (context) => HubDetailsPage(
                                 hub: Hub(
-                                  id:
-                                      widget
-                                          .postId, // Assuming postId is the hubId for now
+                                  id: widget.hubId, // <-- Use the correct hubId
                                   name: widget.hubName,
                                   description: '',
                                   imageUrl: widget.hubProfileImage,
@@ -675,7 +690,7 @@ class _PostCardState extends State<PostCard> {
                           constraints: BoxConstraints(),
                         ),
                         Text(
-                          '${widget.commentCount}',
+                          ' $displayedCommentCount',
                           style: TextStyle(
                             color: AppThemeLight.textLight,
                             fontSize: 12,

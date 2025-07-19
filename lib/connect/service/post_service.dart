@@ -6,14 +6,7 @@ import '../models/hub_model.dart';
 import 'notification_service.dart';
 import '../widget/comment.dart';
 
-List<Post>? _cachedPosts;
-DateTime? _cacheTime;
-const Duration _cacheDuration = Duration(minutes: 5);
-
-void clearPostsCache() {
-  _cachedPosts = null;
-  _cacheTime = null;
-}
+// Removed cache variables and clearPostsCache
 
 class PostService {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -43,6 +36,7 @@ class PostService {
     required String postType,
     String? userName,
     String? userProfileImage,
+    required bool anonymous, // <-- add this parameter
   }) async {
     try {
       final user = _auth.currentUser;
@@ -60,8 +54,8 @@ class PostService {
         'postType': postType,
         'userName': userName,
         'userProfileImage': userProfileImage,
-        'anonymous': (userName == 'Anonymous'),
-        ...ensureEngagementFields({}), // Always set all engagement fields
+        'anonymous': anonymous, // <-- store directly
+        ...ensureEngagementFields({}),
       };
 
       final docRef = await firestore.collection('posts').add(postData);
@@ -71,15 +65,9 @@ class PostService {
     }
   }
 
-  /// Fetch posts with in-memory caching
+  /// Fetch posts without in-memory caching
   Future<List<Post>> fetchPosts({bool forceRefresh = false}) async {
-    if (!forceRefresh &&
-        _cachedPosts != null &&
-        _cacheTime != null &&
-        DateTime.now().difference(_cacheTime!) < _cacheDuration) {
-      return _cachedPosts!;
-    }
-    // Fetch from Firestore
+    // Always fetch from Firestore
     final snapshot =
         await firestore
             .collection('posts')
@@ -88,11 +76,31 @@ class PostService {
     final posts = <Post>[];
     for (final doc in snapshot.docs) {
       final data = doc.data();
+      final isAnonymous = data['anonymous'] == true;
+      String userName =
+          isAnonymous ? (data['userName'] ?? 'Anonymous') : 'Anonymous';
+      String userProfileImage = '';
+      if (!isAnonymous) {
+        final userId = data['userId'] as String?;
+        if (userId != null) {
+          try {
+            final userDoc =
+                await firestore.collection('users').doc(userId).get();
+            if (userDoc.exists) {
+              final userData = userDoc.data()!;
+              userName = userData['fullName'] ?? 'Anonymous';
+              userProfileImage = userData['profilePicUrl'] ?? '';
+            }
+          } catch (e) {
+            print('Failed to fetch user data for $userId: $e');
+          }
+        }
+      }
       posts.add(
         Post(
           id: doc.id,
-          userName: data['userName'] ?? 'Anonymous',
-          userProfileImage: data['userProfileImage'] ?? '',
+          userName: userName,
+          userProfileImage: userProfileImage,
           hubId: data['hubId'] ?? '',
           hubName: data['hubName'] ?? '',
           hubProfileImage: data['hubProfileImage'] ?? '',
@@ -110,8 +118,6 @@ class PostService {
         ),
       );
     }
-    _cachedPosts = posts;
-    _cacheTime = DateTime.now();
     return posts;
   }
 
@@ -150,20 +156,24 @@ class PostService {
           }
           for (final doc in snapshot.docs) {
             final data = doc.data();
-            final userId = data['userId'] as String?;
-            String userName = 'Anonymous';
+            final isAnonymous = data['anonymous'] == true;
+            String userName =
+                isAnonymous ? (data['userName'] ?? 'Anonymous') : 'Anonymous';
             String userProfileImage = '';
-            if (userId != null) {
-              try {
-                final userDoc =
-                    await firestore.collection('users').doc(userId).get();
-                if (userDoc.exists) {
-                  final userData = userDoc.data()!;
-                  userName = userData['fullName'] ?? 'Anonymous';
-                  userProfileImage = userData['profilePicUrl'] ?? '';
+            if (!isAnonymous) {
+              final userId = data['userId'] as String?;
+              if (userId != null) {
+                try {
+                  final userDoc =
+                      await firestore.collection('users').doc(userId).get();
+                  if (userDoc.exists) {
+                    final userData = userDoc.data()!;
+                    userName = userData['fullName'] ?? 'Anonymous';
+                    userProfileImage = userData['profilePicUrl'] ?? '';
+                  }
+                } catch (e) {
+                  print('Failed to fetch user data for $userId: $e');
                 }
-              } catch (e) {
-                print('Failed to fetch user data for $userId: $e');
               }
             }
             // Fetch latest hub info

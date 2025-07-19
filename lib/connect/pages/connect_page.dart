@@ -155,6 +155,7 @@ class _ConnectPageState extends State<ConnectPage>
                               postType: post.postType,
                               linkUrl: post.linkUrl,
                               pollData: post.pollData,
+                              hubId: post.hubId, // <-- Pass correct hubId
                               onCardTap: () {
                                 Navigator.push(
                                   context,
@@ -256,6 +257,7 @@ class _ConnectPageState extends State<ConnectPage>
                                 postType: post.postType,
                                 linkUrl: post.linkUrl,
                                 pollData: post.pollData,
+                                hubId: post.hubId, // <-- Pass correct hubId
                                 onCardTap: () {
                                   Navigator.push(
                                     context,

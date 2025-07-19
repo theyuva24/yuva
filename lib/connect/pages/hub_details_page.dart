@@ -267,34 +267,7 @@ class _HubDetailsPageState extends State<HubDetailsPage> {
                                 postType: post.postType,
                                 linkUrl: post.linkUrl,
                                 pollData: post.pollData,
-                                onCardTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder:
-                                          (context) => PostDetailsPage(
-                                            postId: post.id,
-                                            userName: post.userName,
-                                            userProfileImage:
-                                                post.userProfileImage,
-                                            hubName: post.hubName,
-                                            hubProfileImage:
-                                                post.hubProfileImage,
-                                            postContent: post.postContent,
-                                            timestamp: post.timestamp,
-                                            upvotes: post.upvotes,
-                                            downvotes: post.downvotes,
-                                            commentCount: post.commentCount,
-                                            shareCount: post.shareCount,
-                                            postImage: post.postImage,
-                                            postOwnerId: post.postOwnerId,
-                                            postType: post.postType,
-                                            linkUrl: post.linkUrl,
-                                            pollData: post.pollData,
-                                          ),
-                                    ),
-                                  );
-                                },
+                                hubId: post.hubId, // <-- Pass correct hubId
                               ),
                             )
                             .toList(),

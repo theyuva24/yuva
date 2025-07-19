@@ -97,97 +97,92 @@ class _ConnectPageState extends State<ConnectPage>
               child: TabBarView(
                 controller: _tabController,
                 children: [
-                  // Trending Tab
-                  RefreshIndicator(
-                    onRefresh: () async => _refreshPosts(),
-                    child: FutureBuilder<List<Post>>(
-                      future: _postsFuture,
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Center(
-                            child: CircularProgressIndicator(
-                              color: AppThemeLight.primary,
-                            ),
-                          );
-                        }
-                        if (snapshot.hasError) {
-                          return const Center(
-                            child: Text(
-                              'Error loading posts',
-                              style: TextStyle(color: AppThemeLight.primary),
-                            ),
-                          );
-                        }
-                        final posts = snapshot.data ?? [];
-                        if (posts.isEmpty) {
-                          return const Center(
-                            child: Text(
-                              'No posts yet',
-                              style: TextStyle(color: AppThemeLight.primary),
-                            ),
-                          );
-                        }
-                        final sortedPosts = List<Post>.from(posts)..sort(
-                          (a, b) => _calculateTrendingScore(
-                            b,
-                          ).compareTo(_calculateTrendingScore(a)),
+                  // Trending Tab (now uses StreamBuilder for real-time updates)
+                  StreamBuilder<List<Post>>(
+                    stream: postService.getPostsStream(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(
+                          child: CircularProgressIndicator(
+                            color: AppThemeLight.primary,
+                          ),
                         );
-                        return ListView.builder(
-                          padding: EdgeInsets.symmetric(vertical: 4.h),
-                          itemCount: sortedPosts.length,
-                          itemBuilder: (context, index) {
-                            final post = sortedPosts[index];
-                            return PostCard(
-                              postId: post.id,
-                              userName: post.userName,
-                              userProfileImage: post.userProfileImage,
-                              hubName: post.hubName,
-                              hubProfileImage: post.hubProfileImage,
-                              postContent: post.postContent,
-                              timestamp: post.timestamp,
-                              upvotes: post.upvotes,
-                              downvotes: post.downvotes,
-                              commentCount: post.commentCount,
-                              shareCount: post.shareCount,
-                              postImage: post.postImage,
-                              postOwnerId: post.postOwnerId,
-                              postType: post.postType,
-                              linkUrl: post.linkUrl,
-                              pollData: post.pollData,
-                              hubId: post.hubId, // <-- Pass correct hubId
-                              onCardTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder:
-                                        (context) => PostDetailsPage(
-                                          postId: post.id,
-                                          userName: post.userName,
-                                          userProfileImage:
-                                              post.userProfileImage,
-                                          hubName: post.hubName,
-                                          hubProfileImage: post.hubProfileImage,
-                                          postContent: post.postContent,
-                                          timestamp: post.timestamp,
-                                          upvotes: post.upvotes,
-                                          downvotes: post.downvotes,
-                                          commentCount: post.commentCount,
-                                          shareCount: post.shareCount,
-                                          postImage: post.postImage,
-                                          postOwnerId: post.postOwnerId,
-                                          postType: post.postType,
-                                          linkUrl: post.linkUrl,
-                                          pollData: post.pollData,
-                                        ),
-                                  ),
-                                );
-                              },
-                            );
-                          },
+                      }
+                      if (snapshot.hasError) {
+                        return const Center(
+                          child: Text(
+                            'Error loading posts',
+                            style: TextStyle(color: AppThemeLight.primary),
+                          ),
                         );
-                      },
-                    ),
+                      }
+                      final posts = snapshot.data ?? [];
+                      if (posts.isEmpty) {
+                        return const Center(
+                          child: Text(
+                            'No posts yet',
+                            style: TextStyle(color: AppThemeLight.primary),
+                          ),
+                        );
+                      }
+                      final sortedPosts = List<Post>.from(posts)..sort(
+                        (a, b) => _calculateTrendingScore(
+                          b,
+                        ).compareTo(_calculateTrendingScore(a)),
+                      );
+                      return ListView.builder(
+                        padding: EdgeInsets.symmetric(vertical: 4.h),
+                        itemCount: sortedPosts.length,
+                        itemBuilder: (context, index) {
+                          final post = sortedPosts[index];
+                          return PostCard(
+                            postId: post.id,
+                            userName: post.userName,
+                            userProfileImage: post.userProfileImage,
+                            hubName: post.hubName,
+                            hubProfileImage: post.hubProfileImage,
+                            postContent: post.postContent,
+                            timestamp: post.timestamp,
+                            upvotes: post.upvotes,
+                            downvotes: post.downvotes,
+                            commentCount: post.commentCount,
+                            shareCount: post.shareCount,
+                            postImage: post.postImage,
+                            postOwnerId: post.postOwnerId,
+                            postType: post.postType,
+                            linkUrl: post.linkUrl,
+                            pollData: post.pollData,
+                            hubId: post.hubId, // <-- Pass correct hubId
+                            onCardTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (context) => PostDetailsPage(
+                                        postId: post.id,
+                                        userName: post.userName,
+                                        userProfileImage: post.userProfileImage,
+                                        hubName: post.hubName,
+                                        hubProfileImage: post.hubProfileImage,
+                                        postContent: post.postContent,
+                                        timestamp: post.timestamp,
+                                        upvotes: post.upvotes,
+                                        downvotes: post.downvotes,
+                                        commentCount: post.commentCount,
+                                        shareCount: post.shareCount,
+                                        postImage: post.postImage,
+                                        postOwnerId: post.postOwnerId,
+                                        postType: post.postType,
+                                        linkUrl: post.linkUrl,
+                                        pollData: post.pollData,
+                                      ),
+                                ),
+                              );
+                            },
+                          );
+                        },
+                      );
+                    },
                   ),
                   // My Feed Tab (reactive)
                   StreamBuilder<List<String>>(

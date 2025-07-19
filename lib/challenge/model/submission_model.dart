@@ -1,14 +1,26 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:hive/hive.dart';
+part 'submission_model.g.dart';
 
+@HiveType(typeId: 1)
 class Submission {
+  @HiveField(0)
   final String id;
+  @HiveField(1)
   final String challengeId;
+  @HiveField(2)
   final String userId;
+  @HiveField(3)
   final String? mediaUrl;
+  @HiveField(4)
   final String caption;
+  @HiveField(5)
   final Timestamp timestamp;
+  @HiveField(6)
   final String? status;
+  @HiveField(7)
   final String? thumbnailUrl;
+  @HiveField(8)
   final String? mediaType; // 'image', 'video', or null
 
   Submission({

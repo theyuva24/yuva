@@ -324,216 +324,229 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
     return Scaffold(
       backgroundColor: AppThemeLight.background,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const SizedBox(height: 40),
-                Center(
-                  child: Text(
-                    'YUVA',
-                    style: GoogleFonts.orbitron(
-                      textStyle: theme.textTheme.displaySmall?.copyWith(
-                        color: AppThemeLight.primary,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 4,
-                        shadows: [
-                          Shadow(
-                            blurRadius: 8,
-                            color: AppThemeLight.primary.withOpacity(0.3),
-                            offset: Offset(0, 0),
+        child: Stack(
+          children: [
+            SingleChildScrollView(
+              padding: const EdgeInsets.all(24.0),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const SizedBox(height: 40),
+                    Center(
+                      child: Text(
+                        'YUVA',
+                        style: GoogleFonts.orbitron(
+                          textStyle: theme.textTheme.displaySmall?.copyWith(
+                            color: AppThemeLight.primary,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 4,
+                            shadows: [
+                              Shadow(
+                                blurRadius: 8,
+                                color: AppThemeLight.primary.withOpacity(0.3),
+                                offset: Offset(0, 0),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Login to explore opportunities',
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        color: AppThemeLight.textLight,
+                        fontWeight: FontWeight.w400,
+                        letterSpacing: 0.5,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 40),
+                    if (_successMessage != null) ...[
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.green[50],
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.green[300]!),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.check_circle_outline,
+                              color: Colors.green[700],
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                _successMessage!,
+                                style: const TextStyle(color: Colors.green),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                    if (_error != null) ...[
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.red[50],
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.red[300]!),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.error_outline, color: Colors.red[700]),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                _error!,
+                                style: const TextStyle(color: Colors.red),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                    if (!_codeSent) ...[
+                      TextFormField(
+                        controller: _phoneController,
+                        keyboardType: TextInputType.phone,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(
+                            RegExp(r'[0-9+\-\s]'),
                           ),
                         ],
+                        decoration: InputDecoration(
+                          labelText: 'Phone Number',
+                          hintText: 'Enter your phone number',
+                          prefixIcon: Icon(
+                            Icons.phone,
+                            color: AppThemeLight.primary,
+                          ),
+                        ),
+                        style: theme.textTheme.bodyLarge,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Please enter your phone number';
+                          }
+                          if (!_isValidPhoneNumber(value.trim())) {
+                            return 'Please enter a valid phone number';
+                          }
+                          return null;
+                        },
+                        onChanged: (value) {
+                          if (_error != null) {
+                            setState(() {
+                              _error = null;
+                            });
+                          }
+                        },
                       ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Login to explore opportunities',
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    color: AppThemeLight.textLight,
-                    fontWeight: FontWeight.w400,
-                    letterSpacing: 0.5,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 40),
-                if (_successMessage != null) ...[
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.green[50],
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.green[300]!),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.check_circle_outline,
-                          color: Colors.green[700],
+                      const SizedBox(height: 32),
+                      GradientButton(
+                        text: 'SEND OTP',
+                        onTap: _loading ? () {} : _startPhoneAuth,
+                      ),
+                    ] else ...[
+                      const SizedBox(height: 8),
+                      Center(
+                        child: Column(
+                          children: [
+                            Text(
+                              'Enter the OTP code',
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                color: AppThemeLight.textDark,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Sent to $_currentPhoneNumber',
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: AppThemeLight.textLight,
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 8),
-                        Expanded(
+                      ),
+                      const SizedBox(height: 32),
+                      PinCodeTextField(
+                        appContext: context,
+                        length: 6,
+                        controller: _otpController,
+                        focusNode: _otpFocusNode,
+                        autoFocus: true,
+                        keyboardType: TextInputType.number,
+                        animationType: AnimationType.fade,
+                        pinTheme: PinTheme(
+                          shape: PinCodeFieldShape.box,
+                          borderRadius: BorderRadius.circular(16),
+                          fieldHeight: 60,
+                          fieldWidth: 50,
+                          activeColor: AppThemeLight.primary,
+                          selectedColor: AppThemeLight.secondary,
+                          inactiveColor: AppThemeLight.border,
+                          activeFillColor: Colors.transparent,
+                          selectedFillColor: Colors.transparent,
+                          inactiveFillColor: Colors.transparent,
+                          borderWidth: 2,
+                        ),
+                        textStyle: theme.textTheme.headlineMedium?.copyWith(
+                          color: AppThemeLight.textDark,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        enableActiveFill: false,
+                        onChanged: (value) {
+                          if (_error != null) {
+                            setState(() {
+                              _error = null;
+                            });
+                          }
+                          if (value.length == 6) {
+                            _verifyOtp();
+                          }
+                        },
+                      ),
+                      const SizedBox(height: 32),
+                      GradientButton(
+                        text: 'VERIFY',
+                        onTap: _loading ? () {} : _verifyOtp,
+                      ),
+                      const SizedBox(height: 24),
+                      Center(
+                        child: TextButton(
+                          onPressed:
+                              (_resendTimer > 0 || _loading)
+                                  ? null
+                                  : _resendOtp,
                           child: Text(
-                            _successMessage!,
-                            style: const TextStyle(color: Colors.green),
+                            _resendTimer > 0
+                                ? 'Resend code in 00: ${_resendTimer.toString().padLeft(2, '0')}'
+                                : 'Resend code',
+                            style: theme.textTheme.bodyLarge?.copyWith(
+                              color: AppThemeLight.textLight,
+                            ),
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                ],
-                if (_error != null) ...[
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.red[50],
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.red[300]!),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.error_outline, color: Colors.red[700]),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            _error!,
-                            style: const TextStyle(color: Colors.red),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                ],
-                if (!_codeSent) ...[
-                  TextFormField(
-                    controller: _phoneController,
-                    keyboardType: TextInputType.phone,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(RegExp(r'[0-9+\-\s]')),
+                      ),
                     ],
-                    decoration: InputDecoration(
-                      labelText: 'Phone Number',
-                      hintText: 'Enter your phone number',
-                      prefixIcon: Icon(
-                        Icons.phone,
-                        color: AppThemeLight.primary,
-                      ),
-                    ),
-                    style: theme.textTheme.bodyLarge,
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'Please enter your phone number';
-                      }
-                      if (!_isValidPhoneNumber(value.trim())) {
-                        return 'Please enter a valid phone number';
-                      }
-                      return null;
-                    },
-                    onChanged: (value) {
-                      if (_error != null) {
-                        setState(() {
-                          _error = null;
-                        });
-                      }
-                    },
-                  ),
-                  const SizedBox(height: 32),
-                  GradientButton(
-                    text: 'SEND OTP',
-                    onTap: _loading ? () {} : _startPhoneAuth,
-                  ),
-                ] else ...[
-                  const SizedBox(height: 8),
-                  Center(
-                    child: Column(
-                      children: [
-                        Text(
-                          'Enter the OTP code',
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            color: AppThemeLight.textDark,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Sent to $_currentPhoneNumber',
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: AppThemeLight.textLight,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                  PinCodeTextField(
-                    appContext: context,
-                    length: 6,
-                    controller: _otpController,
-                    focusNode: _otpFocusNode,
-                    autoFocus: true,
-                    keyboardType: TextInputType.number,
-                    animationType: AnimationType.fade,
-                    pinTheme: PinTheme(
-                      shape: PinCodeFieldShape.box,
-                      borderRadius: BorderRadius.circular(16),
-                      fieldHeight: 60,
-                      fieldWidth: 50,
-                      activeColor: AppThemeLight.primary,
-                      selectedColor: AppThemeLight.secondary,
-                      inactiveColor: AppThemeLight.border,
-                      activeFillColor: Colors.transparent,
-                      selectedFillColor: Colors.transparent,
-                      inactiveFillColor: Colors.transparent,
-                      borderWidth: 2,
-                    ),
-                    textStyle: theme.textTheme.headlineMedium?.copyWith(
-                      color: AppThemeLight.textDark,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    enableActiveFill: false,
-                    onChanged: (value) {
-                      if (_error != null) {
-                        setState(() {
-                          _error = null;
-                        });
-                      }
-                      if (value.length == 6) {
-                        _verifyOtp();
-                      }
-                    },
-                  ),
-                  const SizedBox(height: 32),
-                  GradientButton(
-                    text: 'VERIFY',
-                    onTap: _loading ? () {} : _verifyOtp,
-                  ),
-                  const SizedBox(height: 24),
-                  Center(
-                    child: TextButton(
-                      onPressed:
-                          (_resendTimer > 0 || _loading) ? null : _resendOtp,
-                      child: Text(
-                        _resendTimer > 0
-                            ? 'Resend code in 00: ${_resendTimer.toString().padLeft(2, '0')}'
-                            : 'Resend code',
-                        style: theme.textTheme.bodyLarge?.copyWith(
-                          color: AppThemeLight.textLight,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-                const SizedBox(height: 40),
-              ],
+                    const SizedBox(height: 40),
+                  ],
+                ),
+              ),
             ),
-          ),
+            if (_loading)
+              Container(
+                color: Colors.black.withOpacity(0.3),
+                child: const Center(child: CircularProgressIndicator()),
+              ),
+          ],
         ),
       ),
     );

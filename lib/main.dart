@@ -4,6 +4,8 @@ import 'universal/theme/app_theme.dart';
 import 'firebase_options.dart';
 import 'initial pages/presentation/screens/splash_screen.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
+import 'profile/controllers/profile_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,11 +26,14 @@ class YuvaApp extends StatelessWidget {
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (context, child) {
-        return MaterialApp(
-          title: 'YUVA',
-          debugShowCheckedModeBanner: false,
-          theme: AppThemeLight.theme,
-          home: const SplashScreen(),
+        return ChangeNotifierProvider(
+          create: (_) => ProfileController(),
+          child: MaterialApp(
+            title: 'YUVA',
+            debugShowCheckedModeBanner: false,
+            theme: AppThemeLight.theme,
+            home: const SplashScreen(),
+          ),
         );
       },
     );

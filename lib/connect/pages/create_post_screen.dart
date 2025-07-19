@@ -210,6 +210,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         postType: _postType,
         userName: userName,
         userProfileImage: userProfileImage,
+        anonymous: _postAnonymously, // <-- pass the flag explicitly
       );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

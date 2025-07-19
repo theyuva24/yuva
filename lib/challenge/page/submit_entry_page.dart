@@ -2,11 +2,16 @@ import 'package:flutter/material.dart';
 import '../model/challenge_model.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import '../../initial pages/auth_service.dart';
 import '../service/submission_service.dart';
 import '../model/submission_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:video_compress/video_compress.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
+import 'package:path_provider/path_provider.dart';
+import '../service/background_submission_service.dart';
 
 class SubmitEntryPage extends StatefulWidget {
   final Challenge challenge;
@@ -19,6 +24,7 @@ class SubmitEntryPage extends StatefulWidget {
 class _SubmitEntryPageState extends State<SubmitEntryPage> {
   File? _selectedImage;
   File? _selectedVideo;
+  File? _videoThumbnailFile;
   final TextEditingController _captionController = TextEditingController();
   final ImagePicker _picker = ImagePicker();
   bool _submitting = false;
@@ -38,6 +44,24 @@ class _SubmitEntryPageState extends State<SubmitEntryPage> {
       setState(() {
         _selectedVideo = File(picked.path);
       });
+      // Generate thumbnail for preview (lightweight operation)
+      try {
+        final thumbPath = await VideoThumbnail.thumbnailFile(
+          video: picked.path,
+          thumbnailPath: (await getTemporaryDirectory()).path,
+          imageFormat: ImageFormat.PNG,
+          maxHeight: 320,
+          quality: 75,
+        );
+        if (thumbPath != null) {
+          setState(() {
+            _videoThumbnailFile = File(thumbPath);
+          });
+        }
+      } catch (e) {
+        // Thumbnail generation failed, but that's okay
+        print('Thumbnail generation failed: $e');
+      }
     }
   }
 
@@ -45,14 +69,51 @@ class _SubmitEntryPageState extends State<SubmitEntryPage> {
     setState(() {
       _submitting = true;
     });
+    // Show progress dialog
+    // showDialog(
+    //   context: context,
+    //   barrierDismissible: false,
+    //   builder:
+    //       (context) => AlertDialog(
+    //         content: Row(
+    //           children: [
+    //             const CircularProgressIndicator(),
+    //             const SizedBox(width: 16),
+    //             Expanded(child: Text('Uploading entry...')),
+    //           ],
+    //         ),
+    //       ),
+    // );
     try {
       final user = AuthService().currentUser;
       if (user == null) throw Exception('User not logged in');
       final userId = user.uid;
       final challengeId = widget.challenge.id;
-      String? mediaUrl;
+      String? mediaType;
+      if (_selectedImage != null) {
+        mediaType = 'image';
+      } else if (_selectedVideo != null) {
+        mediaType = 'video';
+      }
+      // Use background submission service
+      await BackgroundSubmissionService.submitInBackground(
+        imageFile: _selectedImage,
+        videoFile: _selectedVideo,
+        videoThumbnailFile: _videoThumbnailFile,
+        caption: _captionController.text.trim(),
+        userId: userId,
+        challengeId: challengeId,
+        mediaType: mediaType,
+        context: context,
+      );
+      setState(() {
+        _submitting = false;
+      });
+      // Old logic (kept as fallback, now commented out):
+      /*
       final submissionService = SubmissionService();
-      // Only upload media if either image or video is selected
+      String? mediaUrl;
+      String? thumbnailUrl;
       if (_selectedImage != null || _selectedVideo != null) {
         final file = _selectedImage ?? _selectedVideo!;
         mediaUrl = await submissionService.uploadMedia(
@@ -60,8 +121,15 @@ class _SubmitEntryPageState extends State<SubmitEntryPage> {
           userId,
           challengeId,
         );
+        if (_selectedVideo != null && _videoThumbnailFile != null) {
+          thumbnailUrl = await submissionService.uploadThumbnail(
+            _videoThumbnailFile!,
+            userId,
+            challengeId,
+          );
+        }
       } else {
-        mediaUrl = null; // Explicitly allow no media
+        mediaUrl = null;
       }
       final submission = Submission(
         id: '',
@@ -70,22 +138,21 @@ class _SubmitEntryPageState extends State<SubmitEntryPage> {
         mediaUrl: mediaUrl,
         caption: _captionController.text.trim(),
         timestamp: Timestamp.now(),
-        status: 'pending',
+        thumbnailUrl: thumbnailUrl,
+        mediaType: mediaType,
       );
-      print('Submission data: ${submission.toMap()}');
-      print('Current user UID: ${userId}');
       await submissionService.addSubmission(submission);
-      setState(() {
-        _submitting = false;
-      });
+      Navigator.of(context, rootNavigator: true).pop();
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Entry submitted!')));
       Navigator.pop(context);
+      */
     } catch (e) {
       setState(() {
         _submitting = false;
       });
+      // Navigator.of(context, rootNavigator: true).pop();
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Submission failed: $e')));

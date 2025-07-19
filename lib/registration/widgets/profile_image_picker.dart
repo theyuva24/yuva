@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 
 class ProfileImagePicker extends StatelessWidget {
   final String? imagePath;
@@ -37,7 +38,13 @@ class ProfileImagePicker extends StatelessWidget {
     if (source != null) {
       final picked = await picker.pickImage(source: source, imageQuality: 80);
       if (picked != null) {
-        onImagePicked(picked.path);
+        // Compress the image
+        final compressed = await FlutterImageCompress.compressAndGetFile(
+          picked.path,
+          '${picked.path}_compressed.jpg',
+          quality: 70,
+        );
+        onImagePicked(compressed != null ? compressed.path : picked.path);
       }
     }
   }

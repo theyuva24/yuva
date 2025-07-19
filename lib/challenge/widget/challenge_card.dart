@@ -60,21 +60,6 @@ class ChallengeCard extends StatelessWidget {
                     ),
               ),
             ),
-            // Gradient overlay
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.transparent,
-                    AppThemeLight.surface.withOpacity(0.92),
-                  ],
-                  stops: const [0.5, 1.0],
-                ),
-              ),
-            ),
             // Content
             Positioned(
               left: 0,
@@ -90,12 +75,16 @@ class ChallengeCard extends StatelessWidget {
                       challenge.title,
                       style: GoogleFonts.orbitron(
                         textStyle: const TextStyle(
-                          color: AppThemeLight.textDark,
+                          color: AppThemeLight.textDark, // Use theme dark text
                           fontWeight: FontWeight.bold,
                           fontSize: 22,
                           letterSpacing: 1.5,
                           shadows: [
-                            Shadow(color: Colors.black12, blurRadius: 4),
+                            Shadow(
+                              color: Colors.black54,
+                              blurRadius: 8,
+                              offset: Offset(0, 2),
+                            ),
                           ],
                         ),
                       ),
@@ -106,9 +95,15 @@ class ChallengeCard extends StatelessWidget {
                     Text(
                       challenge.description,
                       style: const TextStyle(
-                        color: AppThemeLight.textLight,
+                        color: AppThemeLight.textDark, // Use theme dark text
                         fontSize: 15,
-                        shadows: [Shadow(color: Colors.black12, blurRadius: 2)],
+                        shadows: [
+                          Shadow(
+                            color: Colors.black26,
+                            blurRadius: 4,
+                            offset: Offset(0, 1),
+                          ),
+                        ],
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -125,14 +120,14 @@ class ChallengeCard extends StatelessWidget {
                         Text(
                           challenge.prize,
                           style: const TextStyle(
-                            color: AppThemeLight.primary,
+                            color: AppThemeLight.primary, // Use theme primary
                             fontWeight: FontWeight.w600,
                           ),
                         ),
                         const Spacer(),
                         Icon(
                           Icons.timer,
-                          color: AppThemeLight.primary,
+                          color: AppThemeLight.accent, // Use accent for timer
                           size: 18,
                         ),
                         const SizedBox(width: 4),
@@ -144,9 +139,8 @@ class ChallengeCard extends StatelessWidget {
                               : 'Last day',
                           style: TextStyle(
                             color:
-                                isExpired
-                                    ? Colors.red[200]
-                                    : AppThemeLight.primary,
+                                AppThemeLight
+                                    .accent, // Use accent for timer text
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -160,7 +154,9 @@ class ChallengeCard extends StatelessWidget {
                         Text(
                           dateStr,
                           style: const TextStyle(
-                            color: AppThemeLight.textLight,
+                            color:
+                                AppThemeLight
+                                    .textLight, // Use theme light text for date
                             fontSize: 13,
                           ),
                         ),

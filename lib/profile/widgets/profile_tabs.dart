@@ -104,6 +104,7 @@ class ProfileTabs extends StatelessWidget {
                           shareCount: data['shareCount'] ?? 0,
                           postImage: data['postImageUrl'],
                           postOwnerId: data['userId'] ?? '',
+                          hubId: data['hubId'] ?? '', // <-- Add this line
                         );
                       },
                     );

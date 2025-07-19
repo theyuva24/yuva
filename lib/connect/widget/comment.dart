@@ -595,3 +595,15 @@ class _CommentCardState extends State<CommentCard> {
     }
   }
 }
+
+// Utility to count all comments and replies recursively
+typedef CommentCounter = int Function(List<Comment> comments);
+
+int countAllComments(List<Comment> comments) {
+  int count = 0;
+  for (final comment in comments) {
+    count += 1; // count this comment
+    count += countAllComments(comment.replies); // count all replies recursively
+  }
+  return count;
+}

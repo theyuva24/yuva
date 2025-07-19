@@ -38,6 +38,18 @@ class HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _currentIndex = widget.initialTabIndex;
+    // Load the current user's profile on startup
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      // Use addPostFrameCallback to avoid calling notifyListeners during build
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final controller = Provider.of<ProfileController>(
+          context,
+          listen: false,
+        );
+        controller.loadProfile(user.uid);
+      });
+    }
   }
 
   final List<Widget> _pages = [
@@ -66,32 +78,45 @@ class HomeScreenState extends State<HomeScreen> {
         backgroundColor: AppThemeLight.surface,
         elevation: 0,
         centerTitle: true,
-        leading: IconButton(
-          onPressed: () {
-            final user = FirebaseAuth.instance.currentUser;
-            if (user != null) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder:
-                      (context) => ChangeNotifierProvider(
-                        create: (_) => ProfileController(),
-                        child: ProfilePage(uid: user.uid),
-                      ),
+        leading: Consumer<ProfileController>(
+          builder: (context, controller, _) {
+            final url = controller.profilePicUrl;
+            return IconButton(
+              onPressed: () {
+                final user = FirebaseAuth.instance.currentUser;
+                if (user != null) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder:
+                          (context) => ChangeNotifierProvider(
+                            create: (_) => ProfileController(),
+                            child: ProfilePage(uid: user.uid),
+                          ),
+                    ),
+                  );
+                }
+              },
+              icon: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: AppThemeLight.primary, width: 2.w),
                 ),
-              );
-            }
+                child: CircleAvatar(
+                  backgroundColor: AppThemeLight.surface,
+                  backgroundImage: (url.isNotEmpty) ? NetworkImage(url) : null,
+                  child:
+                      (url.isEmpty)
+                          ? Icon(
+                            Icons.person,
+                            color: AppThemeLight.primary,
+                            size: 24,
+                          )
+                          : null,
+                ),
+              ),
+            );
           },
-          icon: Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: AppThemeLight.primary, width: 2.w),
-            ),
-            child: const CircleAvatar(
-              backgroundColor: AppThemeLight.surface,
-              child: Icon(Icons.person, color: AppThemeLight.primary, size: 24),
-            ),
-          ),
         ),
         title: Text(
           _pageTitles[_currentIndex],

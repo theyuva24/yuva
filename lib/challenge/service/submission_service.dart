@@ -2,6 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../model/submission_model.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
+import 'package:hive/hive.dart';
+
+const Duration _submissionsCacheDuration = Duration(hours: 1);
 
 class SubmissionService {
   // Get submissions subcollection for a specific challenge
@@ -13,21 +16,43 @@ class SubmissionService {
   }
 
   Future<List<Submission>> fetchSubmissionsForChallenge(
-    String challengeId,
-  ) async {
+    String challengeId, {
+    bool forceRefresh = false,
+  }) async {
+    final box = Hive.box('submissions');
+    final cacheKey = 'subs_$challengeId';
+    final cacheTimeKey = 'subs_time_$challengeId';
+    final cacheTime = box.get(cacheTimeKey) as DateTime?;
+    final cachedList = box.get(cacheKey) as List?;
+    if (!forceRefresh &&
+        cachedList != null &&
+        cacheTime != null &&
+        DateTime.now().difference(cacheTime) < _submissionsCacheDuration) {
+      return List<Submission>.from(cachedList.cast<Submission>());
+    }
     final snapshot =
         await _getSubmissionsCollection(
           challengeId,
         ).orderBy('timestamp', descending: true).get();
-    return snapshot.docs
-        .map((doc) => Submission.fromDocument(doc, challengeId: challengeId))
-        .toList();
+    final submissions =
+        snapshot.docs
+            .map(
+              (doc) => Submission.fromDocument(doc, challengeId: challengeId),
+            )
+            .toList();
+    await box.put(cacheKey, submissions);
+    await box.put(cacheTimeKey, DateTime.now());
+    return submissions;
   }
 
   Future<void> addSubmission(Submission submission) async {
     await _getSubmissionsCollection(
       submission.challengeId,
     ).add(submission.toMap());
+    // Invalidate cache
+    final box = Hive.box('submissions');
+    await box.delete('subs_${submission.challengeId}');
+    await box.delete('subs_time_${submission.challengeId}');
   }
 
   Future<String> uploadMedia(

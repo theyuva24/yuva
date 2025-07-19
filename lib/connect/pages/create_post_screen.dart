@@ -69,16 +69,26 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   ProfileModel? _profile;
   bool _profileLoading = true;
 
+  // 1. Add canPost logic
+  bool get _canPost {
+    return _contentController.text.trim().isNotEmpty ||
+        _imagePath != null ||
+        _linkController.text.trim().isNotEmpty ||
+        _pollOptionControllers.any((c) => c.text.trim().isNotEmpty);
+  }
+
   @override
   void initState() {
     super.initState();
     _hubService.getHubsStream().listen((hubs) {
-      print('Fetched hubs: ${hubs.map((h) => h.name).toList()}');
       setState(() {
         _allHubs = hubs;
       });
     });
     _hubController.addListener(_onHubTextChanged);
+    _contentController.addListener(() {
+      setState(() {});
+    });
     _fetchProfile();
   }
 
@@ -141,16 +151,13 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
   Future<void> _createPost() async {
     if (_selectedHub == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a hub from the dropdown')),
+      _selectedHub = Hub(
+        id: 'YVi0g7KwkKn8E74kET3P',
+        name: 'Random posts',
+        description: 'This hub shows random thoughts of random users',
+        imageUrl:
+            'https://ui-avatars.com/api/?name=Hub&background=6C63FF&color=fff&rounded=true&size=128',
       );
-      return;
-    }
-    if (_postType == 'text' && _contentController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter post content')),
-      );
-      return;
     }
     if (_postType == 'image' && _imagePath == null) {
       ScaffoldMessenger.of(
@@ -203,7 +210,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       await _postService.createPost(
         hubId: _selectedHub!.id,
         hubName: _selectedHub!.name,
-        postContent: _postType == 'text' ? _contentController.text.trim() : '',
+        postContent: _contentController.text.trim(),
         postImageUrl: imageUrl,
         pollData: pollData,
         linkUrl: _postType == 'link' ? _linkController.text.trim() : null,
@@ -214,7 +221,9 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Post created successfully!')),
+          SnackBar(
+            content: Text('Posted in ${_selectedHub!.name} successfully!'),
+          ),
         );
         await Future.delayed(const Duration(milliseconds: 800));
         Navigator.of(context).pushAndRemoveUntil(
@@ -434,7 +443,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               borderSide: BorderSide(color: colorScheme.primary, width: 2),
             ),
             contentPadding: const EdgeInsets.symmetric(
-              vertical: 20,
+              vertical: 12,
               horizontal: 20,
             ),
           ),
@@ -497,246 +506,288 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
             ),
           ),
           iconTheme: IconThemeData(color: colorScheme.primary),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: TextButton(
+                style: TextButton.styleFrom(
+                  backgroundColor:
+                      _canPost && !_isLoading
+                          ? colorScheme.primary
+                          : Colors.transparent,
+                  foregroundColor:
+                      _canPost && !_isLoading
+                          ? colorScheme.onPrimary
+                          : colorScheme.onSurface.withOpacity(0.4),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 18,
+                    vertical: 8,
+                  ),
+                ),
+                onPressed: _isLoading || !_canPost ? null : _createPost,
+                child:
+                    _isLoading
+                        ? SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: colorScheme.onPrimary,
+                          ),
+                        )
+                        : Text(
+                          'Post',
+                          style: textTheme.bodyLarge?.copyWith(
+                            color:
+                                _canPost && !_isLoading
+                                    ? colorScheme.onPrimary
+                                    : colorScheme.onSurface.withOpacity(0.4),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+              ),
+            ),
+          ],
         ),
         body:
             _profileLoading
                 ? const Center(child: CircularProgressIndicator())
-                : SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 20,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      // User info row
-                      if (_profile != null)
-                        Container(
-                          padding: const EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                            color: colorScheme.surface,
-                            borderRadius: const BorderRadius.only(
-                              bottomLeft: Radius.circular(32),
-                              bottomRight: Radius.circular(32),
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: colorScheme.primary.withOpacity(0.06),
-                                blurRadius: 16,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            children: [
-                              CircleAvatar(
-                                radius: 28,
-                                backgroundImage:
-                                    _profile!.profilePicUrl.isNotEmpty
-                                        ? NetworkImage(_profile!.profilePicUrl)
-                                        : null,
-                                backgroundColor: colorScheme.primary
-                                    .withOpacity(0.1),
-                                child:
-                                    _profile!.profilePicUrl.isEmpty
-                                        ? Icon(
-                                          Icons.person,
-                                          color: colorScheme.primary,
-                                          size: 32,
-                                        )
-                                        : null,
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      _postAnonymously
-                                          ? (_profile!.uniqueName.isNotEmpty
-                                              ? _profile!.uniqueName
-                                              : 'Anonymous')
-                                          : _profile!.fullName,
-                                      style: textTheme.bodyLarge?.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 20,
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      _postAnonymously
-                                          ? 'Posting Anonymously'
-                                          : 'Posting as yourself',
-                                      style: textTheme.bodyMedium?.copyWith(
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Switch(
-                                value: _postAnonymously,
-                                onChanged: (val) {
-                                  setState(() {
-                                    _postAnonymously = val;
-                                  });
-                                },
-                                activeColor: colorScheme.primary,
-                              ),
-                              const SizedBox(width: 4),
-                              Text('Anonymous', style: textTheme.bodyMedium),
-                            ],
-                          ),
+                : Column(
+                  children: [
+                    Expanded(
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 20,
                         ),
-                      if (_profile != null) const SizedBox(height: 12),
-                      Divider(
-                        thickness: 1.2,
-                        color: colorScheme.primary.withOpacity(0.12),
-                      ),
-                      const SizedBox(height: 10),
-                      _buildHubSelector(),
-                      const SizedBox(height: 18),
-                      _buildTypeSelector(),
-                      const SizedBox(height: 18),
-                      Card(
-                        elevation: 3,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(24),
-                        ),
-                        color: colorScheme.surface,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 18,
-                            vertical: 22,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              if (_postType == 'text')
-                                TextField(
-                                  controller: _contentController,
-                                  style: textTheme.bodyLarge,
-                                  decoration: InputDecoration(
-                                    prefixIcon: Icon(
-                                      Icons.edit,
-                                      color: colorScheme.primary,
-                                    ),
-                                    labelText: 'Post Content',
-                                    labelStyle: textTheme.labelLarge,
-                                    hintText: 'What\'s on your mind?',
-                                    hintStyle: textTheme.bodyMedium,
-                                    filled: true,
-                                    fillColor: colorScheme.background,
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(14),
-                                      borderSide: BorderSide(
-                                        color: colorScheme.primary,
-                                        width: 1.5,
-                                      ),
-                                    ),
-                                    enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(14),
-                                      borderSide: BorderSide(
-                                        color: colorScheme.primary,
-                                        width: 1.5,
-                                      ),
-                                    ),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(14),
-                                      borderSide: BorderSide(
-                                        color: colorScheme.primary,
-                                        width: 2,
-                                      ),
-                                    ),
-                                    contentPadding: const EdgeInsets.symmetric(
-                                      vertical: 20,
-                                      horizontal: 20,
-                                    ),
-                                    alignLabelWithHint: true,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            // User info row (no card), profile image logic, anonymous toggle label below
+                            if (_profile != null)
+                              Row(
+                                children: [
+                                  // Profile image or icon based on anonymous mode
+                                  CircleAvatar(
+                                    radius: 28,
+                                    backgroundImage:
+                                        !_postAnonymously &&
+                                                _profile!
+                                                    .profilePicUrl
+                                                    .isNotEmpty
+                                            ? NetworkImage(
+                                              _profile!.profilePicUrl,
+                                            )
+                                            : null,
+                                    backgroundColor: colorScheme.primary
+                                        .withOpacity(0.1),
+                                    child:
+                                        (_postAnonymously ||
+                                                _profile!.profilePicUrl.isEmpty)
+                                            ? Icon(
+                                              Icons.person,
+                                              color: colorScheme.primary,
+                                              size: 32,
+                                            )
+                                            : null,
                                   ),
-                                  maxLines: 5,
-                                  minLines: 3,
-                                ),
-                              if (_postType == 'image')
-                                Column(
-                                  children: [
-                                    ProfileImagePicker(
-                                      imagePath: _imagePath,
-                                      onImagePicked: (path) {
-                                        setState(() {
-                                          _imagePath = path;
-                                        });
-                                      },
-                                    ),
-                                    if (_imagePath != null)
-                                      Padding(
-                                        padding: const EdgeInsets.only(
-                                          top: 8.0,
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          _postAnonymously
+                                              ? (_profile!.uniqueName.isNotEmpty
+                                                  ? _profile!.uniqueName
+                                                  : 'Anonymous')
+                                              : _profile!.fullName,
+                                          style: textTheme.bodyLarge?.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 20,
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
                                         ),
-                                        child: Text(
-                                          'Image selected',
-                                          style: TextStyle(
-                                            color: Colors.green[700],
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          _postAnonymously
+                                              ? 'Posting Anonymously'
+                                              : 'Posting as yourself',
+                                          style: textTheme.bodyMedium?.copyWith(
+                                            fontSize: 14,
                                           ),
                                         ),
+                                      ],
+                                    ),
+                                  ),
+                                  Column(
+                                    children: [
+                                      Switch(
+                                        value: _postAnonymously,
+                                        onChanged: (val) {
+                                          setState(() {
+                                            _postAnonymously = val;
+                                          });
+                                        },
+                                        activeColor: colorScheme.primary,
                                       ),
-                                  ],
+                                      SizedBox(height: 2),
+                                      Text(
+                                        _postAnonymously
+                                            ? 'Switch to real ID'
+                                            : 'Switch to anonymous',
+                                        style: textTheme.bodySmall?.copyWith(
+                                          fontSize: 11,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            if (_profile != null) const SizedBox(height: 12),
+                            Divider(
+                              thickness: 1.2,
+                              color: colorScheme.primary.withOpacity(0.12),
+                            ),
+                            const SizedBox(height: 10),
+                            _buildHubSelector(),
+                            const SizedBox(height: 18),
+                            // 6. Open post content input, poll/image/link buttons below
+                            // Minimal, natural look for the text field
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 6,
+                              ),
+                              child: TextField(
+                                controller: _contentController,
+                                style: textTheme.bodyLarge,
+                                textAlign: TextAlign.start,
+                                decoration: InputDecoration(
+                                  hintText: 'What’s on your mind?',
+                                  hintStyle: textTheme.bodyMedium?.copyWith(
+                                    color: colorScheme.onSurface.withOpacity(
+                                      0.5,
+                                    ),
+                                  ),
+                                  border: InputBorder.none,
+                                  enabledBorder: InputBorder.none,
+                                  focusedBorder: InputBorder.none,
+                                  contentPadding: EdgeInsets.zero,
+                                  filled: false,
                                 ),
-                              if (_postType == 'link')
-                                TextField(
+                                maxLines: null,
+                                minLines: 1,
+                              ),
+                            ),
+                            if (_postType == 'image')
+                              Column(
+                                children: [
+                                  ProfileImagePicker(
+                                    imagePath: _imagePath,
+                                    onImagePicked: (path) {
+                                      setState(() {
+                                        _imagePath = path;
+                                      });
+                                    },
+                                  ),
+                                  if (_imagePath != null)
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 8.0),
+                                      child: Text(
+                                        'Image selected',
+                                        style: TextStyle(
+                                          color: Colors.green[700],
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            if (_postType == 'link')
+                              Padding(
+                                padding: const EdgeInsets.only(top: 8.0),
+                                child: TextField(
                                   controller: _linkController,
                                   style: textTheme.bodyLarge,
                                   decoration: InputDecoration(
-                                    prefixIcon: Icon(
-                                      Icons.link,
-                                      color: colorScheme.primary,
-                                    ),
-                                    labelText: 'Link URL',
-                                    labelStyle: textTheme.labelLarge,
                                     hintText: 'Paste your link here',
-                                    hintStyle: textTheme.bodyMedium,
-                                    filled: true,
-                                    fillColor: colorScheme.background,
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(14),
-                                      borderSide: BorderSide(
-                                        color: colorScheme.primary,
-                                        width: 1.5,
+                                    hintStyle: textTheme.bodyMedium?.copyWith(
+                                      color: colorScheme.onSurface.withOpacity(
+                                        0.5,
                                       ),
                                     ),
-                                    enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(14),
-                                      borderSide: BorderSide(
-                                        color: colorScheme.primary,
-                                        width: 1.5,
-                                      ),
-                                    ),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(14),
-                                      borderSide: BorderSide(
-                                        color: colorScheme.primary,
-                                        width: 2,
-                                      ),
-                                    ),
+                                    border: InputBorder.none,
                                     contentPadding: const EdgeInsets.symmetric(
-                                      vertical: 20,
-                                      horizontal: 20,
+                                      vertical: 16,
+                                      horizontal: 0,
                                     ),
                                   ),
                                 ),
-                              if (_postType == 'poll') _buildPollOptions(),
-                              const SizedBox(height: 18),
-                              GradientButton(
-                                text: _isLoading ? 'Posting...' : 'Create Post',
-                                onTap: _isLoading ? () {} : _createPost,
                               ),
-                            ],
-                          ),
+                            if (_postType == 'poll')
+                              Padding(
+                                padding: const EdgeInsets.only(top: 8.0),
+                                child: _buildPollOptions(),
+                              ),
+                            const SizedBox(height: 18),
+                            // GradientButton removed as 'Post' button is already in AppBar
+                          ],
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                    SafeArea(
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                          left: 20,
+                          right: 20,
+                          bottom: 8,
+                          top: 4,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            IconButton(
+                              icon: Icon(
+                                Icons.poll,
+                                color: colorScheme.primary,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _postType = 'poll';
+                                });
+                              },
+                            ),
+                            IconButton(
+                              icon: Icon(
+                                Icons.image,
+                                color: colorScheme.primary,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _postType = 'image';
+                                });
+                              },
+                            ),
+                            IconButton(
+                              icon: Icon(
+                                Icons.link,
+                                color: colorScheme.primary,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _postType = 'link';
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
       ),
     );

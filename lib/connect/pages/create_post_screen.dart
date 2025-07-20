@@ -57,6 +57,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   final TextEditingController _contentController = TextEditingController();
   final TextEditingController _hubController = TextEditingController();
   final TextEditingController _linkController = TextEditingController();
+  late FocusNode _contentFocusNode; // Add this line
   bool _isLoading = false;
   List<Hub> _allHubs = [];
   List<Hub> _filteredHubs = [];
@@ -73,6 +74,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   String? _originalImagePath;
   String? _compressedImagePath;
   Future<void>? _compressionFuture;
+  List<String> _joinedHubIds = [];
+  late FocusNode _hubFocusNode;
 
   // 1. Add canPost logic
   bool get _canPost {
@@ -85,21 +88,53 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   @override
   void initState() {
     super.initState();
+    _hubFocusNode = FocusNode();
+    _contentFocusNode = FocusNode(); // Add this line
     _hubService.getHubsStream().listen((hubs) {
       setState(() {
         _allHubs = hubs;
       });
     });
+    _hubService.getJoinedHubsStream().listen((joinedIds) {
+      setState(() {
+        _joinedHubIds = joinedIds;
+      });
+    });
     _hubController.addListener(_onHubTextChanged);
+    _hubFocusNode.addListener(_onHubFocusChanged);
     _contentController.addListener(() {
       setState(() {});
     });
     _fetchProfile();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _contentFocusNode
+          .requestFocus(); // Add this line to request focus after build
+    });
+  }
+
+  void _onHubFocusChanged() {
+    if (_hubFocusNode.hasFocus && _hubController.text.trim().isEmpty) {
+      // Show joined hubs or trending hubs
+      List<Hub> hubsToShow = [];
+      if (_joinedHubIds.isNotEmpty) {
+        hubsToShow =
+            _allHubs.where((hub) => _joinedHubIds.contains(hub.id)).toList();
+      } else {
+        hubsToShow = List<Hub>.from(_allHubs);
+        hubsToShow.sort(
+          (a, b) => (b.popularityScore ?? 0).compareTo(a.popularityScore ?? 0),
+        );
+        // No .take(10) here; show all, but limit visible items via maxHeight
+      }
+      setState(() {
+        _filteredHubs = hubsToShow;
+        _showDropdown = _filteredHubs.isNotEmpty;
+      });
+    }
   }
 
   void _onHubTextChanged() {
     final input = _hubController.text.trim().toLowerCase();
-    print('User typed: $input');
     if (input.isEmpty) {
       setState(() {
         _filteredHubs = [];
@@ -112,7 +147,6 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
           _allHubs
               .where((hub) => hub.name.toLowerCase().startsWith(input))
               .toList();
-      print('Filtered hubs: ${_filteredHubs.map((h) => h.name).toList()}');
       _showDropdown = _filteredHubs.isNotEmpty;
     });
   }
@@ -139,9 +173,11 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     _contentController.dispose();
     _hubController.dispose();
     _linkController.dispose();
+    _contentFocusNode.dispose(); // Add this line
     for (var c in _pollOptionControllers) {
       c.dispose();
     }
+    _hubFocusNode.dispose();
     super.dispose();
   }
 
@@ -157,11 +193,11 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   Future<void> _createPost() async {
     if (_selectedHub == null) {
       _selectedHub = Hub(
-        id: 'YVi0g7KwkKn8E74kET3P',
-        name: 'Random posts',
-        description: 'This hub shows random thoughts of random users',
+        id: 'yUZnv3EFKPBjNP8GHPyN',
+        name: 'Random thoughts',
+        description: 'For posts without intent',
         imageUrl:
-            'https://ui-avatars.com/api/?name=Hub&background=6C63FF&color=fff&rounded=true&size=128',
+            'https://firebasestorage.googleapis.com/v0/b/yuva-1263.firebasestorage.app/o/hubs%2F1752985519021%2Fhub_image.jpg?alt=media&token=75330cca-cb10-497a-aaf6-55e134b11128',
       );
     }
     if (_postType == 'image' && _imagePath == null) {
@@ -429,6 +465,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       children: [
         TextField(
           controller: _hubController,
+          focusNode: _hubFocusNode,
           style: textTheme.bodyLarge,
           decoration: InputDecoration(
             prefixIcon: Icon(Icons.search, color: colorScheme.primary),
@@ -458,7 +495,9 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         ),
         if (_showDropdown && _filteredHubs.isNotEmpty)
           Container(
-            constraints: const BoxConstraints(maxHeight: 200),
+            constraints: const BoxConstraints(
+              maxHeight: 300,
+            ), // 5 items * 60px each = 300px
             decoration: BoxDecoration(
               color: colorScheme.surface,
               borderRadius: BorderRadius.circular(12),
@@ -715,6 +754,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                               ),
                               child: TextField(
                                 controller: _contentController,
+                                focusNode: _contentFocusNode, // Add this line
                                 style: textTheme.bodyLarge,
                                 textAlign: TextAlign.start,
                                 decoration: InputDecoration(

@@ -82,147 +82,145 @@ class _HubDetailsPageState extends State<HubDetailsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
-        elevation: 0,
-        iconTheme: Theme.of(context).appBarTheme.iconTheme,
-        centerTitle: true,
-        title: Text(
-          widget.hub.name,
-          style: Theme.of(context).appBarTheme.titleTextStyle,
-        ),
-      ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: ClipRRect(
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(24),
-                  topRight: Radius.circular(24),
-                ),
-                child: Image.network(
-                  widget.hub.imageUrl,
-                  height: 200,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                  errorBuilder:
-                      (context, error, stackTrace) => Container(
-                        color: Colors.grey[300],
-                        height: 200,
-                        width: double.infinity,
-                        child: const Center(
-                          child: Icon(
-                            Icons.broken_image,
-                            size: 64,
-                            color: Colors.grey,
-                          ),
-                        ),
-                      ),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Card(
-                color: AppThemeLight.surface,
-                elevation: 3,
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(0),
-                    topRight: Radius.circular(0),
-                    bottomLeft: Radius.circular(18),
-                    bottomRight: Radius.circular(18),
-                  ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 16,
-                    horizontal: 16,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        widget.hub.name,
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: AppThemeLight.textDark,
-                          fontSize: 20,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        widget.hub.description,
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppThemeLight.textLight,
-                          fontSize: 14,
-                        ),
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 14),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          _loading
-                              ? const SizedBox(
-                                width: 28,
-                                height: 28,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: AppThemeLight.primary,
-                                ),
-                              )
-                              : ElevatedButton(
-                                onPressed: _isJoined ? _leaveHub : _joinHub,
-                                child: Text(_isJoined ? 'Leave' : 'Join'),
+            Stack(
+              children: [
+                // Hub image at natural size, centered, scaled down to fit width
+                Center(
+                  child: SizedBox(
+                    width: MediaQuery.of(context).size.width,
+                    child: Image.network(
+                      widget.hub.imageUrl,
+                      fit: BoxFit.contain,
+                      errorBuilder:
+                          (context, error, stackTrace) => Container(
+                            color: Colors.grey[300],
+                            width: MediaQuery.of(context).size.width,
+                            height: 200,
+                            child: const Center(
+                              child: Icon(
+                                Icons.broken_image,
+                                size: 64,
+                                color: Colors.grey,
                               ),
-                          if (_isJoined) ...[
-                            const SizedBox(width: 12),
-                            ElevatedButton.icon(
-                              icon: const Icon(
-                                Icons.message,
-                                color: AppThemeLight.primary,
-                                size: 18,
-                              ),
-                              label: const Text('Message'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppThemeLight.surface,
-                                foregroundColor: AppThemeLight.primary,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                elevation: 0,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 8,
-                                ),
-                                textStyle: const TextStyle(fontSize: 14),
-                              ),
-                              onPressed: () {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder:
-                                        (context) => HubChatPage(
-                                          hubId: widget.hub.id,
-                                          hubName: widget.hub.name,
-                                        ),
-                                  ),
-                                );
-                              },
                             ),
+                          ),
+                    ),
+                  ),
+                ),
+                // Back button and title overlay (positioned over image)
+                Positioned(
+                  top: MediaQuery.of(context).padding.top + 10,
+                  left: 16,
+                  right: 16,
+                  child: Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(
+                          Icons.arrow_back,
+                          color: Colors.white,
+                          size: 26,
+                          shadows: [
+                            Shadow(blurRadius: 2, color: Colors.black26),
                           ],
-                        ],
+                        ),
+                        onPressed: () => Navigator.of(context).pop(),
+                        splashRadius: 22,
+                        color: Colors.white.withOpacity(0.5),
                       ),
+                      // Removed hub name overlay here
                     ],
                   ),
                 ),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 16.0,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    widget.hub.name,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: AppThemeLight.textDark,
+                      fontSize: 20,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    widget.hub.description,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: AppThemeLight.textLight,
+                      fontSize: 14,
+                    ),
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 14),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _loading
+                          ? const SizedBox(
+                            width: 28,
+                            height: 28,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: AppThemeLight.primary,
+                            ),
+                          )
+                          : ElevatedButton(
+                            onPressed: _isJoined ? _leaveHub : _joinHub,
+                            child: Text(_isJoined ? 'Leave' : 'Join'),
+                          ),
+                      if (_isJoined) ...[
+                        const SizedBox(width: 12),
+                        ElevatedButton.icon(
+                          icon: const Icon(
+                            Icons.message,
+                            color: AppThemeLight.primary,
+                            size: 18,
+                          ),
+                          label: const Text('Message'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppThemeLight.surface,
+                            foregroundColor: AppThemeLight.primary,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            elevation: 0,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            textStyle: const TextStyle(fontSize: 14),
+                          ),
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder:
+                                    (context) => HubChatPage(
+                                      hubId: widget.hub.id,
+                                      hubName: widget.hub.name,
+                                    ),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ],
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 8),

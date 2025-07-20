@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../universal/theme/app_theme.dart';
+import '../service/notification_service.dart';
 
 // --- Models ---
 class Post {
@@ -46,19 +47,110 @@ class Post {
 // Remove the Comment class and buildCommentTree function from this file.
 // If any code needs Comment or buildCommentTree, import 'comment.dart' as comment and use comment.Comment and comment.buildCommentTree.
 
+// --- Enums ---
+enum VoteType { upvote, downvote }
+
+VoteType? voteTypeFromString(String? s) {
+  if (s == 'upvote') return VoteType.upvote;
+  if (s == 'downvote') return VoteType.downvote;
+  return null;
+}
+
+String voteTypeToString(VoteType? v) {
+  if (v == VoteType.upvote) return 'upvote';
+  if (v == VoteType.downvote) return 'downvote';
+  return '';
+}
+
+class VoteState {
+  final int upvotes;
+  final int downvotes;
+  final int score;
+  final VoteType? userVote;
+  VoteState({
+    required this.upvotes,
+    required this.downvotes,
+    required this.score,
+    required this.userVote,
+  });
+}
+
+VoteState calculateVoteState({
+  required VoteState prev,
+  required VoteType action,
+}) {
+  int upvotes = prev.upvotes;
+  int downvotes = prev.downvotes;
+  int score = prev.score;
+  VoteType? userVote = prev.userVote;
+
+  if (userVote == action) {
+    // Remove vote
+    if (action == VoteType.upvote) {
+      upvotes -= 1;
+      score -= 1;
+    } else {
+      downvotes -= 1;
+      score += 1;
+    }
+    userVote = null;
+  } else {
+    // Change or new vote
+    if (userVote == VoteType.upvote) {
+      upvotes -= 1;
+      score -= 1;
+    } else if (userVote == VoteType.downvote) {
+      downvotes -= 1;
+      score += 1;
+    }
+    if (action == VoteType.upvote) {
+      upvotes += 1;
+      score += 1;
+    } else {
+      downvotes += 1;
+      score -= 1;
+    }
+    userVote = action;
+  }
+  return VoteState(
+    upvotes: upvotes,
+    downvotes: downvotes,
+    score: score,
+    userVote: userVote,
+  );
+}
+
 // --- Service ---
 class VotingService {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final NotificationService _notificationService = NotificationService();
+
+  // Simple in-memory rate limiter (per user, per post/comment, per second)
+  static final Map<String, DateTime> _lastVoteTimestamps = {};
+
+  bool _isVoteAllowed(String userId, String targetId) {
+    final now = DateTime.now();
+    final key = '$userId|$targetId';
+    final last = _lastVoteTimestamps[key];
+    if (last != null && now.difference(last) < const Duration(seconds: 1)) {
+      return false;
+    }
+    _lastVoteTimestamps[key] = now;
+    return true;
+  }
 
   // Vote on a post
-  Future<void> voteOnPost(String postId, String voteType) async {
-    int maxRetries = 2;
+  Future<void> voteOnPost(String postId, VoteType voteType) async {
+    int maxRetries = 5;
     int attempt = 0;
     while (true) {
       try {
         final user = _auth.currentUser;
         if (user == null) throw Exception('User not authenticated');
+        if (!_isVoteAllowed(user.uid, postId)) {
+          throw Exception('You are voting too quickly. Please wait a moment.');
+        }
 
         final postRef = firestore.collection('posts').doc(postId);
         final voteRef = postRef.collection('voteInteractions').doc(user.uid);
@@ -75,68 +167,65 @@ class VotingService {
           int score = postData['score'] ?? 0;
           final postOwnerId = postData['userId'] as String?;
 
+          VoteType? currentVote;
           if (voteSnapshot.exists) {
-            final currentVote = voteSnapshot.data()?['voteType'];
-            if (currentVote == voteType) {
-              // Remove vote
-              transaction.delete(voteRef);
-              if (voteType == 'upvote') {
-                upvotes -= 1;
-                score -= 1;
-              } else if (voteType == 'downvote') {
-                downvotes -= 1;
-                score += 1;
-              }
-            } else {
-              // Change vote
-              transaction.update(voteRef, {
-                'voteType': voteType,
-                'voteTime': FieldValue.serverTimestamp(),
-              });
-              if (currentVote == 'upvote') {
-                upvotes -= 1;
-                score -= 1;
-              } else if (currentVote == 'downvote') {
-                downvotes -= 1;
-                score += 1;
-              }
-              if (voteType == 'upvote') {
-                upvotes += 1;
-                score += 1;
-              } else if (voteType == 'downvote') {
-                downvotes += 1;
-                score -= 1;
-              }
-            }
-          } else {
-            // New vote
-            transaction.set(voteRef, {
-              'userId': user.uid,
-              'voteType': voteType,
+            currentVote = voteTypeFromString(voteSnapshot.data()?['voteType']);
+          }
+          final prevState = VoteState(
+            upvotes: upvotes,
+            downvotes: downvotes,
+            score: score,
+            userVote: currentVote,
+          );
+          final newState = calculateVoteState(
+            prev: prevState,
+            action: voteType,
+          );
+
+          if (currentVote == voteType) {
+            transaction.delete(voteRef);
+          } else if (currentVote != null) {
+            transaction.update(voteRef, {
+              'voteType': voteTypeToString(voteType),
               'voteTime': FieldValue.serverTimestamp(),
             });
-            if (voteType == 'upvote') {
-              upvotes += 1;
-              score += 1;
-            } else if (voteType == 'downvote') {
-              downvotes += 1;
-              score -= 1;
-            }
+          } else {
+            transaction.set(voteRef, {
+              'userId': user.uid,
+              'voteType': voteTypeToString(voteType),
+              'voteTime': FieldValue.serverTimestamp(),
+            });
           }
-          // Only update engagement fields: upvotes, downvotes, score
           transaction.update(postRef, {
-            'upvotes': upvotes,
-            'downvotes': downvotes,
-            'score': score,
+            'upvotes': newState.upvotes,
+            'downvotes': newState.downvotes,
+            'score': newState.score,
           });
         });
+        // Send notification to post owner if not self
+        final postSnapshot =
+            await firestore.collection('posts').doc(postId).get();
+        final postData = postSnapshot.data() as Map<String, dynamic>?;
+        final postOwnerId = postData?['userId'] as String?;
+        if (postOwnerId != null && postOwnerId != user.uid) {
+          await _notificationService.addNotification(
+            recipientId: postOwnerId,
+            type: 'vote',
+            postId: postId,
+            senderId: user.uid,
+            senderName: user.displayName ?? 'Someone',
+          );
+        }
         break; // Success, exit retry loop
       } catch (e) {
         if (attempt < maxRetries) {
           attempt++;
-          await Future.delayed(const Duration(milliseconds: 200));
+          final delay = Duration(milliseconds: 200 * (1 << (attempt - 1)));
+          await Future.delayed(delay);
         } else {
-          throw Exception('Failed to vote after ${attempt + 1} attempts: $e');
+          throw Exception(
+            'Failed to vote after  [${attempt + 1}] attempts: $e',
+          );
         }
       }
     }
@@ -146,14 +235,17 @@ class VotingService {
   Future<void> voteOnComment(
     String postId,
     String commentId,
-    String voteType,
+    VoteType voteType,
   ) async {
-    int maxRetries = 2;
+    int maxRetries = 5;
     int attempt = 0;
     while (true) {
       try {
         final user = _auth.currentUser;
         if (user == null) throw Exception('User not authenticated');
+        if (!_isVoteAllowed(user.uid, commentId)) {
+          throw Exception('You are voting too quickly. Please wait a moment.');
+        }
 
         final commentRef = firestore
             .collection('posts')
@@ -173,65 +265,66 @@ class VotingService {
           int downvotes = commentData['downvotes'] ?? 0;
           int score = commentData['score'] ?? 0;
 
+          VoteType? currentVote;
           if (voteSnapshot.exists) {
-            final currentVote = voteSnapshot.data()?['voteType'];
-            if (currentVote == voteType) {
-              // Remove vote
-              transaction.delete(voteRef);
-              if (voteType == 'upvote') {
-                upvotes -= 1;
-                score -= 1;
-              } else if (voteType == 'downvote') {
-                downvotes -= 1;
-                score += 1;
-              }
-            } else {
-              // Change vote
-              transaction.update(voteRef, {
-                'voteType': voteType,
-                'voteTime': FieldValue.serverTimestamp(),
-              });
-              if (currentVote == 'upvote') {
-                upvotes -= 1;
-                score -= 1;
-              } else if (currentVote == 'downvote') {
-                downvotes -= 1;
-                score += 1;
-              }
-              if (voteType == 'upvote') {
-                upvotes += 1;
-                score += 1;
-              } else if (voteType == 'downvote') {
-                downvotes += 1;
-                score -= 1;
-              }
-            }
-          } else {
-            // New vote
-            transaction.set(voteRef, {
-              'userId': user.uid,
-              'voteType': voteType,
+            currentVote = voteTypeFromString(voteSnapshot.data()?['voteType']);
+          }
+          final prevState = VoteState(
+            upvotes: upvotes,
+            downvotes: downvotes,
+            score: score,
+            userVote: currentVote,
+          );
+          final newState = calculateVoteState(
+            prev: prevState,
+            action: voteType,
+          );
+
+          if (currentVote == voteType) {
+            transaction.delete(voteRef);
+          } else if (currentVote != null) {
+            transaction.update(voteRef, {
+              'voteType': voteTypeToString(voteType),
               'voteTime': FieldValue.serverTimestamp(),
             });
-            if (voteType == 'upvote') {
-              upvotes += 1;
-              score += 1;
-            } else if (voteType == 'downvote') {
-              downvotes += 1;
-              score -= 1;
-            }
+          } else {
+            transaction.set(voteRef, {
+              'userId': user.uid,
+              'voteType': voteTypeToString(voteType),
+              'voteTime': FieldValue.serverTimestamp(),
+            });
           }
           transaction.update(commentRef, {
-            'upvotes': upvotes,
-            'downvotes': downvotes,
-            'score': score,
+            'upvotes': newState.upvotes,
+            'downvotes': newState.downvotes,
+            'score': newState.score,
           });
         });
-        break; // Success
+        // Send notification to comment owner if not self
+        final commentSnapshot =
+            await firestore
+                .collection('posts')
+                .doc(postId)
+                .collection('comments')
+                .doc(commentId)
+                .get();
+        final commentData = commentSnapshot.data() as Map<String, dynamic>?;
+        final commentOwnerId = commentData?['userId'] as String?;
+        if (commentOwnerId != null && commentOwnerId != user.uid) {
+          await _notificationService.addNotification(
+            recipientId: commentOwnerId,
+            type: 'vote',
+            postId: postId,
+            senderId: user.uid,
+            senderName: user.displayName ?? 'Someone',
+          );
+        }
+        break; // Success, exit retry loop
       } catch (e) {
         if (attempt < maxRetries) {
           attempt++;
-          await Future.delayed(const Duration(milliseconds: 200));
+          final delay = Duration(milliseconds: 200 * (1 << (attempt - 1)));
+          await Future.delayed(delay);
         } else {
           throw Exception(
             'Failed to vote on comment after ${attempt + 1} attempts: $e',
@@ -283,8 +376,10 @@ class _VotingBarState extends State<VotingBar> {
   late bool _isUpvoted;
   late bool _isDownvoted;
   bool _isVoting = false;
+  bool _isRateLimited = false;
   String? _voteError;
   DateTime? _lastVoteTime;
+  late VoteType? _userVote;
 
   @override
   void initState() {
@@ -294,82 +389,115 @@ class _VotingBarState extends State<VotingBar> {
     _score = widget.initialScore;
     _isUpvoted = widget.initiallyUpvoted;
     _isDownvoted = widget.initiallyDownvoted;
+    _userVote =
+        _isUpvoted
+            ? VoteType.upvote
+            : _isDownvoted
+            ? VoteType.downvote
+            : null;
+    _fetchUserVoteState();
   }
 
-  Future<void> _handleVote(String voteType) async {
+  Future<void> _fetchUserVoteState() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return;
+      DocumentReference voteRef;
+      if (widget.type == VotingTargetType.post) {
+        voteRef = FirebaseFirestore.instance
+            .collection('posts')
+            .doc(widget.postId)
+            .collection('voteInteractions')
+            .doc(user.uid);
+      } else {
+        voteRef = FirebaseFirestore.instance
+            .collection('posts')
+            .doc(widget.postId)
+            .collection('comments')
+            .doc(widget.commentId)
+            .collection('voteInteractions')
+            .doc(user.uid);
+      }
+      final voteSnap = await voteRef.get();
+      if (voteSnap.exists) {
+        final data = voteSnap.data() as Map<String, dynamic>?;
+        final voteType = voteTypeFromString(data?['voteType']);
+        setState(() {
+          _userVote = voteType;
+          _isUpvoted = voteType == VoteType.upvote;
+          _isDownvoted = voteType == VoteType.downvote;
+        });
+      }
+    } catch (_) {
+      // Ignore errors for now
+    }
+  }
+
+  Future<void> _handleVote(String voteTypeStr) async {
     final now = DateTime.now();
     if (_lastVoteTime != null &&
         now.difference(_lastVoteTime!) < const Duration(milliseconds: 500)) {
       return;
     }
+    if (_isVoting || _isRateLimited) return;
     _lastVoteTime = now;
-    if (_isVoting) return;
     setState(() {
       _isVoting = true;
       _voteError = null;
+      _isRateLimited = false;
     });
     // Store previous state for rollback
-    final prevUpvoted = _isUpvoted;
-    final prevDownvoted = _isDownvoted;
-    final prevUpvotes = _upvotes;
-    final prevDownvotes = _downvotes;
-    final prevScore = _score;
+    final prevState = VoteState(
+      upvotes: _upvotes,
+      downvotes: _downvotes,
+      score: _score,
+      userVote: _userVote,
+    );
+    final VoteType action = voteTypeFromString(voteTypeStr)!;
     // Optimistic update
+    final newState = calculateVoteState(prev: prevState, action: action);
     setState(() {
-      if (voteType == 'upvote') {
-        if (_isUpvoted) {
-          _isUpvoted = false;
-          _upvotes--;
-          _score--;
-        } else {
-          _isUpvoted = true;
-          _isDownvoted = false;
-          _upvotes++;
-          if (_isDownvoted) {
-            _downvotes--;
-            _score += 2;
-          } else {
-            _score++;
-          }
-        }
-      } else {
-        if (_isDownvoted) {
-          _isDownvoted = false;
-          _downvotes--;
-          _score++;
-        } else {
-          _isDownvoted = true;
-          _isUpvoted = false;
-          _downvotes++;
-          if (_isUpvoted) {
-            _upvotes--;
-            _score -= 2;
-          } else {
-            _score--;
-          }
-        }
-      }
+      _upvotes = newState.upvotes;
+      _downvotes = newState.downvotes;
+      _score = newState.score;
+      _userVote = newState.userVote;
+      _isUpvoted = _userVote == VoteType.upvote;
+      _isDownvoted = _userVote == VoteType.downvote;
     });
     try {
       if (widget.type == VotingTargetType.post) {
-        await widget.votingService.voteOnPost(widget.postId, voteType);
+        await widget.votingService.voteOnPost(widget.postId, action);
       } else {
         await widget.votingService.voteOnComment(
           widget.postId,
           widget.commentId!,
-          voteType,
+          action,
         );
       }
       widget.onVoteChanged?.call(_upvotes, _downvotes, _score);
     } catch (e) {
+      final errorMsg = e.toString();
       setState(() {
-        _isUpvoted = prevUpvoted;
-        _isDownvoted = prevDownvoted;
-        _upvotes = prevUpvotes;
-        _downvotes = prevDownvotes;
-        _score = prevScore;
-        _voteError = 'Failed to vote. Tap to retry.';
+        _upvotes = prevState.upvotes;
+        _downvotes = prevState.downvotes;
+        _score = prevState.score;
+        _userVote = prevState.userVote;
+        _isUpvoted = _userVote == VoteType.upvote;
+        _isDownvoted = _userVote == VoteType.downvote;
+        if (errorMsg.contains('voting too quickly')) {
+          _voteError = 'You are voting too quickly. Please wait.';
+          _isRateLimited = true;
+        } else {
+          _voteError = 'Failed to vote. Tap to retry.';
+        }
       });
+      if (_isRateLimited) {
+        await Future.delayed(const Duration(seconds: 1));
+        setState(() {
+          _isRateLimited = false;
+          _voteError = null;
+        });
+      }
     } finally {
       setState(() {
         _isVoting = false;
@@ -386,7 +514,10 @@ class _VotingBarState extends State<VotingBar> {
           label: _isUpvoted ? 'Upvoted' : 'Upvote',
           selected: _isUpvoted,
           child: IconButton(
-            onPressed: _isVoting ? null : () => _handleVote('upvote'),
+            onPressed:
+                (_isVoting || _isRateLimited)
+                    ? null
+                    : () => _handleVote('upvote'),
             icon:
                 _isUpvoted
                     ? const Icon(
@@ -415,7 +546,10 @@ class _VotingBarState extends State<VotingBar> {
           label: _isDownvoted ? 'Downvoted' : 'Downvote',
           selected: _isDownvoted,
           child: IconButton(
-            onPressed: _isVoting ? null : () => _handleVote('downvote'),
+            onPressed:
+                (_isVoting || _isRateLimited)
+                    ? null
+                    : () => _handleVote('downvote'),
             icon:
                 _isDownvoted
                     ? const Icon(

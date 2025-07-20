@@ -5,6 +5,10 @@ import 'interests_section.dart';
 import '../../connect/widget/post_card.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../universal/theme/app_theme.dart';
+import '../../connect/service/post_service.dart';
+import '../../connect/models/post_model.dart';
+import '../../connect/pages/post_details_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ProfileTabs extends StatelessWidget {
   final ProfileModel profile;
@@ -35,6 +39,7 @@ class ProfileTabs extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final PostService postService = PostService();
     return DefaultTabController(
       length: 2,
       child: Column(
@@ -63,6 +68,30 @@ class ProfileTabs extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      if (profile.bio.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 20.0),
+                          child: Text(
+                            profile.bio,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontStyle: FontStyle.italic,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        )
+                      else
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 20.0),
+                          child: Text(
+                            'No bio added yet.',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontStyle: FontStyle.italic,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ),
                       const Text(
                         "Education",
                         style: TextStyle(
@@ -71,8 +100,30 @@ class ProfileTabs extends StatelessWidget {
                           fontSize: 22,
                         ),
                       ),
-                      const SizedBox(height: 12),
-                      EducationSection(profile: profile),
+                      const SizedBox(height: 8),
+                      Text(
+                        'College:  ${profile.college}',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: Colors.black,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Course:  ${profile.course}',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: Colors.black,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Year:  ${profile.year}',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: Colors.black,
+                        ),
+                      ),
                       const SizedBox(height: 28),
                       const Text(
                         "Interests",
@@ -82,25 +133,54 @@ class ProfileTabs extends StatelessWidget {
                           fontSize: 22,
                         ),
                       ),
-                      const SizedBox(height: 12),
-                      InterestsSection(profile: profile),
+                      const SizedBox(height: 8),
+                      profile.interests.isNotEmpty
+                          ? Wrap(
+                            spacing: 12,
+                            runSpacing: 10,
+                            children:
+                                profile.interests
+                                    .map(
+                                      (interest) => Chip(
+                                        label: Text(
+                                          interest,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        backgroundColor: Colors.blue
+                                            .withOpacity(0.15),
+                                        labelStyle: const TextStyle(
+                                          color: Colors.blue,
+                                        ),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            24,
+                                          ),
+                                          side: const BorderSide(
+                                            color: Colors.blue,
+                                            width: 1.5,
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                    .toList(),
+                          )
+                          : const Text(
+                            'No interests added yet.',
+                            style: TextStyle(color: Colors.grey),
+                          ),
                     ],
                   ),
                 ),
                 // Posts Tab
                 RefreshIndicator(
                   onRefresh: () async {
-                    // Refresh user posts
                     await Future.delayed(const Duration(milliseconds: 800));
                   },
                   color: AppThemeLight.primary,
-                  child: StreamBuilder<QuerySnapshot>(
-                    stream:
-                        FirebaseFirestore.instance
-                            .collection('posts')
-                            .where('userId', isEqualTo: profile.uid)
-                            .orderBy('postingTime', descending: true)
-                            .snapshots(),
+                  child: StreamBuilder<List<Post>>(
+                    stream: postService.getPostsStream(),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const Center(
@@ -130,7 +210,6 @@ class ProfileTabs extends StatelessWidget {
                               const SizedBox(height: 8),
                               TextButton(
                                 onPressed: () {
-                                  // Trigger refresh by rebuilding
                                   (context as Element).markNeedsBuild();
                                 },
                                 child: const Text('Retry'),
@@ -139,67 +218,95 @@ class ProfileTabs extends StatelessWidget {
                           ),
                         );
                       }
-                      if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                      final currentUserId =
+                          FirebaseAuth.instance.currentUser?.uid;
+                      final userPosts =
+                          (snapshot.data ?? [])
+                              .where((post) => post.postOwnerId == profile.uid)
+                              .where((post) {
+                                // Only show anonymous posts to the owner
+                                if (profile.uid == currentUserId) {
+                                  return true;
+                                } else {
+                                  return !post.isAnonymous;
+                                }
+                              })
+                              .toList();
+                      if (userPosts.isEmpty) {
                         return Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(
-                                Icons.post_add_outlined,
+                                Icons.forum_outlined,
                                 size: 64,
                                 color: AppThemeLight.textLight,
                               ),
                               const SizedBox(height: 16),
                               Text(
-                                'No posts yet.',
+                                'No posts yet',
                                 style: TextStyle(
                                   color: AppThemeLight.textLight,
                                   fontSize: 16,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Start sharing your thoughts!',
-                                style: TextStyle(
-                                  color: AppThemeLight.textLight,
-                                  fontSize: 14,
                                 ),
                               ),
                             ],
                           ),
                         );
                       }
-                      final posts = snapshot.data!.docs;
-
-                      // Keep chronological order for user posts (no trending score sorting)
-                      // Posts are already ordered by postingTime in the stream
-
                       return ListView.builder(
-                        itemCount: posts.length,
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        itemCount: userPosts.length,
                         itemBuilder: (context, index) {
-                          final data =
-                              posts[index].data() as Map<String, dynamic>;
+                          final post = userPosts[index];
                           return AnimatedSwitcher(
                             duration: const Duration(milliseconds: 300),
                             child: PostCard(
-                              key: ValueKey(posts[index].id),
-                              postId: posts[index].id,
-                              userName: profile.fullName,
-                              userProfileImage: profile.profilePicUrl,
-                              hubName: data['hubName'] ?? '',
-                              hubProfileImage: '',
-                              postContent: data['postContent'] ?? '',
-                              timestamp: _formatTimestamp(data['postingTime']),
-                              upvotes: data['upvotes'] ?? 0,
-                              downvotes: data['downvotes'] ?? 0,
-                              commentCount: data['commentCount'] ?? 0,
-                              shareCount: data['shareCount'] ?? 0,
-                              postImage: data['postImageUrl'],
-                              postOwnerId: data['userId'] ?? '',
-                              postType: data['postType'] ?? 'text',
-                              linkUrl: data['linkUrl'],
-                              pollData: data['pollData'],
-                              hubId: data['hubId'] ?? '',
+                              key: ValueKey(post.id),
+                              postId: post.id,
+                              userName: post.userName,
+                              userProfileImage: post.userProfileImage,
+                              hubName: post.hubName,
+                              hubProfileImage: post.hubProfileImage,
+                              postContent: post.postContent,
+                              timestamp: post.timestamp,
+                              upvotes: post.upvotes,
+                              downvotes: post.downvotes,
+                              commentCount: post.commentCount,
+                              shareCount: post.shareCount,
+                              postImage: post.postImage,
+                              postOwnerId: post.postOwnerId,
+                              postType: post.postType,
+                              linkUrl: post.linkUrl,
+                              pollData: post.pollData,
+                              hubId: post.hubId,
+                              onCardTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (context) => PostDetailsPage(
+                                          postId: post.id,
+                                          userName: post.userName,
+                                          userProfileImage:
+                                              post.userProfileImage,
+                                          hubName: post.hubName,
+                                          hubProfileImage: post.hubProfileImage,
+                                          postContent: post.postContent,
+                                          timestamp: post.timestamp,
+                                          upvotes: post.upvotes,
+                                          downvotes: post.downvotes,
+                                          commentCount: post.commentCount,
+                                          shareCount: post.shareCount,
+                                          postImage: post.postImage,
+                                          postOwnerId: post.postOwnerId,
+                                          postType: post.postType,
+                                          linkUrl: post.linkUrl,
+                                          pollData: post.pollData,
+                                        ),
+                                  ),
+                                );
+                              },
                             ),
                           );
                         },

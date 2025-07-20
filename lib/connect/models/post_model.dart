@@ -17,6 +17,7 @@ class Post {
   final String? linkUrl;
   final Map<String, dynamic>? pollData;
   final int? trendingScore;
+  final bool isAnonymous;
 
   Post({
     required this.id,
@@ -37,5 +38,6 @@ class Post {
     this.linkUrl,
     this.pollData,
     this.trendingScore,
+    required this.isAnonymous,
   });
 }

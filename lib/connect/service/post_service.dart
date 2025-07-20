@@ -116,6 +116,7 @@ class PostService {
           linkUrl: data['linkUrl'],
           pollData: data['pollData'],
           trendingScore: data['trendingScore'] ?? 0,
+          isAnonymous: isAnonymous,
         ),
       );
     }
@@ -203,6 +204,7 @@ class PostService {
                 linkUrl: data['linkUrl'],
                 pollData: data['pollData'],
                 trendingScore: data['trendingScore'] ?? 0,
+                isAnonymous: isAnonymous,
               ),
             );
           }

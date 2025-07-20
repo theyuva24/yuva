@@ -3,6 +3,9 @@ import '../models/profile_model.dart';
 import 'package:yuva/universal/theme/app_theme.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../connect/widget/post_card.dart';
+import '../../connect/service/post_service.dart';
+import '../../connect/models/post_model.dart';
+import '../../connect/pages/post_details_page.dart';
 
 // ------------------- ProfileHeader -------------------
 class ProfileHeader extends StatelessWidget {
@@ -74,23 +77,17 @@ class ProfileHeader extends StatelessWidget {
 class ProfileActions extends StatelessWidget {
   final bool isCurrentUser;
   final ProfileModel profile;
-  final bool isFollowing;
   final bool isLoading;
-  final VoidCallback onFollowToggle;
   final VoidCallback onMessage;
   final VoidCallback onEdit;
-  final VoidCallback onFollowers;
 
   const ProfileActions({
     Key? key,
     required this.isCurrentUser,
     required this.profile,
-    this.isFollowing = false,
     this.isLoading = false,
-    required this.onFollowToggle,
     required this.onMessage,
     required this.onEdit,
-    required this.onFollowers,
   }) : super(key: key);
 
   @override
@@ -102,7 +99,7 @@ class ProfileActions extends StatelessWidget {
           children: [
             Expanded(
               child: OutlinedButton(
-                onPressed: onFollowers,
+                onPressed: onEdit,
                 style: OutlinedButton.styleFrom(
                   side: BorderSide(color: AppThemeLight.primary, width: 2),
                   foregroundColor: AppThemeLight.primary,
@@ -112,7 +109,7 @@ class ProfileActions extends StatelessWidget {
                   minimumSize: const Size(0, 48),
                 ),
                 child: const Text(
-                  "Follower",
+                  "Edit",
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -122,7 +119,7 @@ class ProfileActions extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 16),
-            Expanded(child: GradientButton(text: "Edit", onTap: onEdit)),
+            Expanded(child: GradientButton(text: "Message", onTap: onMessage)),
           ],
         ),
       );
@@ -133,7 +130,7 @@ class ProfileActions extends StatelessWidget {
           children: [
             Expanded(
               child: OutlinedButton(
-                onPressed: isLoading ? null : onFollowToggle,
+                onPressed: isLoading ? null : onMessage,
                 style: OutlinedButton.styleFrom(
                   side: BorderSide(color: AppThemeLight.primary, width: 2),
                   foregroundColor: AppThemeLight.primary,
@@ -149,9 +146,9 @@ class ProfileActions extends StatelessWidget {
                           height: 20,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
-                        : Text(
-                          isFollowing ? "Following" : "Follow",
-                          style: const TextStyle(
+                        : const Text(
+                          "Message",
+                          style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                             color: AppThemeLight.primary,
@@ -159,8 +156,6 @@ class ProfileActions extends StatelessWidget {
                         ),
               ),
             ),
-            const SizedBox(width: 16),
-            Expanded(child: GradientButton(text: "Message", onTap: onMessage)),
           ],
         ),
       );
@@ -292,6 +287,7 @@ class ProfileTabs extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final PostService _postService = PostService();
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: DefaultTabController(
@@ -353,17 +349,11 @@ class ProfileTabs extends StatelessWidget {
                   // Posts Tab
                   RefreshIndicator(
                     onRefresh: () async {
-                      // Refresh user posts
                       await Future.delayed(const Duration(milliseconds: 800));
                     },
                     color: AppThemeLight.primary,
-                    child: StreamBuilder<QuerySnapshot>(
-                      stream:
-                          FirebaseFirestore.instance
-                              .collection('posts')
-                              .where('userId', isEqualTo: profile.uid)
-                              .orderBy('postingTime', descending: true)
-                              .snapshots(),
+                    child: StreamBuilder<List<Post>>(
+                      stream: _postService.getPostsStream(),
                       builder: (context, snapshot) {
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
@@ -394,7 +384,6 @@ class ProfileTabs extends StatelessWidget {
                                 const SizedBox(height: 8),
                                 TextButton(
                                   onPressed: () {
-                                    // Trigger refresh by rebuilding
                                     (context as Element).markNeedsBuild();
                                   },
                                   child: const Text('Retry'),
@@ -403,69 +392,88 @@ class ProfileTabs extends StatelessWidget {
                             ),
                           );
                         }
-                        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                        final userPosts =
+                            (snapshot.data ?? [])
+                                .where(
+                                  (post) => post.postOwnerId == profile.uid,
+                                )
+                                .toList();
+                        if (userPosts.isEmpty) {
                           return Center(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Icon(
-                                  Icons.post_add_outlined,
+                                  Icons.forum_outlined,
                                   size: 64,
                                   color: AppThemeLight.textLight,
                                 ),
                                 const SizedBox(height: 16),
                                 Text(
-                                  'No posts yet.',
+                                  'No posts yet',
                                   style: TextStyle(
                                     color: AppThemeLight.textLight,
                                     fontSize: 16,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  'Start sharing your thoughts!',
-                                  style: TextStyle(
-                                    color: AppThemeLight.textLight,
-                                    fontSize: 14,
                                   ),
                                 ),
                               ],
                             ),
                           );
                         }
-                        final posts = snapshot.data!.docs;
-
-                        // Keep chronological order for user posts (no trending score sorting)
-                        // Posts are already ordered by postingTime in the stream
-
                         return ListView.builder(
-                          itemCount: posts.length,
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          itemCount: userPosts.length,
                           itemBuilder: (context, index) {
-                            final data =
-                                posts[index].data() as Map<String, dynamic>;
+                            final post = userPosts[index];
                             return AnimatedSwitcher(
                               duration: const Duration(milliseconds: 300),
                               child: PostCard(
-                                key: ValueKey(posts[index].id),
-                                postId: posts[index].id,
-                                userName: profile.fullName,
-                                userProfileImage: profile.profilePicUrl,
-                                hubName: data['hubName'] ?? '',
-                                hubProfileImage: '',
-                                postContent: data['postContent'] ?? '',
-                                timestamp: _formatTimestamp(
-                                  data['postingTime'],
-                                ),
-                                upvotes: data['upvotes'] ?? 0,
-                                downvotes: data['downvotes'] ?? 0,
-                                commentCount: data['commentCount'] ?? 0,
-                                shareCount: data['shareCount'] ?? 0,
-                                postImage: data['postImageUrl'],
-                                postOwnerId: data['userId'] ?? '',
-                                postType: data['postType'] ?? 'text',
-                                linkUrl: data['linkUrl'],
-                                pollData: data['pollData'],
-                                hubId: data['hubId'] ?? '',
+                                key: ValueKey(post.id),
+                                postId: post.id,
+                                userName: post.userName,
+                                userProfileImage: post.userProfileImage,
+                                hubName: post.hubName,
+                                hubProfileImage: post.hubProfileImage,
+                                postContent: post.postContent,
+                                timestamp: post.timestamp,
+                                upvotes: post.upvotes,
+                                downvotes: post.downvotes,
+                                commentCount: post.commentCount,
+                                shareCount: post.shareCount,
+                                postImage: post.postImage,
+                                postOwnerId: post.postOwnerId,
+                                postType: post.postType,
+                                linkUrl: post.linkUrl,
+                                pollData: post.pollData,
+                                hubId: post.hubId,
+                                onCardTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) => PostDetailsPage(
+                                            postId: post.id,
+                                            userName: post.userName,
+                                            userProfileImage:
+                                                post.userProfileImage,
+                                            hubName: post.hubName,
+                                            hubProfileImage:
+                                                post.hubProfileImage,
+                                            postContent: post.postContent,
+                                            timestamp: post.timestamp,
+                                            upvotes: post.upvotes,
+                                            downvotes: post.downvotes,
+                                            commentCount: post.commentCount,
+                                            shareCount: post.shareCount,
+                                            postImage: post.postImage,
+                                            postOwnerId: post.postOwnerId,
+                                            postType: post.postType,
+                                            linkUrl: post.linkUrl,
+                                            pollData: post.pollData,
+                                          ),
+                                    ),
+                                  );
+                                },
                               ),
                             );
                           },

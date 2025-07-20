@@ -124,119 +124,182 @@ class HubsPage extends StatelessWidget {
         body: TabBarView(
           children: [
             // Popular Hubs Tab (sorted by popularityScore)
-            StreamBuilder<List<Hub>>(
-              stream: hubService.getHubsStream(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
+            StreamBuilder<List<String>>(
+              stream: hubService.getJoinedHubsStream(),
+              builder: (context, joinedHubsSnapshot) {
+                if (joinedHubsSnapshot.connectionState ==
+                    ConnectionState.waiting) {
                   return const Center(
                     child: CircularProgressIndicator(
                       color: AppThemeLight.primary,
                     ),
                   );
                 }
-                if (snapshot.hasError) {
-                  return Center(
-                    child: Text(
-                      'Error loading hubs',
-                      style: Theme.of(context).textTheme.labelLarge,
-                    ),
-                  );
-                }
-                final hubs = snapshot.data ?? [];
-                if (hubs.isEmpty) {
-                  return Center(
-                    child: Text(
-                      'No hubs available.',
-                      style: Theme.of(context).textTheme.labelLarge,
-                    ),
-                  );
-                }
 
-                // Sort hubs by popularityScore (descending)
-                final sortedHubs = List<Hub>.from(hubs);
-                sortedHubs.sort((a, b) {
-                  final scoreA = a.popularityScore ?? 0;
-                  final scoreB = b.popularityScore ?? 0;
-                  return scoreB.compareTo(scoreA); // Descending order
-                });
+                final joinedHubIds = joinedHubsSnapshot.data ?? [];
 
-                return ListView.builder(
-                  itemCount: sortedHubs.length,
-                  itemBuilder: (context, index) {
-                    final hub = sortedHubs[index];
-                    return Container(
-                      margin: EdgeInsets.symmetric(
+                return StreamBuilder<List<Hub>>(
+                  stream: hubService.getHubsStream(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(
+                        child: CircularProgressIndicator(
+                          color: AppThemeLight.primary,
+                        ),
+                      );
+                    }
+                    if (snapshot.hasError) {
+                      return Center(
+                        child: Text(
+                          'Error loading hubs',
+                          style: Theme.of(context).textTheme.labelLarge,
+                        ),
+                      );
+                    }
+                    final hubs = snapshot.data ?? [];
+                    if (hubs.isEmpty) {
+                      return Center(
+                        child: Text(
+                          'No hubs available.',
+                          style: Theme.of(context).textTheme.labelLarge,
+                        ),
+                      );
+                    }
+
+                    // Sort hubs by popularityScore (descending)
+                    final sortedHubs = List<Hub>.from(hubs);
+                    sortedHubs.sort((a, b) {
+                      final scoreA = a.popularityScore ?? 0;
+                      final scoreB = b.popularityScore ?? 0;
+                      return scoreB.compareTo(scoreA); // Descending order
+                    });
+
+                    return ListView.builder(
+                      padding: EdgeInsets.symmetric(
                         horizontal: 16.w,
-                        vertical: 8.h,
+                        vertical: 12.h,
                       ),
-                      decoration: BoxDecoration(
-                        color: AppThemeLight.surface,
-                        borderRadius: BorderRadius.circular(14.r),
-                        border: Border.all(
-                          color: AppThemeLight.border,
-                          width: 1.5.w,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppThemeLight.primary.withOpacity(0.08),
-                            blurRadius: 8.r,
-                            spreadRadius: 1.r,
-                          ),
-                        ],
-                      ),
-                      child: ListTile(
-                        leading: Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: AppThemeLight.primary,
-                              width: 2.w,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppThemeLight.primary.withOpacity(0.12),
-                                blurRadius: 8.r,
-                                spreadRadius: 1.r,
+                      itemCount: sortedHubs.length,
+                      itemBuilder: (context, index) {
+                        final hub = sortedHubs[index];
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => HubDetailsPage(hub: hub),
                               ),
-                            ],
-                          ),
-                          child: CircleAvatar(
-                            backgroundImage: NetworkImage(hub.imageUrl),
-                            backgroundColor: AppThemeLight.background,
-                          ),
-                        ),
-                        title: Text(
-                          hub.name,
-                          style: Theme.of(context).textTheme.titleLarge,
-                        ),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              hub.description,
-                              style: Theme.of(context).textTheme.bodyMedium,
+                            );
+                          },
+                          child: Card(
+                            margin: EdgeInsets.only(bottom: 16.h),
+                            elevation: 4,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16.r),
                             ),
-                            SizedBox(height: 4.h),
-                            Text(
-                              'Popularity Score: ${hub.popularityScore ?? 0}',
-                              style: Theme.of(
-                                context,
-                              ).textTheme.bodySmall?.copyWith(
-                                color: AppThemeLight.primary,
-                                fontWeight: FontWeight.w600,
+                            child: Padding(
+                              padding: EdgeInsets.all(12.w),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(12.r),
+                                    child: Image.network(
+                                      hub.imageUrl,
+                                      width: 64.w,
+                                      height: 64.w,
+                                      fit: BoxFit.cover,
+                                      errorBuilder:
+                                          (context, error, stackTrace) =>
+                                              Container(
+                                                width: 64.w,
+                                                height: 64.w,
+                                                color: AppThemeLight.surface,
+                                                child: Icon(
+                                                  Icons.broken_image,
+                                                  size: 32.w,
+                                                  color: AppThemeLight.primary
+                                                      .withOpacity(0.3),
+                                                ),
+                                              ),
+                                    ),
+                                  ),
+                                  SizedBox(width: 16.w),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: Text(
+                                                hub.name,
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .titleMedium
+                                                    ?.copyWith(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                            if (joinedHubIds.contains(
+                                              hub.id,
+                                            )) // Only show if user has joined this hub
+                                              Container(
+                                                margin: EdgeInsets.only(
+                                                  left: 8.w,
+                                                ),
+                                                padding: EdgeInsets.symmetric(
+                                                  horizontal: 10.w,
+                                                  vertical: 4.h,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: AppThemeLight.primary
+                                                      .withOpacity(0.1),
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                        12.r,
+                                                      ),
+                                                ),
+                                                child: Text(
+                                                  'Joined',
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .bodySmall
+                                                      ?.copyWith(
+                                                        color:
+                                                            AppThemeLight
+                                                                .primary,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                      ),
+                                                ),
+                                              ),
+                                          ],
+                                        ),
+                                        SizedBox(height: 6.h),
+                                        Text(
+                                          hub.description,
+                                          style:
+                                              Theme.of(
+                                                context,
+                                              ).textTheme.bodyMedium,
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                          ],
-                        ),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => HubDetailsPage(hub: hub),
-                            ),
-                          );
-                        },
-                      ),
+                          ),
+                        );
+                      },
                     );
                   },
                 );
@@ -318,88 +381,127 @@ class HubsPage extends StatelessWidget {
                     }
 
                     return ListView.builder(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16.w,
+                        vertical: 12.h,
+                      ),
                       itemCount: joinedHubs.length,
                       itemBuilder: (context, index) {
                         final hub = joinedHubs[index];
-                        return Container(
-                          margin: EdgeInsets.symmetric(
-                            horizontal: 16.w,
-                            vertical: 8.h,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppThemeLight.surface,
-                            borderRadius: BorderRadius.circular(14.r),
-                            border: Border.all(
-                              color: AppThemeLight.border,
-                              width: 1.5.w,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppThemeLight.primary.withOpacity(0.08),
-                                blurRadius: 8.r,
-                                spreadRadius: 1.r,
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => HubDetailsPage(hub: hub),
                               ),
-                            ],
-                          ),
-                          child: ListTile(
-                            leading: Container(
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: AppThemeLight.primary,
-                                  width: 2.w,
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: AppThemeLight.primary.withOpacity(
-                                      0.12,
+                            );
+                          },
+                          child: Card(
+                            margin: EdgeInsets.only(bottom: 16.h),
+                            elevation: 4,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16.r),
+                            ),
+                            child: Padding(
+                              padding: EdgeInsets.all(12.w),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(12.r),
+                                    child: Image.network(
+                                      hub.imageUrl,
+                                      width: 64.w,
+                                      height: 64.w,
+                                      fit: BoxFit.cover,
+                                      errorBuilder:
+                                          (context, error, stackTrace) =>
+                                              Container(
+                                                width: 64.w,
+                                                height: 64.w,
+                                                color: AppThemeLight.surface,
+                                                child: Icon(
+                                                  Icons.broken_image,
+                                                  size: 32.w,
+                                                  color: AppThemeLight.primary
+                                                      .withOpacity(0.3),
+                                                ),
+                                              ),
                                     ),
-                                    blurRadius: 8.r,
-                                    spreadRadius: 1.r,
+                                  ),
+                                  SizedBox(width: 16.w),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: Text(
+                                                hub.name,
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .titleMedium
+                                                    ?.copyWith(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                            if (joinedHubs !=
+                                                null) // For Joined tab only
+                                              Container(
+                                                margin: EdgeInsets.only(
+                                                  left: 8.w,
+                                                ),
+                                                padding: EdgeInsets.symmetric(
+                                                  horizontal: 10.w,
+                                                  vertical: 4.h,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: AppThemeLight.primary
+                                                      .withOpacity(0.1),
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                        12.r,
+                                                      ),
+                                                ),
+                                                child: Text(
+                                                  'Joined',
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .bodySmall
+                                                      ?.copyWith(
+                                                        color:
+                                                            AppThemeLight
+                                                                .primary,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                      ),
+                                                ),
+                                              ),
+                                          ],
+                                        ),
+                                        SizedBox(height: 6.h),
+                                        Text(
+                                          hub.description,
+                                          style:
+                                              Theme.of(
+                                                context,
+                                              ).textTheme.bodyMedium,
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ],
                               ),
-                              child: CircleAvatar(
-                                backgroundImage: NetworkImage(hub.imageUrl),
-                                backgroundColor: AppThemeLight.background,
-                              ),
                             ),
-                            title: Text(
-                              hub.name,
-                              style: Theme.of(context).textTheme.titleLarge,
-                            ),
-                            subtitle: Text(
-                              hub.description,
-                              style: Theme.of(context).textTheme.bodyMedium,
-                            ),
-                            trailing: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 8.w,
-                                vertical: 4.h,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppThemeLight.primary.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(12.r),
-                              ),
-                              child: Text(
-                                'Joined',
-                                style: Theme.of(
-                                  context,
-                                ).textTheme.bodySmall?.copyWith(
-                                  color: AppThemeLight.primary,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder:
-                                      (context) => HubDetailsPage(hub: hub),
-                                ),
-                              );
-                            },
                           ),
                         );
                       },

@@ -23,6 +23,7 @@ class PostDetailsPage extends StatefulWidget {
   final String postType;
   final String? linkUrl;
   final Map<String, dynamic>? pollData;
+  final bool autoFocusComment; // <--- Add this line
 
   const PostDetailsPage({
     Key? key,
@@ -42,6 +43,7 @@ class PostDetailsPage extends StatefulWidget {
     required this.postType,
     this.linkUrl,
     this.pollData,
+    this.autoFocusComment = false, // <--- Add this line
   }) : super(key: key);
 
   @override
@@ -62,6 +64,11 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
   @override
   void initState() {
     super.initState();
+    if (widget.autoFocusComment) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        FocusScope.of(context).requestFocus(_commentFieldFocusNode);
+      });
+    }
     _fetchComments();
   }
 
@@ -187,55 +194,48 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
       appBar: AppBar(title: const Text('Post Details')),
       body: SingleChildScrollView(
         controller: _scrollController,
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              PostCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            PostCard(
+              postId: widget.postId,
+              userName: widget.userName,
+              userProfileImage: widget.userProfileImage,
+              hubName: widget.hubName,
+              hubProfileImage: widget.hubProfileImage,
+              postContent: widget.postContent,
+              timestamp: widget.timestamp,
+              upvotes: widget.upvotes,
+              downvotes: widget.downvotes,
+              commentCount: comment.countAllComments(_comments),
+              shareCount: widget.shareCount,
+              postImage: widget.postImage,
+              postOwnerId: widget.postOwnerId,
+              postType: widget.postType,
+              linkUrl: widget.linkUrl,
+              pollData: widget.pollData,
+              hubId: widget.postOwnerId, // <-- Pass correct hubId
+              onCardTap: null,
+              onCommentTap: _scrollToCommentField,
+              commentTree: _comments,
+            ),
+            const SizedBox(height: 16),
+            if (_loadingComments)
+              const Center(child: CircularProgressIndicator()),
+            if (_commentsError != null)
+              Text(_commentsError!, style: const TextStyle(color: Colors.red)),
+            if (!_loadingComments && _comments.isEmpty)
+              const Text('No comments yet. Be the first to comment!'),
+            if (!_loadingComments && _comments.isNotEmpty)
+              comment.CommentTree(
+                comments: _comments,
+                onReply: _handleCommentReply,
                 postId: widget.postId,
-                userName: widget.userName,
-                userProfileImage: widget.userProfileImage,
-                hubName: widget.hubName,
-                hubProfileImage: widget.hubProfileImage,
-                postContent: widget.postContent,
-                timestamp: widget.timestamp,
-                upvotes: widget.upvotes,
-                downvotes: widget.downvotes,
-                commentCount: comment.countAllComments(_comments),
-                shareCount: widget.shareCount,
-                postImage: widget.postImage,
-                postOwnerId: widget.postOwnerId,
-                postType: widget.postType,
-                linkUrl: widget.linkUrl,
-                pollData: widget.pollData,
-                hubId: widget.postOwnerId, // <-- Pass correct hubId
-                onCardTap: null,
-                onCommentTap: _scrollToCommentField,
-                commentTree: _comments,
+                onAnyReplyFocusChanged: (focused) {
+                  _replyBoxFocused.value = focused;
+                },
               ),
-              const SizedBox(height: 16),
-              const Divider(),
-              if (_loadingComments)
-                const Center(child: CircularProgressIndicator()),
-              if (_commentsError != null)
-                Text(
-                  _commentsError!,
-                  style: const TextStyle(color: Colors.red),
-                ),
-              if (!_loadingComments && _comments.isEmpty)
-                const Text('No comments yet. Be the first to comment!'),
-              if (!_loadingComments && _comments.isNotEmpty)
-                comment.CommentTree(
-                  comments: _comments,
-                  onReply: _handleCommentReply,
-                  postId: widget.postId,
-                  onAnyReplyFocusChanged: (focused) {
-                    _replyBoxFocused.value = focused;
-                  },
-                ),
-            ],
-          ),
+          ],
         ),
       ),
       bottomNavigationBar: ValueListenableBuilder<bool>(

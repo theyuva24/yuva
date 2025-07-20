@@ -13,6 +13,7 @@ import 'comment.dart' as comment;
 import 'package:url_launcher/url_launcher.dart';
 import 'post_content.dart';
 import '../../universal/theme/app_theme.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class PostCard extends StatefulWidget {
   final String postId;
@@ -513,6 +514,7 @@ class _PostCardState extends State<PostCard> {
               postType: widget.postType,
               linkUrl: widget.linkUrl,
               pollData: widget.pollData,
+              autoFocusComment: true, // <--- Add this line
             ),
       ),
     );
@@ -547,11 +549,17 @@ class _PostCardState extends State<PostCard> {
       onTap: widget.onCardTap, // Handles navigation for the whole card
       borderRadius: BorderRadius.circular(12),
       child: Card(
-        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        elevation: 2,
+        margin: const EdgeInsets.symmetric(
+          horizontal: 4,
+          vertical: 6,
+        ), // Reduced margin
+        elevation: 1, // Flatter card for post details
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: Padding(
-          padding: const EdgeInsets.all(12),
+        child: Container(
+          width: double.infinity, // Ensure card stretches to available width
+          padding: const EdgeInsets.all(
+            12,
+          ), // Keep comfortable internal padding
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -636,8 +644,8 @@ class _PostCardState extends State<PostCard> {
                     },
                     child: CircleAvatar(
                       radius: 18,
-                      backgroundImage: NetworkImage(widget.hubProfileImage),
-                      onBackgroundImageError: (exception, stackTrace) {},
+                      backgroundColor: Colors.grey[200],
+                      backgroundImage: null, // Remove NetworkImage
                       child:
                           widget.hubProfileImage.isEmpty
                               ? const Icon(
@@ -645,9 +653,88 @@ class _PostCardState extends State<PostCard> {
                                 color: Colors.white,
                                 size: 20,
                               )
-                              : null,
+                              : ClipOval(
+                                child: CachedNetworkImage(
+                                  imageUrl: widget.hubProfileImage,
+                                  width: 36,
+                                  height: 36,
+                                  fit: BoxFit.cover,
+                                  placeholder:
+                                      (context, url) => const SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                        ),
+                                      ),
+                                  errorWidget:
+                                      (context, url, error) => const Icon(
+                                        Icons.group,
+                                        color: Colors.white,
+                                        size: 20,
+                                      ),
+                                ),
+                              ),
                     ),
                   ),
+                  // Edit/Delete menu for post owner
+                  if (widget.postOwnerId ==
+                      FirebaseAuth.instance.currentUser?.uid)
+                    PopupMenuButton<String>(
+                      onSelected: (value) async {
+                        if (value == 'edit') {
+                          // TODO: Implement edit post navigation
+                        } else if (value == 'delete') {
+                          final confirm = await showDialog<bool>(
+                            context: context,
+                            builder:
+                                (context) => AlertDialog(
+                                  title: const Text('Delete Post'),
+                                  content: const Text(
+                                    'Are you sure you want to delete this post?',
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed:
+                                          () => Navigator.pop(context, false),
+                                      child: const Text('Cancel'),
+                                    ),
+                                    ElevatedButton(
+                                      onPressed:
+                                          () => Navigator.pop(context, true),
+                                      child: const Text('Delete'),
+                                    ),
+                                  ],
+                                ),
+                          );
+                          if (confirm == true) {
+                            await _postService.firestore
+                                .collection('posts')
+                                .doc(widget.postId)
+                                .delete();
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Post deleted successfully.'),
+                                ),
+                              );
+                            }
+                          }
+                        }
+                      },
+                      itemBuilder:
+                          (context) => [
+                            const PopupMenuItem(
+                              value: 'edit',
+                              child: Text('Edit'),
+                            ),
+                            const PopupMenuItem(
+                              value: 'delete',
+                              child: Text('Delete'),
+                            ),
+                          ],
+                      icon: const Icon(Icons.more_vert, size: 20),
+                    ),
                 ],
               ),
               const SizedBox(height: 12),

@@ -13,9 +13,8 @@ class ProfileModel {
   final List<String> interests;
   final String profilePicUrl;
   final String idCardUrl;
-  final List<String> followers;
-  final List<String> following;
   final String uniqueName;
+  final String bio;
 
   ProfileModel({
     required this.uid,
@@ -30,9 +29,8 @@ class ProfileModel {
     required this.interests,
     required this.profilePicUrl,
     required this.idCardUrl,
-    required this.followers,
-    required this.following,
     required this.uniqueName,
+    required this.bio,
   });
 
   factory ProfileModel.fromMap(Map<String, dynamic> map, String uid) {
@@ -54,9 +52,8 @@ class ProfileModel {
       interests: List<String>.from(map['interests'] ?? []),
       profilePicUrl: map['profilePicUrl'] ?? '',
       idCardUrl: map['idCardUrl'] ?? '',
-      followers: List<String>.from(map['followers'] ?? []),
-      following: List<String>.from(map['following'] ?? []),
       uniqueName: map['uniqueName'] ?? '',
+      bio: map['bio'] ?? '',
     );
   }
 
@@ -73,9 +70,8 @@ class ProfileModel {
       'interests': interests,
       'profilePicUrl': profilePicUrl,
       'idCardUrl': idCardUrl,
-      'followers': followers,
-      'following': following,
       'uniqueName': uniqueName,
+      'bio': bio,
     };
   }
 }

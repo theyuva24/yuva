@@ -26,9 +26,8 @@ extension _ProfileModelCopyWith on ProfileModel {
     List<String>? interests,
     String? profilePicUrl,
     String? idCardUrl,
-    List<String>? followers,
-    List<String>? following,
     String? uniqueName,
+    String? bio,
   }) {
     return ProfileModel(
       uid: uid,
@@ -43,9 +42,8 @@ extension _ProfileModelCopyWith on ProfileModel {
       interests: interests ?? this.interests,
       profilePicUrl: profilePicUrl ?? this.profilePicUrl,
       idCardUrl: idCardUrl ?? this.idCardUrl,
-      followers: followers ?? this.followers,
-      following: following ?? this.following,
       uniqueName: uniqueName ?? this.uniqueName,
+      bio: bio ?? this.bio,
     );
   }
 }
@@ -57,6 +55,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   late TextEditingController _courseController;
   late TextEditingController _yearController;
   late TextEditingController _mobileController;
+  late TextEditingController _bioController;
   DateTime? _dob;
   File? _imageFile;
   final _formKey = GlobalKey<FormState>();
@@ -70,6 +69,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     _courseController = TextEditingController(text: widget.profile.course);
     _yearController = TextEditingController(text: widget.profile.year);
     _mobileController = TextEditingController(text: widget.profile.phone);
+    _bioController = TextEditingController(text: widget.profile.bio);
     _dob = widget.profile.dob;
   }
 
@@ -81,6 +81,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     _courseController.dispose();
     _yearController.dispose();
     _mobileController.dispose();
+    _bioController.dispose();
     super.dispose();
   }
 
@@ -126,6 +127,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       dob: _dob,
       profilePicUrl: newProfilePicUrl,
       uniqueName: widget.profile.uniqueName,
+      bio: _bioController.text,
     );
     await ProfileService().updateProfile(updatedProfile);
     if (mounted) {
@@ -185,6 +187,16 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 ),
                 trailing: const Icon(Icons.calendar_today),
                 onTap: _pickDob,
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _bioController,
+                decoration: const InputDecoration(
+                  labelText: 'About Me',
+                  hintText: 'Write something about yourself',
+                ),
+                maxLines: 4,
+                maxLength: 300,
               ),
               const SizedBox(height: 12),
               TextFormField(

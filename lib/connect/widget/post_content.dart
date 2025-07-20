@@ -174,12 +174,17 @@ class _PostContentState extends State<PostContent> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (widget.postType == 'text') _buildTextContent(widget.postContent),
-        if (widget.postType == 'image' && widget.postImage != null) ...[
+        // Always show text content if present
+        if (widget.postContent.trim().isNotEmpty)
+          _buildTextContent(widget.postContent),
+        // Show image if present
+        if (widget.postImage != null && widget.postImage!.isNotEmpty) ...[
           _buildImageContent(widget.postImage!),
         ],
-        if (widget.postType == 'link' && widget.linkUrl != null)
+        // Show link if present
+        if (widget.linkUrl != null && widget.linkUrl!.isNotEmpty)
           _buildLinkContent(widget.linkUrl!),
+        // Show poll if present and data loaded
         if (widget.postType == 'poll' && _pollData != null) _buildPollContent(),
       ],
     );

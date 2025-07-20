@@ -191,6 +191,7 @@ class CommentTree extends StatelessWidget {
   final int depth;
   final String postId;
   final void Function(bool focused)? onAnyReplyFocusChanged;
+  final List<bool> isLastList;
 
   const CommentTree({
     Key? key,
@@ -202,26 +203,29 @@ class CommentTree extends StatelessWidget {
     this.depth = 0,
     required this.postId,
     this.onAnyReplyFocusChanged,
+    this.isLastList = const [],
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children:
-          comments
-              .map(
-                (comment) => CommentCard(
-                  comment: comment,
-                  depth: depth,
-                  onReply: onReply,
-                  onEdit: onEdit,
-                  onDelete: onDelete,
-                  onReport: onReport,
-                  postId: postId,
-                  onAnyReplyFocusChanged: onAnyReplyFocusChanged,
-                ),
-              )
-              .toList(),
+          comments.asMap().entries.map((entry) {
+            final idx = entry.key;
+            final comment = entry.value;
+            final isLast = idx == comments.length - 1;
+            return CommentCard(
+              comment: comment,
+              depth: depth,
+              isLastList: [...isLastList, isLast],
+              onReply: onReply,
+              onEdit: onEdit,
+              onDelete: onDelete,
+              onReport: onReport,
+              postId: postId,
+              onAnyReplyFocusChanged: onAnyReplyFocusChanged,
+            );
+          }).toList(),
     );
   }
 }
@@ -229,6 +233,7 @@ class CommentTree extends StatelessWidget {
 class CommentCard extends StatefulWidget {
   final Comment comment;
   final int depth;
+  final List<bool> isLastList;
   final void Function(String parentId, String replyText)? onReply;
   final void Function(Comment comment)? onEdit;
   final void Function(Comment comment)? onDelete;
@@ -240,6 +245,7 @@ class CommentCard extends StatefulWidget {
     Key? key,
     required this.comment,
     this.depth = 0,
+    this.isLastList = const [],
     this.onReply,
     this.onEdit,
     this.onDelete,
@@ -319,214 +325,242 @@ class _CommentCardState extends State<CommentCard> {
       }
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        IntrinsicHeight(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Draw vertical lines for each depth level
-              for (int i = 0; i < widget.depth; i++)
-                Container(
-                  width: 12,
-                  child: VerticalDivider(
-                    thickness: 2,
-                    color: Colors.grey[300],
-                    width: 12,
-                  ),
+    // Reddit-style: vertical lines for nesting
+    final List<Widget> nestingLines = List.generate(widget.depth, (i) {
+      // For parent levels, only draw a line if there are more siblings at that level
+      if (i < widget.isLastList.length - 1) {
+        if (!widget.isLastList[i]) {
+          return Container(
+            width: 2,
+            height: double.infinity,
+            margin: const EdgeInsets.only(right: 8),
+            decoration: BoxDecoration(
+              color: Colors.grey[400],
+              borderRadius: BorderRadius.circular(1),
+            ),
+          );
+        } else {
+          return SizedBox(width: 10);
+        }
+      }
+      // For the deepest level, always draw a line
+      return Container(
+        width: 2,
+        height: double.infinity,
+        margin: const EdgeInsets.only(right: 8),
+        decoration: BoxDecoration(
+          color: Colors.grey[400],
+          borderRadius: BorderRadius.circular(1),
+        ),
+      );
+    });
+
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.symmetric(vertical: 2),
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ...List.generate(
+              widget.depth,
+              (i) => Container(
+                width: 2,
+                height: double.infinity,
+                margin: const EdgeInsets.only(right: 8),
+                decoration: BoxDecoration(
+                  color: Colors.grey[400], // Thin, light grey line
+                  borderRadius: BorderRadius.circular(1),
                 ),
-              Expanded(
-                child: Card(
-                  margin: const EdgeInsets.symmetric(
-                    vertical: 4,
-                    horizontal: 0,
-                  ),
-                  elevation: 1,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+              ),
+            ),
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.grey[widget.depth == 0 ? 50 : 100],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
                       children: [
-                        Row(
-                          children: [
-                            CircleAvatar(
-                              radius: 14,
-                              backgroundImage:
-                                  comment.userProfileImage.isNotEmpty
-                                      ? NetworkImage(comment.userProfileImage)
-                                      : null,
-                              child:
-                                  comment.userProfileImage.isEmpty
-                                      ? const Icon(Icons.person, size: 16)
-                                      : null,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              comment.userName,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              _formatTimeAgo(comment.timestamp),
-                              style: const TextStyle(
-                                fontSize: 11,
+                        CircleAvatar(
+                          radius: 14,
+                          backgroundImage:
+                              comment.userProfileImage.isNotEmpty
+                                  ? NetworkImage(comment.userProfileImage)
+                                  : null,
+                          child:
+                              comment.userProfileImage.isEmpty
+                                  ? const Icon(Icons.person, size: 16)
+                                  : null,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          comment.userName,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          _formatTimeAgo(comment.timestamp),
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        if (isEdited)
+                          const Padding(
+                            padding: EdgeInsets.only(left: 4),
+                            child: Text(
+                              '(edited)',
+                              style: TextStyle(
+                                fontSize: 10,
                                 color: Colors.grey,
                               ),
-                            ),
-                            if (isEdited)
-                              const Padding(
-                                padding: EdgeInsets.only(left: 4),
-                                child: Text(
-                                  '(edited)',
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        if (!isDeleted)
-                          _buildTruncatedComment(context, comment.content)
-                        else
-                          const Text(
-                            '[deleted]',
-                            style: TextStyle(
-                              fontStyle: FontStyle.italic,
-                              color: Colors.grey,
-                            ),
-                          ),
-                        Row(
-                          children: [
-                            if (!isDeleted)
-                              VotingBar(
-                                type: VotingTargetType.comment,
-                                postId: widget.postId,
-                                commentId: comment.id,
-                                initialUpvotes: comment.upvotes,
-                                initialDownvotes: comment.downvotes,
-                                initialScore: comment.score,
-                                initiallyUpvoted:
-                                    false, // You can implement logic to check if user has upvoted
-                                initiallyDownvoted:
-                                    false, // You can implement logic to check if user has downvoted
-                                votingService: _votingService,
-                                onVoteChanged: null,
-                              ),
-                            TextButton(
-                              onPressed:
-                                  isDeleted
-                                      ? null
-                                      : () => setState(() {
-                                        showReplyField = !showReplyField;
-                                        if (showReplyField) {
-                                          WidgetsBinding.instance
-                                              .addPostFrameCallback((_) {
-                                                FocusScope.of(
-                                                  context,
-                                                ).requestFocus(_replyFocusNode);
-                                              });
-                                        } else {
-                                          replyController.clear();
-                                          _replyFocusNode.unfocus();
-                                          if (widget.onAnyReplyFocusChanged !=
-                                              null) {
-                                            widget.onAnyReplyFocusChanged!(
-                                              false,
-                                            );
-                                          }
-                                        }
-                                      }),
-                              child: const Text(
-                                'Reply',
-                                style: TextStyle(fontSize: 12),
-                              ),
-                            ),
-                            if (widget.onEdit != null && !isDeleted)
-                              IconButton(
-                                icon: const Icon(Icons.edit, size: 16),
-                                onPressed: () => widget.onEdit!(comment),
-                                tooltip: 'Edit',
-                              ),
-                            if (widget.onDelete != null && !isDeleted)
-                              IconButton(
-                                icon: const Icon(Icons.delete, size: 16),
-                                onPressed: () => widget.onDelete!(comment),
-                                tooltip: 'Delete',
-                              ),
-                            if (widget.onReport != null)
-                              IconButton(
-                                icon: const Icon(Icons.flag, size: 16),
-                                onPressed: () => widget.onReport!(comment),
-                                tooltip: 'Report',
-                              ),
-                          ],
-                        ),
-                        if (showReplyField && !isDeleted)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 4.0),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: TextField(
-                                    controller: replyController,
-                                    focusNode: _replyFocusNode,
-                                    decoration: InputDecoration(
-                                      hintText: 'Write a reply...',
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(24),
-                                        borderSide: BorderSide.none,
-                                      ),
-                                      filled: true,
-                                      contentPadding:
-                                          const EdgeInsets.symmetric(
-                                            horizontal: 12,
-                                            vertical: 8,
-                                          ),
-                                      isDense: true,
-                                    ),
-                                    minLines: 1,
-                                    maxLines: 1,
-                                    style: const TextStyle(fontSize: 14),
-                                    textInputAction: TextInputAction.send,
-                                    onSubmitted: (_) => handleReplySubmit(),
-                                  ),
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.send, size: 18),
-                                  onPressed: handleReplySubmit,
-                                ),
-                              ],
                             ),
                           ),
                       ],
                     ),
-                  ),
+                    const SizedBox(height: 4),
+                    if (!isDeleted)
+                      _buildTruncatedComment(context, comment.content)
+                    else
+                      const Text(
+                        '[deleted]',
+                        style: TextStyle(
+                          fontStyle: FontStyle.italic,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    Row(
+                      children: [
+                        if (!isDeleted)
+                          VotingBar(
+                            type: VotingTargetType.comment,
+                            postId: widget.postId,
+                            commentId: comment.id,
+                            initialUpvotes: comment.upvotes,
+                            initialDownvotes: comment.downvotes,
+                            initialScore: comment.score,
+                            initiallyUpvoted: false,
+                            initiallyDownvoted: false,
+                            votingService: _votingService,
+                            onVoteChanged: null,
+                          ),
+                        TextButton(
+                          onPressed:
+                              isDeleted
+                                  ? null
+                                  : () => setState(() {
+                                    showReplyField = !showReplyField;
+                                    if (showReplyField) {
+                                      WidgetsBinding.instance
+                                          .addPostFrameCallback((_) {
+                                            FocusScope.of(
+                                              context,
+                                            ).requestFocus(_replyFocusNode);
+                                          });
+                                    } else {
+                                      replyController.clear();
+                                      _replyFocusNode.unfocus();
+                                      if (widget.onAnyReplyFocusChanged !=
+                                          null) {
+                                        widget.onAnyReplyFocusChanged!(false);
+                                      }
+                                    }
+                                  }),
+                          child: const Text(
+                            'Reply',
+                            style: TextStyle(fontSize: 12),
+                          ),
+                        ),
+                        if (widget.onEdit != null && !isDeleted)
+                          IconButton(
+                            icon: const Icon(Icons.edit, size: 16),
+                            onPressed: () => widget.onEdit!(comment),
+                            tooltip: 'Edit',
+                          ),
+                        if (widget.onDelete != null && !isDeleted)
+                          IconButton(
+                            icon: const Icon(Icons.delete, size: 16),
+                            onPressed: () => widget.onDelete!(comment),
+                            tooltip: 'Delete',
+                          ),
+                        if (widget.onReport != null)
+                          IconButton(
+                            icon: const Icon(Icons.flag, size: 16),
+                            onPressed: () => widget.onReport!(comment),
+                            tooltip: 'Report',
+                          ),
+                      ],
+                    ),
+                    if (showReplyField && !isDeleted)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4.0),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: replyController,
+                                focusNode: _replyFocusNode,
+                                decoration: InputDecoration(
+                                  hintText: 'Write a reply...',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(24),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                  filled: true,
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
+                                  isDense: true,
+                                ),
+                                minLines: 1,
+                                maxLines: 1,
+                                style: const TextStyle(fontSize: 14),
+                                textInputAction: TextInputAction.send,
+                                onSubmitted: (_) => handleReplySubmit(),
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.send, size: 18),
+                              onPressed: handleReplySubmit,
+                            ),
+                          ],
+                        ),
+                      ),
+                    // Render replies inside the same background, indented
+                    if (!collapsed && comment.replies.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4.0),
+                        child: CommentTree(
+                          comments: comment.replies,
+                          onReply: widget.onReply,
+                          onEdit: widget.onEdit,
+                          onDelete: widget.onDelete,
+                          onReport: widget.onReport,
+                          depth: widget.depth + 1,
+                          postId: widget.postId,
+                          onAnyReplyFocusChanged: widget.onAnyReplyFocusChanged,
+                          isLastList: widget.isLastList,
+                        ),
+                      ),
+                  ],
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
-        if (!collapsed && comment.replies.isNotEmpty)
-          CommentTree(
-            comments: comment.replies,
-            onReply: widget.onReply,
-            onEdit: widget.onEdit,
-            onDelete: widget.onDelete,
-            onReport: widget.onReport,
-            depth: widget.depth + 1,
-            postId: widget.postId,
-            onAnyReplyFocusChanged: widget.onAnyReplyFocusChanged,
-          ),
-      ],
+      ),
     );
   }
 

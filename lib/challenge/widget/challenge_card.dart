@@ -55,8 +55,14 @@ class ChallengeCard extends StatelessWidget {
                         errorBuilder:
                             (context, error, stackTrace) => Container(
                               color: Colors.grey[300],
+                              width: double.infinity,
+                              height: double.infinity,
                               child: const Center(
-                                child: Icon(Icons.broken_image, size: 48),
+                                child: Icon(
+                                  Icons.broken_image,
+                                  size: 48,
+                                  color: Colors.grey,
+                                ),
                               ),
                             ),
                       ),

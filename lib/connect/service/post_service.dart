@@ -115,6 +115,7 @@ class PostService {
           postType: data['postType'] ?? 'text',
           linkUrl: data['linkUrl'],
           pollData: data['pollData'],
+          trendingScore: data['trendingScore'] ?? 0,
         ),
       );
     }
@@ -201,6 +202,7 @@ class PostService {
                 postType: data['postType'] ?? 'text',
                 linkUrl: data['linkUrl'],
                 pollData: data['pollData'],
+                trendingScore: data['trendingScore'] ?? 0,
               ),
             );
           }

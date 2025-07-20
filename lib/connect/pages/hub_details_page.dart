@@ -108,6 +108,19 @@ class _HubDetailsPageState extends State<HubDetailsPage> {
                   height: 200,
                   width: double.infinity,
                   fit: BoxFit.cover,
+                  errorBuilder:
+                      (context, error, stackTrace) => Container(
+                        color: Colors.grey[300],
+                        height: 200,
+                        width: double.infinity,
+                        child: const Center(
+                          child: Icon(
+                            Icons.broken_image,
+                            size: 64,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ),
                 ),
               ),
             ),
@@ -216,63 +229,116 @@ class _HubDetailsPageState extends State<HubDetailsPage> {
             Divider(color: Theme.of(context).dividerColor),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: StreamBuilder<List<Post>>(
-                stream: postService.getPostsStream(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: CircularProgressIndicator(
-                        color: AppThemeLight.primary,
-                      ),
-                    );
-                  }
-                  if (snapshot.hasError) {
-                    return Center(
-                      child: Text(
-                        'Error loading posts',
-                        style: Theme.of(context).textTheme.labelLarge,
-                      ),
-                    );
-                  }
-                  final posts =
-                      (snapshot.data ?? [])
-                          .where((post) => post.hubName == widget.hub.name)
-                          .toList();
-                  if (posts.isEmpty) {
-                    return Center(
-                      child: Text(
-                        'No posts in this hub yet.',
-                        style: Theme.of(context).textTheme.labelLarge,
-                      ),
-                    );
-                  }
-                  return Column(
-                    children:
-                        posts
-                            .map(
-                              (post) => PostCard(
-                                postId: post.id,
-                                userName: post.userName,
-                                userProfileImage: post.userProfileImage,
-                                hubName: post.hubName,
-                                hubProfileImage: post.hubProfileImage,
-                                postContent: post.postContent,
-                                timestamp: post.timestamp,
-                                upvotes: post.upvotes,
-                                downvotes: post.downvotes,
-                                commentCount: post.commentCount,
-                                shareCount: post.shareCount,
-                                postImage: post.postImage,
-                                postOwnerId: post.postOwnerId,
-                                postType: post.postType,
-                                linkUrl: post.linkUrl,
-                                pollData: post.pollData,
-                                hubId: post.hubId, // <-- Pass correct hubId
-                              ),
-                            )
-                            .toList(),
-                  );
+              child: RefreshIndicator(
+                onRefresh: () async {
+                  // Refresh posts for this hub
+                  await Future.delayed(const Duration(milliseconds: 800));
                 },
+                color: AppThemeLight.primary,
+                child: StreamBuilder<List<Post>>(
+                  stream: postService.getPostsStream(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(
+                        child: CircularProgressIndicator(
+                          color: AppThemeLight.primary,
+                        ),
+                      );
+                    }
+                    if (snapshot.hasError) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.error_outline,
+                              size: 64,
+                              color: AppThemeLight.primary,
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'Error loading posts',
+                              style: Theme.of(context).textTheme.labelLarge
+                                  ?.copyWith(color: AppThemeLight.primary),
+                            ),
+                            const SizedBox(height: 8),
+                            TextButton(
+                              onPressed: () {
+                                // Trigger refresh
+                                setState(() {});
+                              },
+                              child: const Text('Retry'),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                    final posts =
+                        (snapshot.data ?? [])
+                            .where((post) => post.hubId == widget.hub.id)
+                            .toList();
+
+                    // Keep chronological order for hub posts (no trending score sorting)
+                    // Posts are already ordered by postingTime in the stream
+
+                    if (posts.isEmpty) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.forum_outlined,
+                              size: 64,
+                              color: AppThemeLight.textLight,
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'No posts in this hub yet.',
+                              style: Theme.of(context).textTheme.labelLarge
+                                  ?.copyWith(color: AppThemeLight.textLight),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Be the first to share something!',
+                              style: Theme.of(context).textTheme.bodyMedium
+                                  ?.copyWith(color: AppThemeLight.textLight),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                    return Column(
+                      children:
+                          posts
+                              .map(
+                                (post) => AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 300),
+                                  child: PostCard(
+                                    key: ValueKey(post.id),
+                                    postId: post.id,
+                                    userName: post.userName,
+                                    userProfileImage: post.userProfileImage,
+                                    hubName: post.hubName,
+                                    hubProfileImage: post.hubProfileImage,
+                                    postContent: post.postContent,
+                                    timestamp: post.timestamp,
+                                    upvotes: post.upvotes,
+                                    downvotes: post.downvotes,
+                                    commentCount: post.commentCount,
+                                    shareCount: post.shareCount,
+                                    postImage: post.postImage,
+                                    postOwnerId: post.postOwnerId,
+                                    postType: post.postType,
+                                    linkUrl: post.linkUrl,
+                                    pollData: post.pollData,
+                                    hubId: post.hubId,
+                                  ),
+                                ),
+                              )
+                              .toList(),
+                    );
+                  },
+                ),
               ),
             ),
           ],

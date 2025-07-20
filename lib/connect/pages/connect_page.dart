@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../service/hub_service.dart';
 import 'post_details_page.dart';
+import 'hubs_page.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../universal/theme/app_theme.dart';
@@ -26,20 +27,16 @@ class _ConnectPageState extends State<ConnectPage>
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final HubService _hubService = HubService();
   List<String> _joinedHubs = [];
-  bool _loadingJoinedHubs = true;
-  late Future<List<Post>> _postsFuture;
+
+  // Caching for optimized performance
+  List<Post>? _cachedTrendingPosts;
+  bool _isRefreshing = false;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    _postsFuture = postService.fetchPosts();
-  }
-
-  void _refreshPosts() {
-    setState(() {
-      _postsFuture = postService.fetchPosts(forceRefresh: true);
-    });
+    _fetchJoinedHubs();
   }
 
   Future<void> _fetchJoinedHubs() async {
@@ -49,7 +46,40 @@ class _ConnectPageState extends State<ConnectPage>
     final joinedHubs = userDoc.data()?['joinedHubs'] as List<dynamic>? ?? [];
     setState(() {
       _joinedHubs = joinedHubs.map((e) => e.toString()).toList();
-      _loadingJoinedHubs = false;
+    });
+  }
+
+  // Optimized sorting with caching
+  List<Post> _getSortedTrendingPosts(List<Post> posts) {
+    if (_cachedTrendingPosts == null) {
+      _cachedTrendingPosts = List<Post>.from(
+        posts,
+      )..sort((a, b) => (b.trendingScore ?? 0).compareTo(a.trendingScore ?? 0));
+    }
+    return _cachedTrendingPosts!;
+  }
+
+  List<Post> _getSortedFeedPosts(List<Post> posts, List<String> joinedHubs) {
+    final feedPosts =
+        posts.where((post) => joinedHubs.contains(post.hubId)).toList();
+    // Keep chronological order for My Feed (no trending score sorting)
+    return feedPosts;
+  }
+
+  Future<void> _onRefresh() async {
+    setState(() {
+      _isRefreshing = true;
+      _cachedTrendingPosts = null;
+    });
+
+    // Refresh joined hubs
+    await _fetchJoinedHubs();
+
+    // Simulate refresh delay for better UX
+    await Future.delayed(const Duration(milliseconds: 800));
+
+    setState(() {
+      _isRefreshing = false;
     });
   }
 
@@ -57,11 +87,6 @@ class _ConnectPageState extends State<ConnectPage>
   void dispose() {
     _tabController.dispose();
     super.dispose();
-  }
-
-  int _calculateTrendingScore(Post post) {
-    // Reddit-style: upvotes - downvotes + commentCount + shareCount
-    return post.upvotes - post.downvotes + post.commentCount + post.shareCount;
   }
 
   @override
@@ -97,145 +122,85 @@ class _ConnectPageState extends State<ConnectPage>
               child: TabBarView(
                 controller: _tabController,
                 children: [
-                  // Trending Tab (now uses StreamBuilder for real-time updates)
-                  StreamBuilder<List<Post>>(
-                    stream: postService.getPostsStream(),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(
-                          child: CircularProgressIndicator(
-                            color: AppThemeLight.primary,
-                          ),
-                        );
-                      }
-                      if (snapshot.hasError) {
-                        return const Center(
-                          child: Text(
-                            'Error loading posts',
-                            style: TextStyle(color: AppThemeLight.primary),
-                          ),
-                        );
-                      }
-                      final posts = snapshot.data ?? [];
-                      if (posts.isEmpty) {
-                        return const Center(
-                          child: Text(
-                            'No posts yet',
-                            style: TextStyle(color: AppThemeLight.primary),
-                          ),
-                        );
-                      }
-                      final sortedPosts = List<Post>.from(posts)..sort(
-                        (a, b) => _calculateTrendingScore(
-                          b,
-                        ).compareTo(_calculateTrendingScore(a)),
-                      );
-                      return ListView.builder(
-                        padding: EdgeInsets.symmetric(vertical: 4.h),
-                        itemCount: sortedPosts.length,
-                        itemBuilder: (context, index) {
-                          final post = sortedPosts[index];
-                          return PostCard(
-                            postId: post.id,
-                            userName: post.userName,
-                            userProfileImage: post.userProfileImage,
-                            hubName: post.hubName,
-                            hubProfileImage: post.hubProfileImage,
-                            postContent: post.postContent,
-                            timestamp: post.timestamp,
-                            upvotes: post.upvotes,
-                            downvotes: post.downvotes,
-                            commentCount: post.commentCount,
-                            shareCount: post.shareCount,
-                            postImage: post.postImage,
-                            postOwnerId: post.postOwnerId,
-                            postType: post.postType,
-                            linkUrl: post.linkUrl,
-                            pollData: post.pollData,
-                            hubId: post.hubId, // <-- Pass correct hubId
-                            onCardTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder:
-                                      (context) => PostDetailsPage(
-                                        postId: post.id,
-                                        userName: post.userName,
-                                        userProfileImage: post.userProfileImage,
-                                        hubName: post.hubName,
-                                        hubProfileImage: post.hubProfileImage,
-                                        postContent: post.postContent,
-                                        timestamp: post.timestamp,
-                                        upvotes: post.upvotes,
-                                        downvotes: post.downvotes,
-                                        commentCount: post.commentCount,
-                                        shareCount: post.shareCount,
-                                        postImage: post.postImage,
-                                        postOwnerId: post.postOwnerId,
-                                        postType: post.postType,
-                                        linkUrl: post.linkUrl,
-                                        pollData: post.pollData,
-                                      ),
-                                ),
-                              );
-                            },
+                  // Trending Tab with pull-to-refresh and optimized sorting
+                  RefreshIndicator(
+                    onRefresh: _onRefresh,
+                    color: AppThemeLight.primary,
+                    child: StreamBuilder<List<Post>>(
+                      stream: postService.getPostsStream(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                                ConnectionState.waiting &&
+                            !_isRefreshing) {
+                          return const Center(
+                            child: CircularProgressIndicator(
+                              color: AppThemeLight.primary,
+                            ),
                           );
-                        },
-                      );
-                    },
-                  ),
-                  // My Feed Tab (reactive)
-                  StreamBuilder<List<String>>(
-                    stream: _hubService.getJoinedHubsStream(),
-                    builder: (context, hubSnapshot) {
-                      if (hubSnapshot.connectionState ==
-                          ConnectionState.waiting) {
-                        return const Center(
-                          child: CircularProgressIndicator(
-                            color: AppThemeLight.primary,
-                          ),
-                        );
-                      }
-                      final joinedHubs = hubSnapshot.data ?? [];
-                      return StreamBuilder<List<Post>>(
-                        stream: postService.getPostsStream(),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return const Center(
-                              child: CircularProgressIndicator(
-                                color: AppThemeLight.primary,
-                              ),
-                            );
-                          }
-                          if (snapshot.hasError) {
-                            return const Center(
-                              child: Text(
-                                'Error loading posts',
-                                style: TextStyle(color: AppThemeLight.primary),
-                              ),
-                            );
-                          }
-                          final posts =
-                              (snapshot.data ?? [])
-                                  .where(
-                                    (post) => joinedHubs.contains(post.hubId),
-                                  )
-                                  .toList();
-                          if (posts.isEmpty) {
-                            return const Center(
-                              child: Text(
-                                'No posts in your feed yet',
-                                style: TextStyle(color: AppThemeLight.primary),
-                              ),
-                            );
-                          }
-                          return ListView.builder(
-                            padding: EdgeInsets.symmetric(vertical: 4.h),
-                            itemCount: posts.length,
-                            itemBuilder: (context, index) {
-                              final post = posts[index];
-                              return PostCard(
+                        }
+                        if (snapshot.hasError) {
+                          return Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.error_outline,
+                                  size: 64.w,
+                                  color: AppThemeLight.primary,
+                                ),
+                                SizedBox(height: 16.h),
+                                Text(
+                                  'Error loading posts',
+                                  style: TextStyle(
+                                    color: AppThemeLight.primary,
+                                    fontSize: 16.sp,
+                                  ),
+                                ),
+                                SizedBox(height: 8.h),
+                                TextButton(
+                                  onPressed: _onRefresh,
+                                  child: const Text('Retry'),
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+                        final posts = snapshot.data ?? [];
+                        if (posts.isEmpty) {
+                          return Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.forum_outlined,
+                                  size: 64.w,
+                                  color: AppThemeLight.textLight,
+                                ),
+                                SizedBox(height: 16.h),
+                                Text(
+                                  'No posts yet',
+                                  style: TextStyle(
+                                    color: AppThemeLight.textLight,
+                                    fontSize: 16.sp,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+
+                        // Use optimized sorting
+                        final sortedPosts = _getSortedTrendingPosts(posts);
+
+                        return ListView.builder(
+                          padding: EdgeInsets.symmetric(vertical: 4.h),
+                          itemCount: sortedPosts.length,
+                          itemBuilder: (context, index) {
+                            final post = sortedPosts[index];
+                            return AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 300),
+                              child: PostCard(
+                                key: ValueKey(post.id),
                                 postId: post.id,
                                 userName: post.userName,
                                 userProfileImage: post.userProfileImage,
@@ -252,7 +217,7 @@ class _ConnectPageState extends State<ConnectPage>
                                 postType: post.postType,
                                 linkUrl: post.linkUrl,
                                 pollData: post.pollData,
-                                hubId: post.hubId, // <-- Pass correct hubId
+                                hubId: post.hubId,
                                 onCardTap: () {
                                   Navigator.push(
                                     context,
@@ -281,12 +246,179 @@ class _ConnectPageState extends State<ConnectPage>
                                     ),
                                   );
                                 },
-                              );
-                            },
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                  // My Feed Tab with pull-to-refresh and optimized filtering
+                  RefreshIndicator(
+                    onRefresh: _onRefresh,
+                    color: AppThemeLight.primary,
+                    child: StreamBuilder<List<String>>(
+                      stream: _hubService.getJoinedHubsStream(),
+                      builder: (context, hubSnapshot) {
+                        if (hubSnapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                            child: CircularProgressIndicator(
+                              color: AppThemeLight.primary,
+                            ),
                           );
-                        },
-                      );
-                    },
+                        }
+                        final joinedHubs = hubSnapshot.data ?? [];
+                        return StreamBuilder<List<Post>>(
+                          stream: postService.getPostsStream(),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                    ConnectionState.waiting &&
+                                !_isRefreshing) {
+                              return const Center(
+                                child: CircularProgressIndicator(
+                                  color: AppThemeLight.primary,
+                                ),
+                              );
+                            }
+                            if (snapshot.hasError) {
+                              return Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.error_outline,
+                                      size: 64.w,
+                                      color: AppThemeLight.primary,
+                                    ),
+                                    SizedBox(height: 16.h),
+                                    Text(
+                                      'Error loading feed',
+                                      style: TextStyle(
+                                        color: AppThemeLight.primary,
+                                        fontSize: 16.sp,
+                                      ),
+                                    ),
+                                    SizedBox(height: 8.h),
+                                    TextButton(
+                                      onPressed: _onRefresh,
+                                      child: const Text('Retry'),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }
+                            final posts = snapshot.data ?? [];
+
+                            // Use optimized filtering and sorting
+                            final feedPosts = _getSortedFeedPosts(
+                              posts,
+                              joinedHubs,
+                            );
+
+                            if (feedPosts.isEmpty) {
+                              return Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.rss_feed_outlined,
+                                      size: 64.w,
+                                      color: AppThemeLight.textLight,
+                                    ),
+                                    SizedBox(height: 16.h),
+                                    Text(
+                                      joinedHubs.isEmpty
+                                          ? 'Join some hubs to see posts here'
+                                          : 'No posts in your hubs yet',
+                                      style: TextStyle(
+                                        color: AppThemeLight.textLight,
+                                        fontSize: 16.sp,
+                                      ),
+                                    ),
+                                    if (joinedHubs.isEmpty) ...[
+                                      SizedBox(height: 16.h),
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          // Navigate to hubs page
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder:
+                                                  (context) => const HubsPage(),
+                                            ),
+                                          );
+                                        },
+                                        child: const Text('Explore Hubs'),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              );
+                            }
+
+                            return ListView.builder(
+                              padding: EdgeInsets.symmetric(vertical: 4.h),
+                              itemCount: feedPosts.length,
+                              itemBuilder: (context, index) {
+                                final post = feedPosts[index];
+                                return AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 300),
+                                  child: PostCard(
+                                    key: ValueKey(post.id),
+                                    postId: post.id,
+                                    userName: post.userName,
+                                    userProfileImage: post.userProfileImage,
+                                    hubName: post.hubName,
+                                    hubProfileImage: post.hubProfileImage,
+                                    postContent: post.postContent,
+                                    timestamp: post.timestamp,
+                                    upvotes: post.upvotes,
+                                    downvotes: post.downvotes,
+                                    commentCount: post.commentCount,
+                                    shareCount: post.shareCount,
+                                    postImage: post.postImage,
+                                    postOwnerId: post.postOwnerId,
+                                    postType: post.postType,
+                                    linkUrl: post.linkUrl,
+                                    pollData: post.pollData,
+                                    hubId: post.hubId,
+                                    onCardTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder:
+                                              (context) => PostDetailsPage(
+                                                postId: post.id,
+                                                userName: post.userName,
+                                                userProfileImage:
+                                                    post.userProfileImage,
+                                                hubName: post.hubName,
+                                                hubProfileImage:
+                                                    post.hubProfileImage,
+                                                postContent: post.postContent,
+                                                timestamp: post.timestamp,
+                                                upvotes: post.upvotes,
+                                                downvotes: post.downvotes,
+                                                commentCount: post.commentCount,
+                                                shareCount: post.shareCount,
+                                                postImage: post.postImage,
+                                                postOwnerId: post.postOwnerId,
+                                                postType: post.postType,
+                                                linkUrl: post.linkUrl,
+                                                pollData: post.pollData,
+                                              ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                        );
+                      },
+                    ),
                   ),
                 ],
               ),
@@ -302,8 +434,7 @@ class _ConnectPageState extends State<ConnectPage>
           );
         },
         backgroundColor: AppThemeLight.primary,
-        child: const Icon(Icons.add_box_outlined),
-        tooltip: 'Create Post',
+        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }

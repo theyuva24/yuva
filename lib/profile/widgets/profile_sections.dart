@@ -267,6 +267,29 @@ class ProfileTabs extends StatelessWidget {
   const ProfileTabs({Key? key, required this.profile, required this.interests})
     : super(key: key);
 
+  // Format timestamp for display
+  String _formatTimestamp(dynamic timestamp) {
+    if (timestamp == null) return 'Just now';
+
+    final now = DateTime.now();
+    final postTime =
+        timestamp is Timestamp
+            ? timestamp.toDate()
+            : DateTime.parse(timestamp.toString());
+
+    final difference = now.difference(postTime);
+
+    if (difference.inDays > 0) {
+      return '${difference.inDays} day${difference.inDays == 1 ? '' : 's'} ago';
+    } else if (difference.inHours > 0) {
+      return '${difference.inHours} hour${difference.inHours == 1 ? '' : 's'} ago';
+    } else if (difference.inMinutes > 0) {
+      return '${difference.inMinutes} minute${difference.inMinutes == 1 ? '' : 's'} ago';
+    } else {
+      return 'Just now';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -328,50 +351,127 @@ class ProfileTabs extends StatelessWidget {
                     ),
                   ),
                   // Posts Tab
-                  StreamBuilder<QuerySnapshot>(
-                    stream:
-                        FirebaseFirestore.instance
-                            .collection('posts')
-                            .where('userId', isEqualTo: profile.uid)
-                            .orderBy('postingTime', descending: true)
-                            .snapshots(),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-                      if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                        return const Center(
-                          child: Text(
-                            'No posts yet.',
-                            style: TextStyle(color: Colors.black54),
-                          ),
-                        );
-                      }
-                      final posts = snapshot.data!.docs;
-                      return ListView.builder(
-                        itemCount: posts.length,
-                        itemBuilder: (context, index) {
-                          final data =
-                              posts[index].data() as Map<String, dynamic>;
-                          return PostCard(
-                            postId: posts[index].id,
-                            userName: profile.fullName,
-                            userProfileImage: profile.profilePicUrl,
-                            hubName: data['hubName'] ?? '',
-                            hubProfileImage: '',
-                            postContent: data['postContent'] ?? '',
-                            timestamp: '',
-                            upvotes: data['upvotes'] ?? 0,
-                            downvotes: data['downvotes'] ?? 0,
-                            commentCount: data['commentCount'] ?? 0,
-                            shareCount: data['shareCount'] ?? 0,
-                            postImage: data['postImageUrl'],
-                            postOwnerId: data['userId'] ?? '',
-                            hubId: data['hubId'] ?? '', // <-- Add this line
-                          );
-                        },
-                      );
+                  RefreshIndicator(
+                    onRefresh: () async {
+                      // Refresh user posts
+                      await Future.delayed(const Duration(milliseconds: 800));
                     },
+                    color: AppThemeLight.primary,
+                    child: StreamBuilder<QuerySnapshot>(
+                      stream:
+                          FirebaseFirestore.instance
+                              .collection('posts')
+                              .where('userId', isEqualTo: profile.uid)
+                              .orderBy('postingTime', descending: true)
+                              .snapshots(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                            child: CircularProgressIndicator(
+                              color: AppThemeLight.primary,
+                            ),
+                          );
+                        }
+                        if (snapshot.hasError) {
+                          return Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.error_outline,
+                                  size: 64,
+                                  color: AppThemeLight.primary,
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  'Error loading posts',
+                                  style: TextStyle(
+                                    color: AppThemeLight.primary,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                TextButton(
+                                  onPressed: () {
+                                    // Trigger refresh by rebuilding
+                                    (context as Element).markNeedsBuild();
+                                  },
+                                  child: const Text('Retry'),
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+                        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                          return Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.post_add_outlined,
+                                  size: 64,
+                                  color: AppThemeLight.textLight,
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  'No posts yet.',
+                                  style: TextStyle(
+                                    color: AppThemeLight.textLight,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Start sharing your thoughts!',
+                                  style: TextStyle(
+                                    color: AppThemeLight.textLight,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+                        final posts = snapshot.data!.docs;
+
+                        // Keep chronological order for user posts (no trending score sorting)
+                        // Posts are already ordered by postingTime in the stream
+
+                        return ListView.builder(
+                          itemCount: posts.length,
+                          itemBuilder: (context, index) {
+                            final data =
+                                posts[index].data() as Map<String, dynamic>;
+                            return AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 300),
+                              child: PostCard(
+                                key: ValueKey(posts[index].id),
+                                postId: posts[index].id,
+                                userName: profile.fullName,
+                                userProfileImage: profile.profilePicUrl,
+                                hubName: data['hubName'] ?? '',
+                                hubProfileImage: '',
+                                postContent: data['postContent'] ?? '',
+                                timestamp: _formatTimestamp(
+                                  data['postingTime'],
+                                ),
+                                upvotes: data['upvotes'] ?? 0,
+                                downvotes: data['downvotes'] ?? 0,
+                                commentCount: data['commentCount'] ?? 0,
+                                shareCount: data['shareCount'] ?? 0,
+                                postImage: data['postImageUrl'],
+                                postOwnerId: data['userId'] ?? '',
+                                postType: data['postType'] ?? 'text',
+                                linkUrl: data['linkUrl'],
+                                pollData: data['pollData'],
+                                hubId: data['hubId'] ?? '',
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    ),
                   ),
                 ],
               ),

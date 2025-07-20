@@ -16,6 +16,7 @@ class Post {
   final String postType; // text, image, link, poll
   final String? linkUrl;
   final Map<String, dynamic>? pollData;
+  final int? trendingScore;
 
   Post({
     required this.id,
@@ -35,5 +36,6 @@ class Post {
     required this.postType,
     this.linkUrl,
     this.pollData,
+    this.trendingScore,
   });
 }

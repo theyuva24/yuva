@@ -88,9 +88,22 @@ class _ChallengeDetailsPageState extends State<ChallengeDetailsPage> {
                   // Challenge image at the top
                   Image.network(
                     challenge.imageUrl,
-                    height: 220,
                     width: double.infinity,
+                    height: 220,
                     fit: BoxFit.cover,
+                    errorBuilder:
+                        (context, error, stackTrace) => Container(
+                          color: Colors.grey[300],
+                          width: double.infinity,
+                          height: 220,
+                          child: const Center(
+                            child: Icon(
+                              Icons.broken_image,
+                              size: 48,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ),
                   ),
                   const SizedBox(height: 16),
                   // Progress bar for end date
@@ -342,16 +355,23 @@ class _ChallengeDetailsPageState extends State<ChallengeDetailsPage> {
                                             : Image.network(
                                               submission.mediaUrl!,
                                               fit: BoxFit.cover,
+                                              width: double.infinity,
+                                              height: 180,
                                               errorBuilder:
                                                   (
                                                     context,
                                                     error,
                                                     stackTrace,
                                                   ) => Container(
-                                                    color: Colors.grey[200],
-                                                    child: const Icon(
-                                                      Icons.broken_image,
-                                                      color: Colors.grey,
+                                                    color: Colors.grey[300],
+                                                    width: double.infinity,
+                                                    height: 180,
+                                                    child: const Center(
+                                                      child: Icon(
+                                                        Icons.broken_image,
+                                                        size: 48,
+                                                        color: Colors.grey,
+                                                      ),
                                                     ),
                                                   ),
                                             ),

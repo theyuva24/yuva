@@ -40,18 +40,21 @@ class SubmissionCard extends StatelessWidget {
                   ],
                 )
                 : Image.network(
-                  submission.mediaUrl ?? '',
-                  width: 56,
-                  height: 56,
+                  submission.mediaUrl!,
                   fit: BoxFit.cover,
+                  width: double.infinity,
+                  height: 180,
                   errorBuilder:
                       (context, error, stackTrace) => Container(
-                        width: 56,
-                        height: 56,
-                        color: Colors.grey[200],
-                        child: const Icon(
-                          Icons.broken_image,
-                          color: Colors.grey,
+                        color: Colors.grey[300],
+                        width: double.infinity,
+                        height: 180,
+                        child: const Center(
+                          child: Icon(
+                            Icons.broken_image,
+                            size: 48,
+                            color: Colors.grey,
+                          ),
                         ),
                       ),
                 ),

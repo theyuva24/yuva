@@ -21,6 +21,7 @@ class HubService {
           name: data['name'] ?? '',
           description: data['description'] ?? '',
           imageUrl: data['imageUrl'] ?? '',
+          popularityScore: data['popularityScore'] ?? 0,
         );
       }).toList();
     });

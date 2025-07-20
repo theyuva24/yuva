@@ -12,6 +12,8 @@ import '../../profile/models/profile_model.dart';
 import '../../initial pages/auth_service.dart';
 import '../../connect/pages/connect_page.dart';
 import '../../universal/screens/home_screen.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 
 // Placeholder GradientButton widget (replace with actual implementation if available)
 class GradientButton extends StatelessWidget {
@@ -68,6 +70,9 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   bool _postAnonymously = false;
   ProfileModel? _profile;
   bool _profileLoading = true;
+  String? _originalImagePath;
+  String? _compressedImagePath;
+  Future<void>? _compressionFuture;
 
   // 1. Add canPost logic
   bool get _canPost {
@@ -183,7 +188,10 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     });
     String? imageUrl;
     if (_postType == 'image' && _imagePath != null) {
-      imageUrl = await _uploadImage(_imagePath!);
+      final imagePathToUpload = await _getImageForUpload();
+      if (imagePathToUpload != null) {
+        imageUrl = await _uploadImage(imagePathToUpload);
+      }
     }
     Map<String, dynamic>? pollData;
     if (_postType == 'poll') {
@@ -484,6 +492,48 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     );
   }
 
+  Future<void> _pickPostImage() async {
+    final picked = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 80,
+    );
+    if (picked != null) {
+      setState(() {
+        _postType = 'image';
+        _originalImagePath = picked.path;
+        _imagePath = picked.path; // Show original immediately
+        _compressedImagePath = null;
+      });
+      // Start compression in background
+      _compressionFuture = _compressImageInBackground(picked.path);
+    }
+  }
+
+  Future<void> _compressImageInBackground(String path) async {
+    final compressed = await FlutterImageCompress.compressAndGetFile(
+      path,
+      '${path}_compressed.jpg',
+      quality: 70,
+    );
+    if (compressed != null) {
+      if (mounted && _originalImagePath == path) {
+        setState(() {
+          _compressedImagePath = compressed.path;
+        });
+      } else {
+        _compressedImagePath = compressed.path;
+      }
+    }
+  }
+
+  Future<String?> _getImageForUpload() async {
+    // Wait for compression if it's running
+    if (_compressionFuture != null) {
+      await _compressionFuture;
+    }
+    return _compressedImagePath ?? _originalImagePath;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = AppThemeLight.theme;
@@ -687,21 +737,34 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                             if (_postType == 'image')
                               Column(
                                 children: [
-                                  ProfileImagePicker(
-                                    imagePath: _imagePath,
-                                    onImagePicked: (path) {
-                                      setState(() {
-                                        _imagePath = path;
-                                      });
-                                    },
-                                  ),
                                   if (_imagePath != null)
+                                    Column(
+                                      children: [
+                                        Image.file(
+                                          File(_imagePath!),
+                                          height: 180,
+                                          fit: BoxFit.cover,
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                            top: 8.0,
+                                          ),
+                                          child: Text(
+                                            'Image selected',
+                                            style: TextStyle(
+                                              color: Colors.green[700],
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                  else
                                     Padding(
-                                      padding: const EdgeInsets.only(top: 8.0),
+                                      padding: const EdgeInsets.all(16.0),
                                       child: Text(
-                                        'Image selected',
+                                        'No image selected',
                                         style: TextStyle(
-                                          color: Colors.green[700],
+                                          color: Colors.grey[600],
                                         ),
                                       ),
                                     ),
@@ -766,11 +829,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                                 Icons.image,
                                 color: colorScheme.primary,
                               ),
-                              onPressed: () {
-                                setState(() {
-                                  _postType = 'image';
-                                });
-                              },
+                              onPressed: _pickPostImage,
                             ),
                             IconButton(
                               icon: Icon(

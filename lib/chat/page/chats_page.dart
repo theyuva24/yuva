@@ -81,6 +81,26 @@ class ChatsPage extends StatelessWidget {
     return unified;
   }
 
+  Future<int> fetchUnreadCount(String chatId, String userId) async {
+    final chatDoc =
+        await FirebaseFirestore.instance.collection('chats').doc(chatId).get();
+    final lastReadTimestamps = chatDoc.data()?['lastReadTimestamps'] ?? {};
+    final lastRead =
+        lastReadTimestamps[userId] != null &&
+                lastReadTimestamps[userId] is Timestamp
+            ? (lastReadTimestamps[userId] as Timestamp).toDate()
+            : DateTime.fromMillisecondsSinceEpoch(0);
+    final messagesQuery =
+        await FirebaseFirestore.instance
+            .collection('chats')
+            .doc(chatId)
+            .collection('messages')
+            .where('timestamp', isGreaterThan: lastRead)
+            .where('senderId', isNotEqualTo: userId)
+            .get();
+    return messagesQuery.docs.length;
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
@@ -123,113 +143,150 @@ class ChatsPage extends StatelessWidget {
               itemCount: chats.length,
               itemBuilder: (context, index) {
                 final chat = chats[index];
-                return ListTile(
-                  tileColor: AppThemeLight.surface,
-                  leading:
-                      chat['imageUrl'].isNotEmpty
-                          ? Container(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: AppThemeLight.primary,
-                                width: 2,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppThemeLight.primary.withOpacity(
-                                    0.12,
+                return FutureBuilder<int>(
+                  future:
+                      chat['type'] == 'direct'
+                          ? fetchUnreadCount(chat['id'], user.uid)
+                          : Future.value(0),
+                  builder: (context, unreadSnapshot) {
+                    final unreadCount = unreadSnapshot.data ?? 0;
+                    return ListTile(
+                      tileColor: AppThemeLight.surface,
+                      leading:
+                          chat['imageUrl'].isNotEmpty
+                              ? Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: AppThemeLight.primary,
+                                    width: 2,
                                   ),
-                                  blurRadius: 8,
-                                  spreadRadius: 1,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: AppThemeLight.primary.withOpacity(
+                                        0.12,
+                                      ),
+                                      blurRadius: 8,
+                                      spreadRadius: 1,
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                            child: CircleAvatar(
-                              backgroundImage: NetworkImage(chat['imageUrl']),
-                              backgroundColor: AppThemeLight.surface,
-                            ),
-                          )
-                          : Container(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: AppThemeLight.primary,
-                                width: 2,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppThemeLight.primary.withOpacity(
-                                    0.12,
+                                child: CircleAvatar(
+                                  backgroundImage: NetworkImage(
+                                    chat['imageUrl'],
                                   ),
-                                  blurRadius: 8,
-                                  spreadRadius: 1,
+                                  backgroundColor: AppThemeLight.surface,
                                 ),
-                              ],
-                            ),
-                            child: CircleAvatar(
-                              backgroundColor: AppThemeLight.surface,
-                              child: Icon(
-                                chat['type'] == 'hub'
-                                    ? Icons.groups
-                                    : Icons.person,
-                                color: AppThemeLight.primary,
+                              )
+                              : Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: AppThemeLight.primary,
+                                    width: 2,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: AppThemeLight.primary.withOpacity(
+                                        0.12,
+                                      ),
+                                      blurRadius: 8,
+                                      spreadRadius: 1,
+                                    ),
+                                  ],
+                                ),
+                                child: CircleAvatar(
+                                  backgroundColor: AppThemeLight.surface,
+                                  child: Icon(
+                                    chat['type'] == 'hub'
+                                        ? Icons.groups
+                                        : Icons.person,
+                                    color: AppThemeLight.primary,
+                                  ),
+                                ),
                               ),
-                            ),
+                      title: Text(
+                        chat['name'],
+                        style: GoogleFonts.orbitron(
+                          textStyle: const TextStyle(
+                            color: AppThemeLight.primary,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            letterSpacing: 1,
+                            shadows: [
+                              Shadow(
+                                color: AppThemeLight.primary,
+                                blurRadius: 8,
+                              ),
+                            ],
                           ),
-                  title: Text(
-                    chat['name'],
-                    style: GoogleFonts.orbitron(
-                      textStyle: const TextStyle(
-                        color: AppThemeLight.primary,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        letterSpacing: 1,
-                        shadows: [
-                          Shadow(color: AppThemeLight.primary, blurRadius: 8),
+                        ),
+                      ),
+                      subtitle: Text(
+                        chat['lastMsg'] ?? '',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(color: AppThemeLight.textLight),
+                      ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (chat['lastMsgTime'] != null)
+                            Text(
+                              TimeOfDay.fromDateTime(
+                                chat['lastMsgTime'],
+                              ).format(context),
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: AppThemeLight.primary,
+                              ),
+                            ),
+                          if (unreadCount > 0)
+                            Container(
+                              margin: const EdgeInsets.only(left: 8),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.red,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                unreadCount.toString(),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
                         ],
                       ),
-                    ),
-                  ),
-                  subtitle: Text(
-                    chat['lastMsg'] ?? '',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(color: AppThemeLight.textLight),
-                  ),
-                  trailing:
-                      chat['lastMsgTime'] != null
-                          ? Text(
-                            TimeOfDay.fromDateTime(
-                              chat['lastMsgTime'],
-                            ).format(context),
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: AppThemeLight.primary,
+                      onTap: () {
+                        if (chat['type'] == 'hub') {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder:
+                                  (context) => HubChatPage(
+                                    hubId: chat['id'],
+                                    hubName: chat['name'],
+                                  ),
                             ),
-                          )
-                          : null,
-                  onTap: () {
-                    if (chat['type'] == 'hub') {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder:
-                              (context) => HubChatPage(
-                                hubId: chat['id'],
-                                hubName: chat['name'],
-                              ),
-                        ),
-                      );
-                    } else {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder:
-                              (context) => ChatPage(
-                                chatId: chat['id'],
-                                otherUserId: chat['otherUserId'],
-                              ),
-                        ),
-                      );
-                    }
+                          );
+                        } else {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder:
+                                  (context) => ChatPage(
+                                    chatId: chat['id'],
+                                    otherUserId: chat['otherUserId'],
+                                  ),
+                            ),
+                          );
+                        }
+                      },
+                    );
                   },
                 );
               },

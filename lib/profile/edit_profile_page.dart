@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'models/profile_model.dart';
+import 'models/experience_model.dart';
+import 'models/education_model.dart';
 import 'services/profile_service.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
@@ -13,75 +15,66 @@ class EditProfilePage extends StatefulWidget {
   State<EditProfilePage> createState() => _EditProfilePageState();
 }
 
-extension _ProfileModelCopyWith on ProfileModel {
-  ProfileModel copyWith({
-    String? fullName,
-    String? phone,
-    String? gender,
-    DateTime? dob,
-    String? college,
-    String? course,
-    String? year,
-    String? location,
-    List<String>? interests,
-    String? profilePicUrl,
-    String? idCardUrl,
-    String? uniqueName,
-    String? bio,
-  }) {
-    return ProfileModel(
-      uid: uid,
-      fullName: fullName ?? this.fullName,
-      phone: phone ?? this.phone,
-      gender: gender ?? this.gender,
-      dob: dob ?? this.dob,
-      college: college ?? this.college,
-      course: course ?? this.course,
-      year: year ?? this.year,
-      location: location ?? this.location,
-      interests: interests ?? this.interests,
-      profilePicUrl: profilePicUrl ?? this.profilePicUrl,
-      idCardUrl: idCardUrl ?? this.idCardUrl,
-      uniqueName: uniqueName ?? this.uniqueName,
-      bio: bio ?? this.bio,
-    );
-  }
-}
-
 class _EditProfilePageState extends State<EditProfilePage> {
   late TextEditingController _nameController;
-  late TextEditingController _locationController;
-  late TextEditingController _collegeController;
-  late TextEditingController _courseController;
-  late TextEditingController _yearController;
-  late TextEditingController _mobileController;
+  late TextEditingController _headlineController;
+  late TextEditingController _emailController;
+  late TextEditingController _linkedInController;
+  late TextEditingController _phoneController;
   late TextEditingController _bioController;
-  DateTime? _dob;
+  late TextEditingController _locationController;
   File? _imageFile;
+  DateTime? _dob;
+  List<ExperienceModel> _experience = [];
+  List<EducationModel> _education = [];
+  List<String> _skills = [];
   final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.profile.fullName);
-    _locationController = TextEditingController(text: widget.profile.location);
-    _collegeController = TextEditingController(text: widget.profile.college);
-    _courseController = TextEditingController(text: widget.profile.course);
-    _yearController = TextEditingController(text: widget.profile.year);
-    _mobileController = TextEditingController(text: widget.profile.phone);
-    _bioController = TextEditingController(text: widget.profile.bio);
-    _dob = widget.profile.dob;
+    final p = widget.profile;
+    _nameController = TextEditingController(text: p.fullName);
+    _headlineController = TextEditingController(text: p.headline);
+    _emailController = TextEditingController(text: p.contactInfo.email);
+    _linkedInController = TextEditingController(
+      text: p.contactInfo.linkedInUrl,
+    );
+    _phoneController = TextEditingController(
+      text: p.contactInfo.phone.isNotEmpty ? p.contactInfo.phone : p.phone,
+    );
+    _bioController = TextEditingController(text: p.bio);
+    _locationController = TextEditingController(text: p.location);
+    _dob = p.dob;
+    _experience = List<ExperienceModel>.from(p.experience);
+    _education = List<EducationModel>.from(p.education);
+    _skills = List<String>.from(p.skills);
+    // Map old registration data to new education if needed
+    if (_education.isEmpty && (p.college.isNotEmpty || p.course.isNotEmpty)) {
+      _education.add(
+        EducationModel(
+          schoolName: p.college,
+          fieldOfStudy: p.course,
+          degree: '',
+          startDate: null,
+          endDate: null,
+          activities: '',
+          description: '',
+          schoolLogoUrl: '',
+        ),
+      );
+    }
   }
 
   @override
   void dispose() {
     _nameController.dispose();
-    _locationController.dispose();
-    _collegeController.dispose();
-    _courseController.dispose();
-    _yearController.dispose();
-    _mobileController.dispose();
+    _headlineController.dispose();
+    _emailController.dispose();
+    _linkedInController.dispose();
+    _phoneController.dispose();
     _bioController.dispose();
+    _locationController.dispose();
     super.dispose();
   }
 
@@ -108,6 +101,42 @@ class _EditProfilePageState extends State<EditProfilePage> {
     }
   }
 
+  void _addExperience() {
+    setState(() {
+      _experience.add(ExperienceModel(jobTitle: '', companyName: ''));
+    });
+  }
+
+  void _removeExperience(int index) {
+    setState(() {
+      _experience.removeAt(index);
+    });
+  }
+
+  void _addEducation() {
+    setState(() {
+      _education.add(EducationModel(schoolName: ''));
+    });
+  }
+
+  void _removeEducation(int index) {
+    setState(() {
+      _education.removeAt(index);
+    });
+  }
+
+  void _addSkill(String skill) {
+    setState(() {
+      if (skill.isNotEmpty && !_skills.contains(skill)) _skills.add(skill);
+    });
+  }
+
+  void _removeSkill(int index) {
+    setState(() {
+      _skills.removeAt(index);
+    });
+  }
+
   Future<void> _saveProfile() async {
     if (!_formKey.currentState!.validate()) return;
     String newProfilePicUrl = widget.profile.profilePicUrl;
@@ -119,15 +148,19 @@ class _EditProfilePageState extends State<EditProfilePage> {
     }
     final updatedProfile = widget.profile.copyWith(
       fullName: _nameController.text,
+      headline: _headlineController.text,
+      contactInfo: ContactInfo(
+        email: _emailController.text,
+        linkedInUrl: _linkedInController.text,
+        phone: _phoneController.text,
+      ),
+      bio: _bioController.text,
       location: _locationController.text,
-      college: _collegeController.text,
-      course: _courseController.text,
-      year: _yearController.text,
-      phone: _mobileController.text,
       dob: _dob,
       profilePicUrl: newProfilePicUrl,
-      uniqueName: widget.profile.uniqueName,
-      bio: _bioController.text,
+      experience: _experience,
+      education: _education,
+      skills: _skills,
     );
     await ProfileService().updateProfile(updatedProfile);
     if (mounted) {
@@ -141,6 +174,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    final skillController = TextEditingController();
     return Scaffold(
       appBar: AppBar(title: const Text('Edit Profile')),
       body: SingleChildScrollView(
@@ -148,6 +182,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         child: Form(
           key: _formKey,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               GestureDetector(
                 onTap: _pickImage,
@@ -156,9 +191,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   backgroundImage:
                       _imageFile != null
                           ? FileImage(_imageFile!)
-                          : (widget.profile.profilePicUrl != null &&
-                              widget.profile.profilePicUrl!.isNotEmpty)
-                          ? NetworkImage(widget.profile.profilePicUrl!)
+                          : (widget.profile.profilePicUrl.isNotEmpty)
+                          ? NetworkImage(widget.profile.profilePicUrl)
                               as ImageProvider
                           : const AssetImage('assets/avatar_placeholder.png'),
                 ),
@@ -171,11 +205,24 @@ class _EditProfilePageState extends State<EditProfilePage> {
               ),
               const SizedBox(height: 12),
               TextFormField(
-                controller: _mobileController,
-                decoration: const InputDecoration(labelText: 'Mobile Number'),
-                validator:
-                    (v) =>
-                        v == null || v.isEmpty ? 'Enter mobile number' : null,
+                controller: _headlineController,
+                decoration: const InputDecoration(labelText: 'Headline'),
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _emailController,
+                decoration: const InputDecoration(labelText: 'Email'),
+                keyboardType: TextInputType.emailAddress,
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _linkedInController,
+                decoration: const InputDecoration(labelText: 'LinkedIn URL'),
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _phoneController,
+                decoration: const InputDecoration(labelText: 'Phone'),
                 keyboardType: TextInputType.phone,
               ),
               const SizedBox(height: 12),
@@ -203,20 +250,272 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 controller: _locationController,
                 decoration: const InputDecoration(labelText: 'Location'),
               ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _collegeController,
-                decoration: const InputDecoration(labelText: 'College'),
+              const SizedBox(height: 24),
+              // Experience Section
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Experience',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  IconButton(
+                    onPressed: _addExperience,
+                    icon: const Icon(Icons.add),
+                  ),
+                ],
               ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _courseController,
-                decoration: const InputDecoration(labelText: 'Course'),
+              ..._experience.asMap().entries.map((entry) {
+                final i = entry.key;
+                final exp = entry.value;
+                return Card(
+                  margin: const EdgeInsets.symmetric(vertical: 6),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      children: [
+                        TextFormField(
+                          initialValue: exp.jobTitle,
+                          decoration: const InputDecoration(
+                            labelText: 'Job Title',
+                          ),
+                          onChanged:
+                              (v) => _experience[i] = exp.copyWith(jobTitle: v),
+                        ),
+                        TextFormField(
+                          initialValue: exp.companyName,
+                          decoration: const InputDecoration(
+                            labelText: 'Company Name',
+                          ),
+                          onChanged:
+                              (v) =>
+                                  _experience[i] = exp.copyWith(companyName: v),
+                        ),
+                        TextFormField(
+                          initialValue: exp.location,
+                          decoration: const InputDecoration(
+                            labelText: 'Location',
+                          ),
+                          onChanged:
+                              (v) => _experience[i] = exp.copyWith(location: v),
+                        ),
+                        TextFormField(
+                          initialValue: exp.description,
+                          decoration: const InputDecoration(
+                            labelText: 'Description',
+                          ),
+                          onChanged:
+                              (v) =>
+                                  _experience[i] = exp.copyWith(description: v),
+                        ),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextFormField(
+                                initialValue:
+                                    exp.startDate != null
+                                        ? DateFormat(
+                                          'yyyy-MM-dd',
+                                        ).format(exp.startDate!)
+                                        : '',
+                                decoration: const InputDecoration(
+                                  labelText: 'Start Date (yyyy-MM-dd)',
+                                ),
+                                onChanged:
+                                    (v) =>
+                                        _experience[i] = exp.copyWith(
+                                          startDate: DateTime.tryParse(v),
+                                        ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: TextFormField(
+                                initialValue:
+                                    exp.endDate != null
+                                        ? DateFormat(
+                                          'yyyy-MM-dd',
+                                        ).format(exp.endDate!)
+                                        : '',
+                                decoration: const InputDecoration(
+                                  labelText: 'End Date (yyyy-MM-dd)',
+                                ),
+                                onChanged:
+                                    (v) =>
+                                        _experience[i] = exp.copyWith(
+                                          endDate: DateTime.tryParse(v),
+                                        ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            onPressed: () => _removeExperience(i),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }),
+              const SizedBox(height: 24),
+              // Education Section
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Education',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  IconButton(
+                    onPressed: _addEducation,
+                    icon: const Icon(Icons.add),
+                  ),
+                ],
               ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _yearController,
-                decoration: const InputDecoration(labelText: 'Year'),
+              ..._education.asMap().entries.map((entry) {
+                final i = entry.key;
+                final edu = entry.value;
+                return Card(
+                  margin: const EdgeInsets.symmetric(vertical: 6),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      children: [
+                        TextFormField(
+                          initialValue: edu.schoolName,
+                          decoration: const InputDecoration(
+                            labelText: 'School Name',
+                          ),
+                          onChanged:
+                              (v) =>
+                                  _education[i] = edu.copyWith(schoolName: v),
+                        ),
+                        TextFormField(
+                          initialValue: edu.degree,
+                          decoration: const InputDecoration(
+                            labelText: 'Degree',
+                          ),
+                          onChanged:
+                              (v) => _education[i] = edu.copyWith(degree: v),
+                        ),
+                        TextFormField(
+                          initialValue: edu.fieldOfStudy,
+                          decoration: const InputDecoration(
+                            labelText: 'Field of Study',
+                          ),
+                          onChanged:
+                              (v) =>
+                                  _education[i] = edu.copyWith(fieldOfStudy: v),
+                        ),
+                        TextFormField(
+                          initialValue: edu.activities,
+                          decoration: const InputDecoration(
+                            labelText: 'Activities',
+                          ),
+                          onChanged:
+                              (v) =>
+                                  _education[i] = edu.copyWith(activities: v),
+                        ),
+                        TextFormField(
+                          initialValue: edu.description,
+                          decoration: const InputDecoration(
+                            labelText: 'Description',
+                          ),
+                          onChanged:
+                              (v) =>
+                                  _education[i] = edu.copyWith(description: v),
+                        ),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextFormField(
+                                initialValue:
+                                    edu.startDate != null
+                                        ? DateFormat(
+                                          'yyyy-MM-dd',
+                                        ).format(edu.startDate!)
+                                        : '',
+                                decoration: const InputDecoration(
+                                  labelText: 'Start Date (yyyy-MM-dd)',
+                                ),
+                                onChanged:
+                                    (v) =>
+                                        _education[i] = edu.copyWith(
+                                          startDate: DateTime.tryParse(v),
+                                        ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: TextFormField(
+                                initialValue:
+                                    edu.endDate != null
+                                        ? DateFormat(
+                                          'yyyy-MM-dd',
+                                        ).format(edu.endDate!)
+                                        : '',
+                                decoration: const InputDecoration(
+                                  labelText: 'End Date (yyyy-MM-dd)',
+                                ),
+                                onChanged:
+                                    (v) =>
+                                        _education[i] = edu.copyWith(
+                                          endDate: DateTime.tryParse(v),
+                                        ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            onPressed: () => _removeEducation(i),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }),
+              const SizedBox(height: 24),
+              // Skills Section
+              const Text(
+                'Skills',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              Wrap(
+                spacing: 8,
+                children:
+                    _skills.asMap().entries.map((entry) {
+                      final i = entry.key;
+                      final skill = entry.value;
+                      return Chip(
+                        label: Text(skill),
+                        onDeleted: () => _removeSkill(i),
+                      );
+                    }).toList(),
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      controller: skillController,
+                      decoration: const InputDecoration(labelText: 'Add Skill'),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.add),
+                    onPressed: () {
+                      _addSkill(skillController.text.trim());
+                      skillController.clear();
+                    },
+                  ),
+                ],
               ),
               const SizedBox(height: 24),
               ElevatedButton(

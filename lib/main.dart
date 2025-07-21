@@ -12,6 +12,43 @@ import 'package:path_provider/path_provider.dart';
 import 'challenge/model/challenge_model.dart';
 import 'challenge/model/submission_model.dart';
 import 'challenge/model/timestamp_adapter.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  // Optionally handle background notification
+}
+
+void setupFirebaseMessaging() {
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    RemoteNotification? notification = message.notification;
+    if (notification != null) {
+      flutterLocalNotificationsPlugin.show(
+        notification.hashCode,
+        notification.title,
+        notification.body,
+        NotificationDetails(
+          android: AndroidNotificationDetails(
+            'default_channel',
+            'Default',
+            channelDescription: 'Default channel for notifications',
+            importance: Importance.max,
+            priority: Priority.high,
+          ),
+        ),
+      );
+    }
+  });
+
+  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+    // Handle notification tap (navigate to chat, etc.)
+  });
+
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,6 +59,19 @@ void main() async {
   Hive.registerAdapter(ChallengeAdapter());
   Hive.registerAdapter(SubmissionAdapter());
   Hive.registerAdapter(TimestampAdapter());
+
+  // Initialize local notifications
+  const AndroidInitializationSettings initializationSettingsAndroid =
+      AndroidInitializationSettings('@mipmap/ic_launcher');
+  const InitializationSettings initializationSettings = InitializationSettings(
+    android: initializationSettingsAndroid,
+  );
+  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+
+  setupFirebaseMessaging();
+
+  // Request notification permission (for Android 13+ and iOS)
+  await FirebaseMessaging.instance.requestPermission();
 
   // Open boxes
   await Hive.openBox('challenges');

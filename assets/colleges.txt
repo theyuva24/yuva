@@ -1,0 +1,1292 @@
+[
+  {
+    "Akash Institute of Engineering and Technology": "Akshara Foundation Nidavani College, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Al-Meezan College of Education, Anand Nagar Road, Old Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Anjuman Centenary B.Ed College, Ghantikeri, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Apponix Technologies, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Arena Animation"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Arena Animation, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Ayurveda Mahavidyalaya"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "B.V. Bhoomaraddi College of Engineering & Technology (KLE Technological University), Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "B.V. Bhoomraddi College of Engineering & Technology, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "BMS College of Engineering, Hubli (associated with region)"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Bright Business School"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "C.C.S. College of Commerce, Arts & Science, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Chandigarh University Online"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Chetan Business School (CBS), Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Chetan Business School Institute of Management and Research"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Chetan Commerce College, Tajnagar, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Chinmaya Degree College, Nagashettykoppa, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Christ University"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Dakshina Bharat Hindi Prachar Sabha, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Deshpande Foundations AIC Hubli Innovation Lab"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Dharwad Institute of Mental Health and Neurosciences (DIMHANS), Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Don Bosco College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Dr. D.Y. Patil Institute of Technology, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Empower PU Science College, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Emversity School of Banking in collab with Mangalayatan University, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "GES's G.S. Patil Arts and Commerce College, Kundagol"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Global Business School"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Global Educare Foundation Global Commerce College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Global Institute of Business Management and Information Technology College"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Government First Grade College, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Govt First Grade College, Gudgeri"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Govt. First Grade Evening College, Kumareshwar Nagar, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Hanchinmani Science PU College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Indian Institute of Information Technology Dharwad (IIIT Dharwad)"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Indian Institute of Technology Dharwad (IIT Dharwad), Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Institute of Business Management and Research (IBMR) Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "International Institute of Information Technology, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "JSS Institute of Speech and Hearing, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "JSS Sakri Law College"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "JSS Shri Manjunatheshwara Commerce College, Heggeri, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Jagadguru Gangadhar College of Commerce"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Jagadguru Gangadhar Mahaswamigalu Moorsavirmath Medical College"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Jawaharlal Nehru College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "K.E. Boards First Grade Arts and Commerce College, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "K.H. Patil Commerce College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "K.L.E. Society Universitys College of Pharmacy"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "KLE Arts and Commerce Ist Grade College, Saunshi"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "KLE Institute of Nursing Sciences"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "KLE Institute of Technology, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "KLE JGMM Medical College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "KLE Polytechnic College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "KLE Society's College of Arts, Science and Commerce, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "KLE Society's College of Business Management & Research, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "KLE Society's College of Engineering and Technology, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "KLE Society's College of Pharmacy, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "KLE Societys College of Education"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "KLE Societys Gurusiddappa Kotambri Law College"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "KLE Societys Law College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "KLE Societys School of Music, Hubballi"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "KLE Technological University"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "KLE Universitys College of Pharmacy, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "KSS BSW College, Vidyanagar, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Kaizen Eduplus SocietyS IEMS B-School"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Karnatak Arts College, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Karnatak University, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Karnataka Institute of Medical Sciences"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Karnataka Institute of Medical Sciences (KIMS), Hubballi"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Karnataka State Law University, Hubballi"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Karnatak College, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Kittle College, Jubilee Circle"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Maratha Vidya Prasarak Mandal Shri Chatrapati Shivaji Maharaj Arts and Commerce College, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "M.V.A.S. Shri K.G. Nadgir College of Physical Education, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Mount Carmel College, Dharwad (Study center/affiliated programs)"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Naikar Education Society Malatesh Degree College, Shiraguppi, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Nalanda Polytechnic, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Nehru College, Ghantikeri"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Nettur Technical Training Foundation (NTTF), Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "NTSS Shree Shankar Arts and Commerce College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Parivartana Commerce Degree College, Gopanakoppa, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "PC Jabin Science College, (PCJSC) Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "P.C. Jabin Science College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Poojya Basaveshwara College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Presidency Science PU College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Presidency University, Hubli (PU branch)"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "R.S. Shetty College of Commerce (Corporate Secretary), Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Ramaiah Institute of Technology, Hubli (associated/in-network)"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "RN Shetty College of Hotel Management, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Rural B.Ed College, Sattur, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "S.G. Balekundri Institute of Technology, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "S.Thiraja Education College, Jyothi Nagar, Alnavar"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Samartha Degree College of Commerce, Shirur Park, Vidyanagar, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Sana Commerce College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "SANA College of Education, Shantiniketan Bairidevarkoppa, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Sardar Veerangouda Patil Mahila Vidyapeth"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "SASTRA University (Hubli programs/affiliations)"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "SDM College of Business Management, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "SDM College of Dental Sciences, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "SDM College of Engineering and Technology, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "SDM College of Medical Sciences, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Shanta Vihar Degree College, Old Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Sharana Nooliya Chandayya Dr. B.R. Ambedkar Smaraka First Grade Arts and Commerce College, Gangadharnagar, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Shri Amruteshwar Arts and Commerce College, Annigeri"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Shri Channabasaveshwar Degree College, Navanagar, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Shri Channabasaveshwar Teachers Training College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Shri Dharmasthala Manjunatheshwara University, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Shri Siddarameshwar Education College, Kalyan Nagar, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Sri Basaveshwar Rural Education & Development Societies Arts, Science and Commerce College, Sattur, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Sri CLY Samskrita College, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "SSK Arts & Commerce College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "St. John's Polytechnic, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "St. Joseph's Commerce College, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "St. Joseph's Science and Commerce College, Jubilee Circle"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "St. Josephs University"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Sukruti Commerce College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "VidyaBharati Foundation IBMR Education College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Y.B. Annigeri Commerce Degree College, Saptapur, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Karnataka Arts and Commerce College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Karnataka State Rural Development and Panchayat Raj University, Gadag (Hubli-Dharwad catchment)"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Oxford College of Business Management, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Tipu Sultan College of Business Administration, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Nutan Vidyalaya Education Society, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "KIMSU Hubballi (Krishna Institute of Management Studies and University)"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Elite PU and Degree College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Dr. R.B. Patil Women's PU & Degree College, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "MGM PU Science and Commerce College, Hubballi"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Gayatri College of Science and Management, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Indira Gandhi Group of Institutions, Hubballi"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Sara Degree College, Hubballi"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "EuroTech Institute of Technology, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "National Degree College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Bhagirathi Commerce and Arts College for Women, Hubballi"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Saraswathi Commerce Degree College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Royal Commerce and Computer Education College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Sunshine Institute of Management Studies, Hubballi"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Vidya Jeevan Arts and Commerce College, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Bhartiya Vidya Bhavans Sardar Patel College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Blue Pearl International College, Hubballi"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Krishna Polytechnic College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Sunrise Technical Academy, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Oxford Polytechnic College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Creative PU College, Hubballi"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "KIDS Dental College Affiliated Campus, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Disha Commerce & Management College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Maxwell Degree College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Dolphin Arts and Science College, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Veda Degree College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Chinmaya Mission PU & Degree College, Dharwad (additional branch)"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Phoenix Business School, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "InfoTech Degree College & Computer Training Institute, Hubballi"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Oriental Degree College & Management Institute, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Avanti PU and Degree College, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "ASM Degree College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Navanagar Women's Commerce College, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Guru Nanak PU and Degree College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Madhura College of Commerce, Science & Management, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Aadya Degree College, Hubballi"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Acharya Degree College, Hubballi"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Universal Commerce College, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Mahatma Jyotiba Phule PU & Degree College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "BLOSSOM Degree College of Computer Science & Commerce, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "B.C.A. College - IP Edu Society, Hubballi"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "SIDD College of Degree Education, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Sairam College of Management, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Unity First Grade College, Hubballi"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Knowledge PU and Degree College, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Brilliant Science College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Phoenix PU and Degree College, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Vision PU and Degree College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Samrat PU and Degree College, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Lingaraj Degree College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Zenith Commerce College, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Sunrise PU College, Hubballi"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Yuva Vikas PU and Degree College, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Sri Krishna Commerce Degree College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Maxwell Institute of Education, Hubballi"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Kingfisher First Grade College, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Skyline Institute of Business and IT, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Al-Ameen College of Education, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Al-Falah Education Society Degree College, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Anjuman Arts, Science & Commerce College for Women, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Anjuman College of Education, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Bharatesh College of Commerce, Hubli Extension"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Basel Mission Polytechnic College, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "BGM BEd College, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "BVB BCA Degree College, Hubli (Separate from main BVB Campus)"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "BIMS Commerce College, Hubballi"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Bapuji Institute of Engineering and Technology Extension, Hubballi Center"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Dr. D.S. Srivastava Memorial Degree College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Excel Institute of Management and Technology, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Ghani Khan Choudhury College Campus, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Gurushree College of Commerce, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Infinity Institute of IT and Commerce, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Jain PU & Degree College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Karnataka College of Pharmacy, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Kasturba Gandhi PU and Degree College for Women, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Leela Vidya Shala B.Ed College, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Mahatma Gandhi First Grade College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Millennium Degree College, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Modern Institute of IT and Business, Hubballi"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Navodaya Degree College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Noble BCA & BCom College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Oxford Centre of Excellence, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Padmavati Arts & Commerce Degree College, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Pathfinder PU and Degree College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Prerana BCA and BBM College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Phoenix Degree College for Girls, Hubballi"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Quba Degree College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Rashtriya College of Law, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Ravi Kirloskar Institute of Advanced Learning, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Saifi PU and Degree College, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Sankalpa Degree College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Sanman Institute of Commerce and Management, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Saptagiri PU and Degree College, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Seva Education College, Hubballi"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Shivaganga College of Education and Commerce, Hubballi"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Shri Sadguru B.Ed College, Sattur, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Shri Siddeshwar College, Vidyagiri, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Shrimanth Institute of Management Studies, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Sigma College of Management and Computer Studies, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "SMP Degree College of Science and Commerce, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Sourashtra Commerce & Arts Degree College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Sri Bheemanna Khandre Institute, Dharwad Extension Campus"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Sri Mahalakshmi Womens College of Commerce, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Sri Sharada Institute of Commerce, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Sri Sainath Commerce College, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Success BCA College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Sudha Murthy Education Society Degree College, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "SunRise Commerce and IT College, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Swami Vivekananda PU and Degree College, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Synergy Business School, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Tapasya College of Commerce & Management, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Triveni Degree College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Unique PU & Commerce College, Gokul Road, Hubballi"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "United College Hubballi"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Usha Kirloskar Institute of Management and Commerce, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Vaidya Commerce Degree College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Vidya Plus PU and Degree College Hubballi"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Vivekananda Business School, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "VVS Hanumanthappa First Grade College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Karnataka Institute of Medical Sciences (KIMS) MD/MS Programs"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "SDM College of Medical Sciences MD/MS Programs Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "SDM College of Dental Sciences MDS Programs Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "KLE College of Pharmacy M.Pharm Programs Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Soniya Education Trust's College of Pharmacy M.Pharm Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Karnatak University Department of Library and Information Science M.Lib.Sc Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "University of Agricultural Sciences Postgraduate Programs Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Indian Institute of Technology Dharwad PhD Programs"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "SDM University PhD Programs Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Karnataka State Law University PhD Law Programs Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Rani Channamma University PhD Social Work Programs"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "JSS Institute of Speech and Hearing Postgraduate Programs Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Karnataka Institute of Medical Sciences Postgraduate Medical Programs Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "National Forensic Sciences University Postgraduate Programs Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Kaizen Eduplus Society's IEMS B-School MBA Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Bright Business School MBA"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Phoenix Business School MBA Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Sunshine Institute of Management Studies MBA Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Dr. KS Sharma College of Computer Applications MCA Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Anjuman Institute of Information Science and Management MCA Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "CIC Arts and Commerce College M.Com Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Channabasaveshwar Degree College M.Com Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "KLE Arts Commerce College M.Com"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "University of Agricultural Sciences MSc Programs Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "National Forensic Sciences University MSc Forensic Science Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "JSS Institute of Speech and Hearing Masters Programs Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Karnataka State Open University Distance PG Programs"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Government First Grade College, Dharwad[43]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Government Fine Arts College, Dharwad[38]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Government First Grade College, Rajanagar  Hubli[38]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Government First Grade College, Kumareshwar Nagar Dharwad[38]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Government First Grade College, Kalaghatagi[38]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Government First Grade College, Kundgol[38]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Government First Grade College, Alnavar  Dharwad District[38]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Government First Grade College, Lingaraj Nagar Navalagund Taluk[38]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Kousali Institute of Management Studies (Karnatak University PG Dept.), Dharwad[8]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Dr. D. Veerendra Heggade Institute of Management Studies & Research, Dharwad[48]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "SDM P.G. Centre for Management Studies & Research, Dharwad[54]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Satellite Post-Graduate Centre (Karnatak University), Hubballi[56]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "P.C. Jabin Science College PG Centre (M.Sc. programmes), Hubballi[29]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "KLE Institute of Nursing Sciences (M.Sc. Nursing), Hubballi[23]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "SDM College of Physiotherapy (MPT), Dharwad[5]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "KLE College of Pharmacy (M.Pharm), Hubballi[4]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "National Forensic Sciences University, Dharwad Campus[28]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Dharwad Institute of Mental Health & Neurosciences (DIMHANS) M.Phil. Clinical Psychology[25]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Karnataka State Law University LL.M. & Research Programmes, Hubballi[8]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Jagadguru Gangadhar College of Commerce M.Com, Hubballi[35]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Global College of Management, IT & Commerce M.Com, Hubballi[46]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "KSOU-IBMR Learner Support Centre (PG Science programmes), Hubballi[27]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Nehru Arts, Science, Commerce & Post-Graduate Centre, Hubballi[13]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "JSS Shri Manjunatheshwara Institute of Post-Graduate Studies, Dharwad[38]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "K H Kabbur Institute of Engineering PG Programmes, Dharwad[8]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Oxford College of Commerce, Keshwapur Hubballi[8]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "GSB School of Business Management & IT Campus, Dharwad[8]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Government First Grade College, Rajanagar, Hubli[89][98]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Government First Grade College for Women, Vidyanagar, Hubli[45]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Government First Grade College, Kumareshwar Nagar, Dharwad[38]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Government First Grade College, Kalaghatagi[38]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Government First Grade College, Kundgol[38]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Government First Grade College, Alnavar - Dharwad District[38]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Government First Grade College, Lingaraj Nagar - Navalagund Taluk[38]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Government Fine Arts College, Dharwad[38]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Arts and Commerce And Science College, Hubli (KSS)[76][91]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "KLE Society's College of Commerce, BVB Campus, Hubli[92]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "JSS Banashankari Arts, Commerce and Shantikumar Gubbi Science College, Vidyagiri, Dharwad[82][93]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "KLE Society's Sri Mrityunjaya College of Arts, Dharwad[82]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "NTSS Shree Shankar Arts and Commerce College, Navalagund[82]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Karnatak Arts College, Dharwad[77][20]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Abhinav Institute of Technology and Management - Hubli Campus (BCA wing)[29]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Fatima College of Business Administration - FCBA[29]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Fatima Degree College, Keshwapur, Hubli[29]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Chetana Commerce College[27][34]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "GIBMITC - Global Institute of Business Management and Information Technology College[29]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "IBMR, 567, Akshay Colony, Vidyanagar, Hubli[29]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "SDM Institute of Information Science[39]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Oxford College of Business Administration[39]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Patima B.B.A College[39]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Shri. Bgagawan Mahaveer Jain Education and Cultural Trust's Jain B.B.A College[39]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "SJMV's Business Administration College for Women[39]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "KH Patil College of Business Administration[39][46]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Government First Grade College, Hubli (Science wing)[25][89]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Nehru College, Ghantikeri (Science wing)[25]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Indian Institute of Science (associated programs)[25]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Manipal Academy of Higher Education (Distance programs)[25]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "JSS Academy of Higher Education and Research (Distance programs)[25]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Global College of Management, IT and Commerce[33]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Jagadguru Gangadhar College of Commerce (JGCC)[33][84]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "K.H. Patil Commerce College[33]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Chetana Commerce College[33]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Jain College Hubli (BCom wing)[16][42]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Jain College Hubli - BBA and BCom Campus, Vidyanagar[16][42]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "KSOU IBMR Learner Support Centre[79]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "UpGrad Hubli - Online Degree Programs[53]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "KSS Vijayanagar College of Education[56][65]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Al-Meezan B.Ed College[56][59]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Shri. Sai B.Ed College[56]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Anjuman Centenary B.Ed College[65][71]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Shri Channabasaveshwar Teachers Training College[65][71]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Sana College of Education[71]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "IBMR College of Education[62]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "V.H. Marad M.Ed College and Rural B.Ed. College, Sattur, Dharwad[68]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "College of Nursing (KIMS), Hubli[57][66]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "KLE Institute of Nursing Sciences[60][63][66]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Smt Shakuntala School of Nursing[60][66]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Hubli Institute of Nursing Science[66]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "RD Aster College of Nursing[66]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Leela College of Nursing[66]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "KIMS Nursing College[66]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Vigneshwara Institute of Nursing Sciences[66]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Hass Institute of Nursing Sciences[66]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Tatwadarsh Institute of Nursing Sciences[66]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Shri Baba Institute of Nursing Sciences[66]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Smt Shakuntala Institute of Nursing[66]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "A G M College of Nursing - Hubli, Dharwad[75]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Diana College of Nursing - Dharwad[75]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "KLE Society Polytechnic[45]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "K L E Society'S C I Munavalli Polytechnic[45]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Government Polytechnic, Hubli[43][45]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Government Polytechnic For Women, Vidyanagar[45][50]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Anjuman Polytechnic[45]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Sgeces Rural Polytechnic[45]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Mount Faran Polytechnic[45]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "St. John's Polytechnic, Hubli[55]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Nalanda Polytechnic[29]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Oxford Polytechnic College[40]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "KHK Institute of Engineering (Diploma programs)[40][52]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Tippu Shaheed Institute of Technology Polytechnic[43]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Mount Carmel Institute of Polytechnic[43]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Toque Institute of Hotel Management (Apponix Technologies)[58][64]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "R N Shetty College Of Hotel Management[58]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "International Institute of Hotel Management[61]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "ECR Group Of Institutions[61]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Enviroskills Academy Pvt Ltd[61]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Prestige Institute, Dharwad (Hotel & Tourism Management)[73]"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Kousali Institute of Management Studies (KIMS), Karnatak University Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "JSS Banashankari Arts, Commerce & Shantikumar Gubbi Science College, BBA Department, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "JSS Shri Manjunatheshwara Institute of UG and PG Studies, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "JSS Shri Manjunatheshwara Commerce College, Heggeri, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "JSS Shri Manjunatheshwara P.U. College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "JSS R S Hukkerikar Science Arts and Commerce PU College, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Al-Mizan B.Ed College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Anjuman Arts, Science and Commerce College and PG Centre, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Anjuman Centenary B.Ed College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Anjuman-E-Islams Nehru Arts, Science, Commerce and BBA College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "BMHECs CSI College of Commerce, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "BMHECs Kittel Science College, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "CBS Arts, Commerce and Science College, Noolvi"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "CHETAN BUSINESS SCHOOL, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Dr. D.G. Shetty Education Societys R.S. Shetty College of Commerce, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Dr. Sarojini BSW College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Global Educare Foundation Global BBA College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Global Education Network Society Global Business School, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Indian Institute of Inspirational Leadership for Rural Development, Kalaghatgi"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Janata Shikshana Samitis JSS Shri Manjunatheshwar B.Ed College, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "KLE Commerce College, Vidyanagar, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "KLE's BBA College, Vidyanagar, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "KLEs College of Education, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "KLE s Mrityunjaya Arts and Commerce College, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "KSS Arts and Commerce College, Vidyanagar, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "KSS BSW College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "MVAS Shree K.G. Nadgir College of Physical Education, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Patima BCA College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "SANA College of Education, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "SJMVS Arts and Commerce College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Soniya Education Trust College of Education, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "V.H. Marad M.Ed College, Sattur, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Vishwashanti Foundation s Oxford College of Computer Applications, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "AKK Education Society s Arts and Commerce College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Basavareddy Education Society s Basavareddy Arts and Commerce College, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Channabasamma Eshwargouda CIC Grameen College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "GES s G.S. Patil Arts and Commerce College, Kundagol"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Goodnews Welfare Society s Arts and Commerce College, Kalaghatagi"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "JK College of Commerce, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "KSS Vijayanagar College of Education, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "KLE's Institute of Management Studies and Research, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Sidu Vidya Sansthe s Nalanda BCA College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Suvrna Educational Trust s Suvarna Arts and Commerce College, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Vision Fly College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "JSS Banashankari Arts, Commerce and Shantikumar Gubbi Science College, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "JSS Shri Manjunatheshwar Institute of UG and PG Studies, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "JSS Shri Manjunatheshwara Commerce College, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "PC Jabin Science College (Autonomous), Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Kittels Arts College, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Government First Grade College, Rajanagar, Hubli"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Government First Grade College, Alnavar"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Government First Grade College, Kalaghatagi"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Government First Grade College, Kundgol"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Government First Grade College, Lingaraj Nagar, Navalagund"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Government First Grade College, Kumareshwar Nagar, Dharwad"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Shri Mahadevappa Basalingappa Govt First Grade College, Annigeri"
+  },
+  {
+    "Akash Institute of Engineering and Technology": "Government Fine Arts College, Dharwad"
+  }
+]

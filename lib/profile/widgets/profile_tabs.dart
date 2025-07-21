@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../models/profile_model.dart';
-import 'education_section.dart';
 import 'interests_section.dart';
 import '../../connect/widget/post_card.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';

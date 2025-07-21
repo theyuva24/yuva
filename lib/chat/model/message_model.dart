@@ -18,7 +18,10 @@ class MessageModel {
         id: id,
         senderId: data['senderId'],
         text: data['text'],
-        timestamp: (data['timestamp'] as Timestamp).toDate(),
+        timestamp:
+            (data['timestamp'] != null && data['timestamp'] is Timestamp)
+                ? (data['timestamp'] as Timestamp).toDate()
+                : DateTime.now(),
       );
 
   Map<String, dynamic> toMap() => {

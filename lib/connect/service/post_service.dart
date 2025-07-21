@@ -138,22 +138,27 @@ class PostService {
                   .map((doc) => doc.data()['hubId'] as String?)
                   .whereType<String>()
                   .toSet();
-          // Fetch all hubs in one go
+          // Fetch all hubs in batches of 10 (Firestore whereIn limit)
           final hubsMap = <String, Hub>{};
           if (hubIds.isNotEmpty) {
-            final hubsSnap =
-                await firestore
-                    .collection('hubs') // Standardized to lowercase
-                    .where(FieldPath.documentId, whereIn: hubIds.toList())
-                    .get();
-            for (final doc in hubsSnap.docs) {
-              final data = doc.data();
-              hubsMap[doc.id] = Hub(
-                id: doc.id,
-                name: data['name'] ?? '',
-                description: data['description'] ?? '',
-                imageUrl: data['imageUrl'] ?? '',
-              );
+            final hubIdList = hubIds.toList();
+            const batchSize = 10;
+            for (var i = 0; i < hubIdList.length; i += batchSize) {
+              final batch = hubIdList.skip(i).take(batchSize).toList();
+              final hubsSnap =
+                  await firestore
+                      .collection('hubs')
+                      .where(FieldPath.documentId, whereIn: batch)
+                      .get();
+              for (final doc in hubsSnap.docs) {
+                final data = doc.data();
+                hubsMap[doc.id] = Hub(
+                  id: doc.id,
+                  name: data['name'] ?? '',
+                  description: data['description'] ?? '',
+                  imageUrl: data['imageUrl'] ?? '',
+                );
+              }
             }
           }
           for (final doc in snapshot.docs) {
@@ -194,16 +199,16 @@ class PostService {
                 hubProfileImage: hubProfileImage,
                 postContent: data['postContent'] ?? '',
                 timestamp: _formatTimestamp(data['postingTime']),
-                upvotes: data['upvotes'] ?? 0,
-                downvotes: data['downvotes'] ?? 0,
-                commentCount: data['commentCount'] ?? 0,
-                shareCount: data['shareCount'] ?? 0,
+                upvotes: toIntValue(data['upvotes']),
+                downvotes: toIntValue(data['downvotes']),
+                commentCount: toIntValue(data['commentCount']),
+                shareCount: toIntValue(data['shareCount']),
                 postImage: data['postImageUrl'],
                 postOwnerId: data['userId'] ?? '',
                 postType: data['postType'] ?? 'text',
                 linkUrl: data['linkUrl'],
                 pollData: data['pollData'],
-                trendingScore: data['trendingScore'] ?? 0,
+                trendingScore: toIntValue(data['trendingScore']),
                 isAnonymous: isAnonymous,
               ),
             );
@@ -638,6 +643,14 @@ class PostService {
         'score': score,
       });
     }
+  }
+
+  // Helper to safely convert Firestore numbers to int
+  int toIntValue(dynamic value) {
+    if (value is int) return value;
+    if (value is double) return value.toInt();
+    if (value is String) return int.tryParse(value) ?? 0;
+    return 0;
   }
 
   // Format timestamp for display

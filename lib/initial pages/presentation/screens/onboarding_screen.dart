@@ -19,15 +19,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final List<Map<String, String>> _pages = [
     {
       'title': 'Empowering your learning journey',
-      'subtitle': 'Modern tools for education.',
+      'subtitle': 'India’s youth hub for learning, networking, and growth.',
     },
     {
       'title': 'Discover Courses',
-      'subtitle': 'Find the best courses and resources for your growth.',
+      'subtitle': 'Compete in challenges and track your progress with ease.',
     },
     {
       'title': 'Track Progress',
-      'subtitle': 'Monitor your achievements and stay motivated.',
+      'subtitle': 'Join student hubs, share ideas, and grow your community.',
     },
   ];
 

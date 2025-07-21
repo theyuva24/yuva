@@ -156,6 +156,22 @@ class _ConnectPageState extends State<ConnectPage>
                                     fontSize: 16.sp,
                                   ),
                                 ),
+                                if (snapshot.error != null) ...[
+                                  SizedBox(height: 8.h),
+                                  Padding(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 16.w,
+                                    ),
+                                    child: Text(
+                                      snapshot.error.toString(),
+                                      style: TextStyle(
+                                        color: Colors.red,
+                                        fontSize: 12.sp,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ],
                                 SizedBox(height: 8.h),
                                 TextButton(
                                   onPressed: _onRefresh,

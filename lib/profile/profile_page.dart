@@ -6,17 +6,12 @@ import 'edit_profile_page.dart';
 import 'widgets/profile_header.dart';
 import 'widgets/profile_actions.dart';
 import 'widgets/profile_tabs.dart';
-import '../connect/widget/post_card.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../chat/service/chat_service.dart';
-import '../../chat/page/chat_page.dart';
-import '../initial pages/auth_service.dart';
-import 'package:yuva/universal/theme/app_theme.dart';
 import 'services/profile_service.dart';
 import 'settings_page.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:yuva/universal/theme/app_theme.dart';
+import '../../chat/service/chat_service.dart';
+import '../../chat/page/chat_page.dart';
 
-// Remove _OtherUserProfileHeader and all follow/follower/following logic and UI from ProfilePage and _ProfilePageState.
 class ProfilePage extends StatefulWidget {
   final String uid;
   const ProfilePage({Key? key, required this.uid}) : super(key: key);
@@ -45,10 +40,9 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
     );
     if (updatedProfile != null && mounted) {
-      // Reload the profile from the controller
       final controller = Provider.of<ProfileController>(context, listen: false);
       await controller.loadProfile(widget.uid);
-      setState(() {}); // This will rebuild the widget with the new data
+      setState(() {});
     }
   }
 
@@ -65,9 +59,7 @@ class _ProfilePageState extends State<ProfilePage> {
             );
           }
           final profile = controller.profile!;
-          final interests = profile.interests;
-          final currentUserId = AuthService().currentUser?.uid;
-          final isCurrentUser = currentUserId == profile.uid;
+          final isCurrentUser = profile.uid == widget.uid;
           return Scaffold(
             backgroundColor: AppThemeLight.background,
             appBar: AppBar(
@@ -89,6 +81,11 @@ class _ProfilePageState extends State<ProfilePage> {
                       );
                     },
                   ),
+                if (isCurrentUser)
+                  IconButton(
+                    icon: const Icon(Icons.edit, color: Colors.black),
+                    onPressed: () => _editProfile(profile),
+                  ),
               ],
             ),
             body: RefreshIndicator(
@@ -101,6 +98,7 @@ class _ProfilePageState extends State<ProfilePage> {
               child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     ProfileHeader(
                       profile: profile,

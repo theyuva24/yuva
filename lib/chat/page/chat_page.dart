@@ -3,6 +3,7 @@ import '../service/chat_service.dart';
 import '../model/message_model.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../universal/theme/app_theme.dart';
+import '../../initial pages/auth_service.dart';
 
 class ChatPage extends StatefulWidget {
   final String chatId;
@@ -17,6 +18,15 @@ class ChatPage extends StatefulWidget {
 class _ChatPageState extends State<ChatPage> {
   final TextEditingController _controller = TextEditingController();
   final ChatService _chatService = ChatService();
+
+  @override
+  void initState() {
+    super.initState();
+    final currentUserId = AuthService().currentUser?.uid;
+    if (currentUserId != null) {
+      _chatService.updateLastReadTimestamp(widget.chatId, currentUserId);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

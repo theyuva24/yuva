@@ -95,23 +95,67 @@ class _ProfilePageState extends State<ProfilePage> {
                   listen: false,
                 ).loadProfile(widget.uid, forceRefresh: true);
               },
-              child: SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ProfileHeader(
-                      profile: profile,
-                      isCurrentUser: isCurrentUser,
-                    ),
-                    ProfileActions(
-                      profile: profile,
-                      isCurrentUser: isCurrentUser,
-                      onMessage: () => _openChat(profile),
-                      onEdit: () => _editProfile(profile),
-                    ),
-                    ProfileTabs(profile: profile),
-                  ],
+              child: NestedScrollView(
+                headerSliverBuilder:
+                    (context, innerBoxIsScrolled) => [
+                      SliverToBoxAdapter(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ProfileHeader(
+                              profile: profile,
+                              isCurrentUser: isCurrentUser,
+                            ),
+                            ProfileActions(
+                              profile: profile,
+                              isCurrentUser: isCurrentUser,
+                              onMessage: () => _openChat(profile),
+                              onEdit: () => _editProfile(profile),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                body: ProfileTabs(
+                  profile: profile,
+                  onBioChanged: (newBio) async {
+                    final controller = Provider.of<ProfileController>(
+                      context,
+                      listen: false,
+                    );
+                    controller.profile = profile.copyWith(bio: newBio);
+                    await controller.saveProfile(widget.uid);
+                    await controller.loadProfile(
+                      widget.uid,
+                      forceRefresh: true,
+                    );
+                    setState(() {});
+                  },
+                  onEducationChanged: (
+                    college,
+                    course,
+                    year,
+                    educationLevel,
+                    idCardUrl,
+                  ) async {
+                    final controller = Provider.of<ProfileController>(
+                      context,
+                      listen: false,
+                    );
+                    controller.profile = profile.copyWith(
+                      college: college,
+                      course: course,
+                      year: year,
+                      educationLevel: educationLevel,
+                      idCardUrl: idCardUrl,
+                    );
+                    await controller.saveProfile(widget.uid);
+                    await controller.loadProfile(
+                      widget.uid,
+                      forceRefresh: true,
+                    );
+                    setState(() {});
+                  },
                 ),
               ),
             ),

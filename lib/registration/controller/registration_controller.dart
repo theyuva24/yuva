@@ -57,6 +57,11 @@ class RegistrationController extends ChangeNotifier {
     notifyListeners();
   }
 
+  void updateEducationLevel(String? level) {
+    data.educationLevel = level;
+    notifyListeners();
+  }
+
   void updateYear(String year) {
     data.year = year;
     notifyListeners();

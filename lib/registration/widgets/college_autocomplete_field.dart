@@ -1,5 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/services.dart' show rootBundle;
 
 class CollegeAutocompleteField extends StatefulWidget {
   final String? initialValue;
@@ -28,22 +29,22 @@ class _CollegeAutocompleteFieldState extends State<CollegeAutocompleteField> {
   }
 
   Future<void> _fetchColleges() async {
-    final snapshot =
-        await FirebaseFirestore.instance.collection('colleges').get();
+    final String jsonString = await rootBundle.loadString(
+      'assets/colleges.json',
+    );
+    final List<dynamic> jsonList = json.decode(jsonString);
+    // Extract all unique values from the maps
+    final Set<String> collegeSet = {};
+    for (final item in jsonList) {
+      if (item is Map) {
+        collegeSet.addAll(item.keys.map((e) => e.toString()));
+        collegeSet.addAll(item.values.map((e) => e.toString()));
+      }
+    }
     setState(() {
-      _colleges = snapshot.docs.map((doc) => doc['name'] as String).toList();
+      _colleges = collegeSet.toList();
       _loading = false;
     });
-  }
-
-  Future<void> _suggestCollege(String name) async {
-    await FirebaseFirestore.instance.collection('pending_colleges').add({
-      'name': name,
-      'timestamp': FieldValue.serverTimestamp(),
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('College suggestion sent for admin approval.')),
-    );
   }
 
   @override
@@ -55,7 +56,7 @@ class _CollegeAutocompleteFieldState extends State<CollegeAutocompleteField> {
           return const Iterable<String>.empty();
         }
         final matches = _colleges.where(
-          (option) => option.toLowerCase().startsWith(
+          (option) => option.toLowerCase().contains(
             textEditingValue.text.toLowerCase(),
           ),
         );
@@ -72,22 +73,13 @@ class _CollegeAutocompleteFieldState extends State<CollegeAutocompleteField> {
             builder:
                 (context) => AlertDialog(
                   title: Text('Add New College'),
-                  content: Text(
-                    'Do you want to suggest "$newCollege" as a new college?',
-                  ),
+                  content: Text('You can suggest "$newCollege" to the admin.'),
                   actions: [
                     TextButton(
                       onPressed: () {
                         Navigator.pop(context);
                       },
-                      child: Text('Cancel'),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        _suggestCollege(newCollege);
-                        Navigator.pop(context);
-                      },
-                      child: Text('Submit'),
+                      child: Text('OK'),
                     ),
                   ],
                 ),

@@ -1,0 +1,1358 @@
+[
+  {
+    "Public Speaking": "Creative Writing"
+  },
+  {
+    "Public Speaking": "Academic Research"
+  },
+  {
+    "Public Speaking": "Critical Thinking"
+  },
+  {
+    "Public Speaking": "Leadership"
+  },
+  {
+    "Public Speaking": "Teamwork"
+  },
+  {
+    "Public Speaking": "Interpersonal Communication"
+  },
+  {
+    "Public Speaking": "Debate"
+  },
+  {
+    "Public Speaking": "Presentation Skills"
+  },
+  {
+    "Public Speaking": "Time Management"
+  },
+  {
+    "Public Speaking": "Project Management"
+  },
+  {
+    "Public Speaking": "Event Planning"
+  },
+  {
+    "Public Speaking": "Conflict Resolution"
+  },
+  {
+    "Public Speaking": "Negotiation"
+  },
+  {
+    "Public Speaking": "Problem Solving"
+  },
+  {
+    "Public Speaking": "Analytical Reasoning"
+  },
+  {
+    "Public Speaking": "Note Taking"
+  },
+  {
+    "Public Speaking": "Mind Mapping"
+  },
+  {
+    "Public Speaking": "Mentoring"
+  },
+  {
+    "Public Speaking": "Peer Tutoring"
+  },
+  {
+    "Public Speaking": "Resume Writing"
+  },
+  {
+    "Public Speaking": "Interview Skills"
+  },
+  {
+    "Public Speaking": "Networking"
+  },
+  {
+    "Public Speaking": "Digital Literacy"
+  },
+  {
+    "Public Speaking": "Internet Research"
+  },
+  {
+    "Public Speaking": "Office Productivity (Excel, Word, PowerPoint)"
+  },
+  {
+    "Public Speaking": "Email Etiquette"
+  },
+  {
+    "Public Speaking": "Social Media Management"
+  },
+  {
+    "Public Speaking": "Content Creation"
+  },
+  {
+    "Public Speaking": "Blogging"
+  },
+  {
+    "Public Speaking": "Podcasting"
+  },
+  {
+    "Public Speaking": "Video Editing"
+  },
+  {
+    "Public Speaking": "Photo Editing"
+  },
+  {
+    "Public Speaking": "Graphic Design"
+  },
+  {
+    "Public Speaking": "UI/UX Design"
+  },
+  {
+    "Public Speaking": "3D Modeling"
+  },
+  {
+    "Public Speaking": "Animation"
+  },
+  {
+    "Public Speaking": "Coding (General)"
+  },
+  {
+    "Public Speaking": "Web Development"
+  },
+  {
+    "Public Speaking": "HTML/CSS"
+  },
+  {
+    "Public Speaking": "JavaScript"
+  },
+  {
+    "Public Speaking": "Python Programming"
+  },
+  {
+    "Public Speaking": "Java Programming"
+  },
+  {
+    "Public Speaking": "C/C++ Programming"
+  },
+  {
+    "Public Speaking": "SQL/Database Management"
+  },
+  {
+    "Public Speaking": "Git & Version Control"
+  },
+  {
+    "Public Speaking": "Mobile App Development (Android/iOS)"
+  },
+  {
+    "Public Speaking": "Flutter Development"
+  },
+  {
+    "Public Speaking": "Cloud Computing (AWS, GCP, Azure)"
+  },
+  {
+    "Public Speaking": "Cybersecurity Fundamentals"
+  },
+  {
+    "Public Speaking": "Ethical Hacking"
+  },
+  {
+    "Public Speaking": "Data Analysis"
+  },
+  {
+    "Public Speaking": "Machine Learning"
+  },
+  {
+    "Public Speaking": "Artificial Intelligence"
+  },
+  {
+    "Public Speaking": "Statistics"
+  },
+  {
+    "Public Speaking": "Mathematical Modeling"
+  },
+  {
+    "Public Speaking": "Robotics"
+  },
+  {
+    "Public Speaking": "Arduino & Hardware Prototyping"
+  },
+  {
+    "Public Speaking": "Game Development"
+  },
+  {
+    "Public Speaking": "Gamification Design"
+  },
+  {
+    "Public Speaking": "SEO (Search Engine Optimization)"
+  },
+  {
+    "Public Speaking": "Digital Marketing"
+  },
+  {
+    "Public Speaking": "Copywriting"
+  },
+  {
+    "Public Speaking": "Market Research"
+  },
+  {
+    "Public Speaking": "Brand Development"
+  },
+  {
+    "Public Speaking": "Advertising Strategy"
+  },
+  {
+    "Public Speaking": "Sales Skills"
+  },
+  {
+    "Public Speaking": "Customer Service"
+  },
+  {
+    "Public Speaking": "Accounting Fundamentals"
+  },
+  {
+    "Public Speaking": "Financial Analysis"
+  },
+  {
+    "Public Speaking": "Personal Finance Management"
+  },
+  {
+    "Public Speaking": "Investment Basics"
+  },
+  {
+    "Public Speaking": "Business Plan Writing"
+  },
+  {
+    "Public Speaking": "Entrepreneurship"
+  },
+  {
+    "Public Speaking": "Product Management"
+  },
+  {
+    "Public Speaking": "Design Thinking"
+  },
+  {
+    "Public Speaking": "Innovation Management"
+  },
+  {
+    "Public Speaking": "Supply Chain & Logistics"
+  },
+  {
+    "Public Speaking": "Human Resource Management"
+  },
+  {
+    "Public Speaking": "Teaching & Training"
+  },
+  {
+    "Public Speaking": "Curriculum Design"
+  },
+  {
+    "Public Speaking": "Foreign Languages (specify: French, German, Japanese�)"
+  },
+  {
+    "Public Speaking": "Translation"
+  },
+  {
+    "Public Speaking": "Interpretation"
+  },
+  {
+    "Public Speaking": "Linguistics"
+  },
+  {
+    "Public Speaking": "Sign Language"
+  },
+  {
+    "Public Speaking": "Music Instrument (specify: Guitar, Piano, Violin�)"
+  },
+  {
+    "Public Speaking": "Music Theory"
+  },
+  {
+    "Public Speaking": "Music Production"
+  },
+  {
+    "Public Speaking": "Singing"
+  },
+  {
+    "Public Speaking": "Voice Over/Voice Acting"
+  },
+  {
+    "Public Speaking": "Drama & Acting"
+  },
+  {
+    "Public Speaking": "Scriptwriting"
+  },
+  {
+    "Public Speaking": "Stand-Up Comedy"
+  },
+  {
+    "Public Speaking": "Drawing/Sketching"
+  },
+  {
+    "Public Speaking": "Painting"
+  },
+  {
+    "Public Speaking": "Sculpting"
+  },
+  {
+    "Public Speaking": "Photography"
+  },
+  {
+    "Public Speaking": "Videography"
+  },
+  {
+    "Public Speaking": "Vlogging"
+  },
+  {
+    "Public Speaking": "DIY Crafts"
+  },
+  {
+    "Public Speaking": "Fashion Design"
+  },
+  {
+    "Public Speaking": "Makeup Artistry"
+  },
+  {
+    "Public Speaking": "Personal Styling"
+  },
+  {
+    "Public Speaking": "Cooking"
+  },
+  {
+    "Public Speaking": "Baking"
+  },
+  {
+    "Public Speaking": "Nutrition Planning"
+  },
+  {
+    "Public Speaking": "Fitness Instruction"
+  },
+  {
+    "Public Speaking": "Sports Coaching"
+  },
+  {
+    "Public Speaking": "Yoga Teaching"
+  },
+  {
+    "Public Speaking": "Meditation Techniques"
+  },
+  {
+    "Public Speaking": "Mindfulness Coaching"
+  },
+  {
+    "Public Speaking": "First Aid/CPR"
+  },
+  {
+    "Public Speaking": "Counseling Skills"
+  },
+  {
+    "Public Speaking": "Mental Health Advocacy"
+  },
+  {
+    "Public Speaking": "Social Work"
+  },
+  {
+    "Public Speaking": "Community Organizing"
+  },
+  {
+    "Public Speaking": "Volunteering"
+  },
+  {
+    "Public Speaking": "Fundraising"
+  },
+  {
+    "Public Speaking": "Event Hosting/Emceeing"
+  },
+  {
+    "Public Speaking": "Travel Planning"
+  },
+  {
+    "Public Speaking": "Cultural Awareness"
+  },
+  {
+    "Public Speaking": "Sustainability Practices"
+  },
+  {
+    "Public Speaking": "Climate Action Skills"
+  },
+  {
+    "Public Speaking": "Environmental Conservation Techniques"
+  },
+  {
+    "Public Speaking": "Robotics Process Automation (RPA)"
+  },
+  {
+    "Public Speaking": "No-Code/Low-Code App Building"
+  },
+  {
+    "Public Speaking": "AR/VR Experience Design"
+  },
+  {
+    "Public Speaking": "Prompt Engineering (AI)"
+  },
+  {
+    "Public Speaking": "Presentation Design"
+  },
+  {
+    "Public Speaking": "Infographic Creation"
+  },
+  {
+    "Public Speaking": "Scientific Writing"
+  },
+  {
+    "Public Speaking": "Research Paper Publication"
+  },
+  {
+    "Public Speaking": "Lab Skills"
+  },
+  {
+    "Public Speaking": "Survey Design"
+  },
+  {
+    "Public Speaking": "Data Visualization"
+  },
+  {
+    "Public Speaking": "Statistical Software (SPSS, R, SAS)"
+  },
+  {
+    "Public Speaking": "Patent Filing & IPR"
+  },
+  {
+    "Public Speaking": "Legal Writing"
+  },
+  {
+    "Public Speaking": "Legal Research"
+  },
+  {
+    "Public Speaking": "Pharmaceutical Lab Techniques"
+  },
+  {
+    "Public Speaking": "Clinical Data Management"
+  },
+  {
+    "Public Speaking": "Hospital Administration"
+  },
+  {
+    "Public Speaking": "Teaching Special Needs"
+  },
+  {
+    "Public Speaking": "Special Education Strategies"
+  },
+  {
+    "Public Speaking": "Sports Officiating"
+  },
+  {
+    "Public Speaking": "Refereeing"
+  },
+  {
+    "Public Speaking": "Logistics Planning"
+  },
+  {
+    "Public Speaking": "Hospitality Management"
+  },
+  {
+    "Public Speaking": "Hotel Operations"
+  },
+  {
+    "Public Speaking": "Customer Relationship Management (CRM)"
+  },
+  {
+    "Public Speaking": "Digital Art"
+  },
+  {
+    "Public Speaking": "Mobile Photography"
+  },
+  {
+    "Public Speaking": "Event Photography"
+  },
+  {
+    "Public Speaking": "Technical Drawing"
+  },
+  {
+    "Public Speaking": "Interior Design"
+  },
+  {
+    "Public Speaking": "Public Health Education"
+  },
+  {
+    "Public Speaking": "Bioinformatics"
+  },
+  {
+    "Public Speaking": "Biostatistics"
+  },
+  {
+    "Public Speaking": "Microbiology Lab Techniques"
+  },
+  {
+    "Public Speaking": "Chemical Analysis"
+  },
+  {
+    "Public Speaking": "Environmental Impact Assessment"
+  },
+  {
+    "Public Speaking": "GIS Mapping"
+  },
+  {
+    "Public Speaking": "Urban Planning Basics"
+  },
+  {
+    "Public Speaking": "Storyboarding"
+  },
+  {
+    "Public Speaking": "Advertising Copy Design"
+  },
+  {
+    "Public Speaking": "Mobile Game Design"
+  },
+  {
+    "Public Speaking": "Entrepreneurial Pitching"
+  },
+  {
+    "Public Speaking": "App Store Optimization"
+  },
+  {
+    "Public Speaking": "User Testing/Feedback"
+  },
+  {
+    "Public Speaking": "Community Moderation"
+  },
+  {
+    "Public Speaking": "Open Source Contribution"
+  },
+  {
+    "Public Speaking": "Competitive Exam Preparation"
+  },
+  {
+    "Public Speaking": "Olympiad Training"
+  },
+  {
+    "Public Speaking": "Memory Techniques"
+  },
+  {
+    "Public Speaking": "Speed Reading"
+  },
+  {
+    "Public Speaking": "Self-discipline Building"
+  },
+  {
+    "Public Speaking": "Goal Setting"
+  },
+  {
+    "Public Speaking": "Habit Formation"
+  },
+  {
+    "Public Speaking": "Productivity Hacks"
+  },
+  {
+    "Public Speaking": "Scholarship Application Writing"
+  },
+  {
+    "Public Speaking": "Grant Proposal Writing"
+  },
+  {
+    "Public Speaking": "Active Listening"
+  },
+  {
+    "Public Speaking": "Adaptive Thinking"
+  },
+  {
+    "Public Speaking": "Analytical Thinking"
+  },
+  {
+    "Public Speaking": "Applied Ethics"
+  },
+  {
+    "Public Speaking": "Attention to Detail"
+  },
+  {
+    "Public Speaking": "Augmented Reality Development"
+  },
+  {
+    "Public Speaking": "Automated Testing"
+  },
+  {
+    "Public Speaking": "Blockchain Application"
+  },
+  {
+    "Public Speaking": "Change Management"
+  },
+  {
+    "Public Speaking": "Civic Literacy"
+  },
+  {
+    "Public Speaking": "Cognitive Flexibility"
+  },
+  {
+    "Public Speaking": "Complex Problem-Solving"
+  },
+  {
+    "Public Speaking": "Conflict Management"
+  },
+  {
+    "Public Speaking": "Conscious Decision Making"
+  },
+  {
+    "Public Speaking": "Creativity & Innovation"
+  },
+  {
+    "Public Speaking": "Cross-cultural Communication"
+  },
+  {
+    "Public Speaking": "Curiosity"
+  },
+  {
+    "Public Speaking": "Customer Experience Design"
+  },
+  {
+    "Public Speaking": "Data Cleaning"
+  },
+  {
+    "Public Speaking": "Data Storytelling"
+  },
+  {
+    "Public Speaking": "Decision Making"
+  },
+  {
+    "Public Speaking": "Design Systems Management"
+  },
+  {
+    "Public Speaking": "Digital Collaboration"
+  },
+  {
+    "Public Speaking": "Digital Content Curation"
+  },
+  {
+    "Public Speaking": "Digital Security Basics"
+  },
+  {
+    "Public Speaking": "Disaster Preparedness"
+  },
+  {
+    "Public Speaking": "Emotional Intelligence (EQ)"
+  },
+  {
+    "Public Speaking": "Empathy in Leadership"
+  },
+  {
+    "Public Speaking": "Entrepreneurial Mindset"
+  },
+  {
+    "Public Speaking": "Facilitation"
+  },
+  {
+    "Public Speaking": "Fact Checking"
+  },
+  {
+    "Public Speaking": "Financial Modeling"
+  },
+  {
+    "Public Speaking": "Global Awareness"
+  },
+  {
+    "Public Speaking": "Growth Mindset"
+  },
+  {
+    "Public Speaking": "Hybrid Team Collaboration"
+  },
+  {
+    "Public Speaking": "Idea Validation"
+  },
+  {
+    "Public Speaking": "Information Literacy"
+  },
+  {
+    "Public Speaking": "Inquiry Skills"
+  },
+  {
+    "Public Speaking": "Instructional Design"
+  },
+  {
+    "Public Speaking": "Learning Agility"
+  },
+  {
+    "Public Speaking": "Learning Strategies"
+  },
+  {
+    "Public Speaking": "Media Literacy"
+  },
+  {
+    "Public Speaking": "Memory Systems"
+  },
+  {
+    "Public Speaking": "Mindful Productivity"
+  },
+  {
+    "Public Speaking": "Mobile Device Management"
+  },
+  {
+    "Public Speaking": "Open Innovation"
+  },
+  {
+    "Public Speaking": "Optimizing Remote Work"
+  },
+  {
+    "Public Speaking": "Organizational Systems"
+  },
+  {
+    "Public Speaking": "Peer Review Techniques"
+  },
+  {
+    "Public Speaking": "Personal Branding"
+  },
+  {
+    "Public Speaking": "Platform Thinking"
+  },
+  {
+    "Public Speaking": "Podcast Production"
+  },
+  {
+    "Public Speaking": "Policy Analysis"
+  },
+  {
+    "Public Speaking": "Portfolio Management"
+  },
+  {
+    "Public Speaking": "Process Automation"
+  },
+  {
+    "Public Speaking": "Proofreading"
+  },
+  {
+    "Public Speaking": "Public Policy Advocacy"
+  },
+  {
+    "Public Speaking": "Quality Assurance"
+  },
+  {
+    "Public Speaking": "Quantitative Analysis"
+  },
+  {
+    "Public Speaking": "Rapid Prototyping"
+  },
+  {
+    "Public Speaking": "Remote Collaboration"
+  },
+  {
+    "Public Speaking": "Resilience & Grit"
+  },
+  {
+    "Public Speaking": "Robotic Process Automation (RPA)"
+  },
+  {
+    "Public Speaking": "Scenario Planning"
+  },
+  {
+    "Public Speaking": "Scientific Temper"
+  },
+  {
+    "Public Speaking": "Self-Assessment"
+  },
+  {
+    "Public Speaking": "Self-Motivation"
+  },
+  {
+    "Public Speaking": "Sensemaking"
+  },
+  {
+    "Public Speaking": "Service Learning"
+  },
+  {
+    "Public Speaking": "Social Influence"
+  },
+  {
+    "Public Speaking": "Social Responsibility"
+  },
+  {
+    "Public Speaking": "Strategic Forecasting"
+  },
+  {
+    "Public Speaking": "Stress Tolerance"
+  },
+  {
+    "Public Speaking": "Systems Thinking"
+  },
+  {
+    "Public Speaking": "Technology Use, Monitoring & Control"
+  },
+  {
+    "Public Speaking": "Technology Design & Programming"
+  },
+  {
+    "Public Speaking": "Trend Analysis"
+  },
+  {
+    "Public Speaking": "Trust Building"
+  },
+  {
+    "Public Speaking": "User-Centered Design"
+  },
+  {
+    "Public Speaking": "Virtual Collaboration"
+  },
+  {
+    "Public Speaking": "Visual Storytelling"
+  },
+  {
+    "Public Speaking": "Volunteer Management"
+  },
+  {
+    "Public Speaking": "Web Accessibility"
+  },
+  {
+    "Public Speaking": "Workplace Safety Basics"
+  },
+  {
+    "Public Speaking": "Work-Life Balance"
+  },
+  {
+    "Public Speaking": "Writing for Social Media"
+  },
+  {
+    "Public Speaking": "Agile Methodology"
+  },
+  {
+    "Public Speaking": "Alumni Networking"
+  },
+  {
+    "Public Speaking": "Android App Debugging"
+  },
+  {
+    "Public Speaking": "Applied Linguistics"
+  },
+  {
+    "Public Speaking": "Assessment Design"
+  },
+  {
+    "Public Speaking": "Auditing Basics"
+  },
+  {
+    "Public Speaking": "Brand Storytelling"
+  },
+  {
+    "Public Speaking": "Career Counseling"
+  },
+  {
+    "Public Speaking": "Case Study Analysis"
+  },
+  {
+    "Public Speaking": "Chalkboard Art"
+  },
+  {
+    "Public Speaking": "Client Relationship Building"
+  },
+  {
+    "Public Speaking": "Combinatorial Thinking"
+  },
+  {
+    "Public Speaking": "Community Outreach"
+  },
+  {
+    "Public Speaking": "Compliance Management"
+  },
+  {
+    "Public Speaking": "Conservation Skills"
+  },
+  {
+    "Public Speaking": "Consulting Techniques"
+  },
+  {
+    "Public Speaking": "Customer Feedback Analysis"
+  },
+  {
+    "Public Speaking": "Desktop Publishing"
+  },
+  {
+    "Public Speaking": "Digital Illustration"
+  },
+  {
+    "Public Speaking": "Diversity & Inclusion Leadership"
+  },
+  {
+    "Public Speaking": "Documentary Filmmaking"
+  },
+  {
+    "Public Speaking": "Drone Operation"
+  },
+  {
+    "Public Speaking": "eCommerce Setup"
+  },
+  {
+    "Public Speaking": "Editorial Planning"
+  },
+  {
+    "Public Speaking": "Edutainment Design"
+  },
+  {
+    "Public Speaking": "Elementor Web Design"
+  },
+  {
+    "Public Speaking": "Emcee/Event Anchoring"
+  },
+  {
+    "Public Speaking": "Employee Onboarding"
+  },
+  {
+    "Public Speaking": "Energy Management"
+  },
+  {
+    "Public Speaking": "Entrepreneurial Finance"
+  },
+  {
+    "Public Speaking": "Environmental Sampling"
+  },
+  {
+    "Public Speaking": "Event Lighting Setup"
+  },
+  {
+    "Public Speaking": "Facial Animation"
+  },
+  {
+    "Public Speaking": "Facial Recognition Tech Basics"
+  },
+  {
+    "Public Speaking": "Field Research"
+  },
+  {
+    "Public Speaking": "File Management"
+  },
+  {
+    "Public Speaking": "Financial Auditing"
+  },
+  {
+    "Public Speaking": "Fine Motor Skills (for Arts/Crafts)"
+  },
+  {
+    "Public Speaking": "Foley Art (Sound)"
+  },
+  {
+    "Public Speaking": "Fundamental Accounting"
+  },
+  {
+    "Public Speaking": "Gamification Strategy"
+  },
+  {
+    "Public Speaking": "Geospatial Data Collection"
+  },
+  {
+    "Public Speaking": "Grant Report Writing"
+  },
+  {
+    "Public Speaking": "Haptic Design"
+  },
+  {
+    "Public Speaking": "Headline Writing"
+  },
+  {
+    "Public Speaking": "HR Analytics"
+  },
+  {
+    "Public Speaking": "Hybrid Event Coordination"
+  },
+  {
+    "Public Speaking": "Idea Pitch Deck Design"
+  },
+  {
+    "Public Speaking": "Inclusive Design"
+  },
+  {
+    "Public Speaking": "Incident Reporting"
+  },
+  {
+    "Public Speaking": "Induction Program Design"
+  },
+  {
+    "Public Speaking": "Information Architecture"
+  },
+  {
+    "Public Speaking": "Intellectual Debate"
+  },
+  {
+    "Public Speaking": "Interactive Prototyping"
+  },
+  {
+    "Public Speaking": "Internal Communication Strategy"
+  },
+  {
+    "Public Speaking": "iOS App Debugging"
+  },
+  {
+    "Public Speaking": "Key Account Management"
+  },
+  {
+    "Public Speaking": "Knowledge Base Creation"
+  },
+  {
+    "Public Speaking": "Language Localization"
+  },
+  {
+    "Public Speaking": "Lead Generation"
+  },
+  {
+    "Public Speaking": "Learning Analytics"
+  },
+  {
+    "Public Speaking": "Learning Management System Admin (LMS)"
+  },
+  {
+    "Public Speaking": "Livestream Production"
+  },
+  {
+    "Public Speaking": "Logic Model Construction"
+  },
+  {
+    "Public Speaking": "Materials Testing"
+  },
+  {
+    "Public Speaking": "Mechanical Drawing"
+  },
+  {
+    "Public Speaking": "Medical Data Recording"
+  },
+  {
+    "Public Speaking": "Merchandise Design"
+  },
+  {
+    "Public Speaking": "Metacognitive Strategies"
+  },
+  {
+    "Public Speaking": "Mock Trading"
+  },
+  {
+    "Public Speaking": "Motion Graphics"
+  },
+  {
+    "Public Speaking": "Multilingual Typing"
+  },
+  {
+    "Public Speaking": "Network Troubleshooting"
+  },
+  {
+    "Public Speaking": "Nutrition Assessment"
+  },
+  {
+    "Public Speaking": "Online Booking System Setup"
+  },
+  {
+    "Public Speaking": "Online Fundraising"
+  },
+  {
+    "Public Speaking": "Open Data Utilization"
+  },
+  {
+    "Public Speaking": "Panel Moderation"
+  },
+  {
+    "Public Speaking": "Patent Search"
+  },
+  {
+    "Public Speaking": "Peer Assessment"
+  },
+  {
+    "Public Speaking": "Personal Knowledge Management"
+  },
+  {
+    "Public Speaking": "Petty Cash Management"
+  },
+  {
+    "Public Speaking": "Photojournalism"
+  },
+  {
+    "Public Speaking": "Plagiarism Detection"
+  },
+  {
+    "Public Speaking": "Portfolio Curation"
+  },
+  {
+    "Public Speaking": "Post-editing for AI Translations"
+  },
+  {
+    "Public Speaking": "Preprint Submission"
+  },
+  {
+    "Public Speaking": "Prior Art Search"
+  },
+  {
+    "Public Speaking": "Process Mapping"
+  },
+  {
+    "Public Speaking": "Professional Etiquette"
+  },
+  {
+    "Public Speaking": "Program Evaluation"
+  },
+  {
+    "Public Speaking": "Proof-of-Concept Building"
+  },
+  {
+    "Public Speaking": "Prototyping for STEM"
+  },
+  {
+    "Public Speaking": "Public Records Analysis"
+  },
+  {
+    "Public Speaking": "Publishing Layout Design"
+  },
+  {
+    "Public Speaking": "QR Code Integration"
+  },
+  {
+    "Public Speaking": "Recommender System Basics"
+  },
+  {
+    "Public Speaking": "Reflection Journaling"
+  },
+  {
+    "Public Speaking": "Referral Campaign Management"
+  },
+  {
+    "Public Speaking": "Resource Mobilization"
+  },
+  {
+    "Public Speaking": "Robotics Club Leadership"
+  },
+  {
+    "Public Speaking": "Screencasting"
+  },
+  {
+    "Public Speaking": "Search Engine Marketing (SEM)"
+  },
+  {
+    "Public Speaking": "Sectoral Policy Analysis"
+  },
+  {
+    "Public Speaking": "Self-publishing"
+  },
+  {
+    "Public Speaking": "Short Film Direction"
+  },
+  {
+    "Public Speaking": "Signage Design"
+  },
+  {
+    "Public Speaking": "Sitemap Creation"
+  },
+  {
+    "Public Speaking": "Skill Endorsement Facilitation"
+  },
+  {
+    "Public Speaking": "Smart Device Integration"
+  },
+  {
+    "Public Speaking": "Social Venture Planning"
+  },
+  {
+    "Public Speaking": "Software Documentation"
+  },
+  {
+    "Public Speaking": "Sound Mixing"
+  },
+  {
+    "Public Speaking": "Stakeholder Engagement"
+  },
+  {
+    "Public Speaking": "Start-up Valuation"
+  },
+  {
+    "Public Speaking": "STEM Outreach"
+  },
+  {
+    "Public Speaking": "Strategic Sourcing"
+  },
+  {
+    "Public Speaking": "Study Circle Facilitation"
+  },
+  {
+    "Public Speaking": "Supply Forecasting"
+  },
+  {
+    "Public Speaking": "Sustainable Product Design"
+  },
+  {
+    "Public Speaking": "Talent Scouting"
+  },
+  {
+    "Public Speaking": "Technical Blogging"
+  },
+  {
+    "Public Speaking": "Telemedicine Principles"
+  },
+  {
+    "Public Speaking": "Text Analytics"
+  },
+  {
+    "Public Speaking": "Thesis Formatting"
+  },
+  {
+    "Public Speaking": "Ticketing System Use"
+  },
+  {
+    "Public Speaking": "Tour Curation"
+  },
+  {
+    "Public Speaking": "Trademark Awareness"
+  },
+  {
+    "Public Speaking": "Transcription"
+  },
+  {
+    "Public Speaking": "Transmedia Storytelling"
+  },
+  {
+    "Public Speaking": "User Interviewing"
+  },
+  {
+    "Public Speaking": "User Research"
+  },
+  {
+    "Public Speaking": "Utility Patent Filing"
+  },
+  {
+    "Public Speaking": "Verbal Reasoning"
+  },
+  {
+    "Public Speaking": "Vertical Garden Setups"
+  },
+  {
+    "Public Speaking": "Video Captioning"
+  },
+  {
+    "Public Speaking": "Virtual Tour Creation"
+  },
+  {
+    "Public Speaking": "Visitor Management"
+  },
+  {
+    "Public Speaking": "Voice User Interface Basics"
+  },
+  {
+    "Public Speaking": "Volunteer Recruitment"
+  },
+  {
+    "Public Speaking": "Webinar Hosting"
+  },
+  {
+    "Public Speaking": "Work Sampling"
+  },
+  {
+    "Public Speaking": "Youth Program Coordination"
+  },
+  {
+    "Public Speaking": "Business Case Development"
+  },
+  {
+    "Public Speaking": "Business Intelligence (BI)"
+  },
+  {
+    "Public Speaking": "Business Process Reengineering"
+  },
+  {
+    "Public Speaking": "Change Leadership"
+  },
+  {
+    "Public Speaking": "Competitive Analysis"
+  },
+  {
+    "Public Speaking": "Corporate Communication"
+  },
+  {
+    "Public Speaking": "Corporate Governance"
+  },
+  {
+    "Public Speaking": "Corporate Social Responsibility (CSR)"
+  },
+  {
+    "Public Speaking": "Cost-Benefit Analysis"
+  },
+  {
+    "Public Speaking": "Cross-Functional Team Management"
+  },
+  {
+    "Public Speaking": "Data-Driven Decision Making"
+  },
+  {
+    "Public Speaking": "Designing Organizational Structures"
+  },
+  {
+    "Public Speaking": "Digital Transformation Strategy"
+  },
+  {
+    "Public Speaking": "Diversity Management"
+  },
+  {
+    "Public Speaking": "Economic Policy Analysis"
+  },
+  {
+    "Public Speaking": "Employee Motivation Strategies"
+  },
+  {
+    "Public Speaking": "Enterprise Resource Planning (ERP)"
+  },
+  {
+    "Public Speaking": "Executive Presentation Skills"
+  },
+  {
+    "Public Speaking": "Financial Derivatives Analysis"
+  },
+  {
+    "Public Speaking": "Financial Risk Management"
+  },
+  {
+    "Public Speaking": "Global Leadership"
+  },
+  {
+    "Public Speaking": "Industry Analysis"
+  },
+  {
+    "Public Speaking": "Innovation Management"
+  },
+  {
+    "Public Speaking": "International Business Negotiation"
+  },
+  {
+    "Public Speaking": "Lean Management Principles"
+  },
+  {
+    "Public Speaking": "Managerial Accounting"
+  },
+  {
+    "Public Speaking": "Managerial Economics"
+  },
+  {
+    "Public Speaking": "Market Entry Strategies"
+  },
+  {
+    "Public Speaking": "Merger & Acquisition Analysis"
+  },
+  {
+    "Public Speaking": "Operations Research"
+  },
+  {
+    "Public Speaking": "Organizational Behavior"
+  },
+  {
+    "Public Speaking": "Portfolio Risk Assessment"
+  },
+  {
+    "Public Speaking": "Project Finance"
+  },
+  {
+    "Public Speaking": "Quantitative Techniques for Management"
+  },
+  {
+    "Public Speaking": "Six Sigma Fundamentals"
+  },
+  {
+    "Public Speaking": "Strategic HR Management"
+  },
+  {
+    "Public Speaking": "Strategic Marketing"
+  },
+  {
+    "Public Speaking": "Supply Chain Optimization"
+  },
+  {
+    "Public Speaking": "Sustainability in Business"
+  },
+  {
+    "Public Speaking": "Talent Management"
+  },
+  {
+    "Public Speaking": "Venture Capital Assessment"
+  },
+  {
+    "Public Speaking": "Working Capital Management"
+  }
+]

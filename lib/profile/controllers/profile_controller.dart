@@ -16,6 +16,7 @@ class ProfileController extends ChangeNotifier {
   final genderController = TextEditingController();
   DateTime? dob;
   final collegeController = TextEditingController();
+  final educationLevelController = TextEditingController();
   final courseController = TextEditingController();
   final yearController = TextEditingController();
   final locationController = TextEditingController();
@@ -33,6 +34,7 @@ class ProfileController extends ChangeNotifier {
       genderController.text = profile!.gender;
       dob = profile!.dob;
       collegeController.text = profile!.college;
+      educationLevelController.text = profile!.educationLevel;
       courseController.text = profile!.course;
       yearController.text = profile!.year;
       locationController.text = profile!.location;
@@ -75,6 +77,7 @@ class ProfileController extends ChangeNotifier {
       gender: genderController.text.trim(),
       dob: dob,
       college: collegeController.text.trim(),
+      educationLevel: educationLevelController.text.trim(),
       course: courseController.text.trim(),
       year: yearController.text.trim(),
       location: locationController.text.trim(),
@@ -97,6 +100,7 @@ class ProfileController extends ChangeNotifier {
     phoneController.dispose();
     genderController.dispose();
     collegeController.dispose();
+    educationLevelController.dispose();
     courseController.dispose();
     yearController.dispose();
     locationController.dispose();

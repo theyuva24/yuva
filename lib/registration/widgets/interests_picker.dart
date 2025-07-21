@@ -20,7 +20,6 @@ class InterestsPicker extends StatefulWidget {
 
 class _InterestsPickerState extends State<InterestsPicker> {
   late TextEditingController _searchController;
-  Map<String, List<String>> _categories = {};
   List<String> _allInterests = [];
   List<String> _filteredInterests = [];
   List<String> _selected = [];
@@ -38,15 +37,17 @@ class _InterestsPickerState extends State<InterestsPicker> {
 
   Future<void> _loadInterests() async {
     try {
-      print('DEBUG: About to load interests.json');
       final String jsonString = await rootBundle.loadString(
         'assets/interests.json',
       );
-      print('DEBUG: Loaded interests.json, length: ${jsonString.length}');
-      final Map<String, dynamic> jsonMap = json.decode(jsonString);
-      print('DEBUG: Parsed JSON, keys: ${jsonMap.keys}');
-      _categories = jsonMap.map((k, v) => MapEntry(k, List<String>.from(v)));
-      _allInterests = _categories.values.expand((x) => x).toSet().toList();
+      final List<dynamic> jsonList = json.decode(jsonString);
+      final Set<String> interestSet = {};
+      for (final item in jsonList) {
+        if (item is Map) {
+          interestSet.addAll(item.values.map((e) => e.toString()));
+        }
+      }
+      _allInterests = interestSet.toList();
       _allInterests.sort();
       _filterInterests();
       setState(() {
@@ -90,6 +91,7 @@ class _InterestsPickerState extends State<InterestsPicker> {
     setState(() {
       _selected.add(interest);
       widget.onChanged(_selected);
+      _searchController.clear(); // Clear the search field after selection
       _filterInterests();
     });
   }

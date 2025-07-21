@@ -243,7 +243,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   hintText: 'Write something about yourself',
                 ),
                 maxLines: 4,
-                maxLength: 300,
+                maxLength: 160,
               ),
               const SizedBox(height: 12),
               TextFormField(

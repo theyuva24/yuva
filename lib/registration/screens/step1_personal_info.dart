@@ -53,7 +53,9 @@ class Step1PersonalInfo extends StatelessWidget {
               child: Text(
                 'Create your account',
                 style: TextStyle(
-                  color: Colors.grey[300],
+                  color:
+                      AppThemeLight
+                          .textDark, // Changed from Colors.grey[300] to darker color
                   fontSize: 20.sp,
                   fontWeight: FontWeight.w400,
                   letterSpacing: 0.5.w,
@@ -67,7 +69,9 @@ class Step1PersonalInfo extends StatelessWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: const Color(0xFF00F6FF),
+                    color:
+                        AppThemeLight
+                            .accent, // Changed to a darker accent color
                     width: 3.w,
                   ),
                   // boxShadow removed to eliminate radiant glow
@@ -91,7 +95,11 @@ class Step1PersonalInfo extends StatelessWidget {
                 hintText: 'Full Name',
                 labelText: 'Full Name',
                 hintStyle: TextStyle(
-                  color: AppThemeLight.textLight,
+                  color: AppThemeLight.textLight, // Dimmer color before input
+                  fontWeight: FontWeight.w500,
+                ),
+                labelStyle: TextStyle(
+                  color: AppThemeLight.textDark, // Ensure label is also dark
                   fontWeight: FontWeight.w500,
                 ),
                 filled: true,
@@ -141,7 +149,13 @@ class Step1PersonalInfo extends StatelessWidget {
                 ),
                 hintText: 'Date of Birth',
                 hintStyle: TextStyle(
-                  color: AppThemeLight.textLight,
+                  color:
+                      AppThemeLight
+                          .textDark, // Changed from textLight to textDark
+                  fontWeight: FontWeight.w500,
+                ),
+                labelStyle: TextStyle(
+                  color: AppThemeLight.textDark, // Ensure label is also dark
                   fontWeight: FontWeight.w500,
                 ),
                 filled: true,
@@ -223,7 +237,13 @@ class Step1PersonalInfo extends StatelessWidget {
                 ),
                 hintText: 'Gender',
                 hintStyle: TextStyle(
-                  color: AppThemeLight.textLight,
+                  color:
+                      AppThemeLight
+                          .textDark, // Changed from textLight to textDark
+                  fontWeight: FontWeight.w500,
+                ),
+                labelStyle: TextStyle(
+                  color: AppThemeLight.textDark, // Ensure label is also dark
                   fontWeight: FontWeight.w500,
                 ),
                 filled: true,

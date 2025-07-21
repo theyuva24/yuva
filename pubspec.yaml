@@ -55,6 +55,9 @@ flutter_icons:
 flutter:
   uses-material-design: true
   assets:
-    - assets/courses.json
+    
+    - assets/ug_courses.json
+    - assets/pg_courses.json
     - assets/interests.json
+    - assets/colleges.json
     

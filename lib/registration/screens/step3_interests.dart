@@ -28,7 +28,7 @@ class _Step3InterestsState extends State<Step3Interests> {
               'Choose your interests (max 5):',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                color: AppThemeLight.primary,
+                color: AppThemeLight.textDark, // Changed to darker color
                 fontSize: 16.sp,
               ),
             ),

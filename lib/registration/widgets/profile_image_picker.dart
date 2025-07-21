@@ -66,7 +66,7 @@ class ProfileImagePicker extends StatelessWidget {
                       ? const Icon(
                         Icons.person,
                         size: 48,
-                        color: Colors.white70,
+                        color: Color(0xFF2D1457), // AppThemeLight.textDark
                       )
                       : null,
             ),
@@ -86,7 +86,7 @@ class ProfileImagePicker extends StatelessWidget {
                   ),
                   child: const Icon(
                     Icons.edit,
-                    size: 20,
+                    size: 26, // Increased size for better visibility
                     color: Color(0xFF6C63FF),
                   ),
                 ),

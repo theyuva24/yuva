@@ -5,6 +5,7 @@ class RegistrationData {
   String? gender;
   String? location;
   String? college;
+  String? educationLevel; // 'Under Graduation' or 'Post Graduation'
   String? year;
   String? idCardPath;
   String? course;

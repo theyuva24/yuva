@@ -11,13 +11,21 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class Step2EducationInfo extends StatelessWidget {
   const Step2EducationInfo({super.key});
 
-  static const List<String> years = [
-    '1st year',
-    '2nd year',
-    '3rd year',
-    '4th year',
-    '5th year',
-  ];
+  List<String> getYears(String? educationLevel) {
+    if (educationLevel == 'Post Graduation') {
+      return ['1st year', '2nd year', 'Alumni'];
+    } else {
+      // Default to UG
+      return [
+        '1st year',
+        '2nd year',
+        '3rd year',
+        '4th year',
+        '5th year',
+        'Alumni',
+      ];
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +67,7 @@ class Step2EducationInfo extends StatelessWidget {
               child: Text(
                 'Academic Information',
                 style: TextStyle(
-                  color: Colors.grey[300],
+                  color: AppThemeLight.textDark, // Changed to darker color
                   fontSize: 20.sp,
                   fontWeight: FontWeight.w400,
                   letterSpacing: 0.5.w,
@@ -73,16 +81,38 @@ class Step2EducationInfo extends StatelessWidget {
               onSelected: controller.updateCollege,
             ),
             SizedBox(height: 20.h),
+            DropdownButtonFormField<String>(
+              value: controller.data.educationLevel,
+              items:
+                  ['Under Graduation', 'Post Graduation']
+                      .map(
+                        (level) => DropdownMenuItem(
+                          value: level,
+                          child: Text(
+                            level,
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                        ),
+                      )
+                      .toList(),
+              onChanged: controller.updateEducationLevel,
+              decoration: InputDecoration(
+                prefixIcon: const Icon(Icons.grade),
+                hintText: 'Education Level',
+              ).applyDefaults(Theme.of(context).inputDecorationTheme),
+            ),
+            SizedBox(height: 20.h),
             // Course Autocomplete (optional, similar logic)
             CourseAutocompleteField(
               initialValue: controller.data.course,
               onSelected: controller.updateCourse,
+              educationLevel: controller.data.educationLevel,
             ),
             SizedBox(height: 20.h),
             DropdownButtonFormField<String>(
               value: controller.data.year,
               items:
-                  years
+                  getYears(controller.data.educationLevel)
                       .map(
                         (y) => DropdownMenuItem(
                           value: y,
@@ -98,12 +128,15 @@ class Step2EducationInfo extends StatelessWidget {
                 if (val != null) controller.updateYear(val);
               },
               decoration: InputDecoration(
-                prefixIcon: const Icon(
-                  Icons.calendar_month,
-                  color: AppThemeLight.primary,
+                hintText: 'Year',
+                hintStyle: TextStyle(
+                  color: AppThemeLight.textDark, // Changed to darker color
+                  fontWeight: FontWeight.w500,
                 ),
-                hintText: 'Current Year',
-                hintStyle: TextStyle(color: AppThemeLight.textLight),
+                labelStyle: TextStyle(
+                  color: AppThemeLight.textDark, // Ensure label is also dark
+                  fontWeight: FontWeight.w500,
+                ),
                 filled: true,
                 fillColor: AppThemeLight.surface,
                 border: OutlineInputBorder(

@@ -26,6 +26,7 @@ class ProfileModel {
   final String gender;
   final DateTime? dob;
   final String college;
+  final String educationLevel;
   final String course;
   final String year;
   final String location;
@@ -49,6 +50,7 @@ class ProfileModel {
     required this.gender,
     this.dob,
     required this.college,
+    required this.educationLevel,
     required this.course,
     required this.year,
     required this.location,
@@ -82,6 +84,7 @@ class ProfileModel {
                   : DateTime.tryParse(map['dob'].toString()))
               : null,
       college: map['college'] ?? '',
+      educationLevel: map['educationLevel'] ?? '',
       course: map['course'] ?? '',
       year: map['year'] ?? '',
       location: map['location'] ?? '',
@@ -122,6 +125,7 @@ class ProfileModel {
       'gender': gender,
       'dob': dob != null ? Timestamp.fromDate(dob!) : null,
       'college': college,
+      'educationLevel': educationLevel,
       'course': course,
       'year': year,
       'location': location,
@@ -146,6 +150,7 @@ class ProfileModel {
     String? gender,
     DateTime? dob,
     String? college,
+    String? educationLevel,
     String? course,
     String? year,
     String? location,
@@ -169,6 +174,7 @@ class ProfileModel {
       gender: gender ?? this.gender,
       dob: dob ?? this.dob,
       college: college ?? this.college,
+      educationLevel: educationLevel ?? this.educationLevel,
       course: course ?? this.course,
       year: year ?? this.year,
       location: location ?? this.location,

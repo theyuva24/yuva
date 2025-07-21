@@ -342,7 +342,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: colorScheme.primary.withOpacity(0.08),
+            color: colorScheme.primary.withAlpha(20),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -503,7 +503,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: colorScheme.primary.withOpacity(0.08),
+                  color: colorScheme.primary.withAlpha(20),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
@@ -607,7 +607,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                   foregroundColor:
                       _canPost && !_isLoading
                           ? colorScheme.onPrimary
-                          : colorScheme.onSurface.withOpacity(0.4),
+                          : colorScheme.onSurface.withAlpha(102),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -633,7 +633,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                             color:
                                 _canPost && !_isLoading
                                     ? colorScheme.onPrimary
-                                    : colorScheme.onSurface.withOpacity(0.4),
+                                    : colorScheme.onSurface.withAlpha(102),
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -740,7 +740,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                             if (_profile != null) const SizedBox(height: 12),
                             Divider(
                               thickness: 1.2,
-                              color: colorScheme.primary.withOpacity(0.12),
+                              color: colorScheme.primary.withAlpha(31),
                             ),
                             const SizedBox(height: 10),
                             _buildHubSelector(),
@@ -760,9 +760,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                                 decoration: InputDecoration(
                                   hintText: 'What’s on your mind?',
                                   hintStyle: textTheme.bodyMedium?.copyWith(
-                                    color: colorScheme.onSurface.withOpacity(
-                                      0.5,
-                                    ),
+                                    color: colorScheme.onSurface.withAlpha(153),
                                   ),
                                   border: InputBorder.none,
                                   enabledBorder: InputBorder.none,
@@ -819,8 +817,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                                   decoration: InputDecoration(
                                     hintText: 'Paste your link here',
                                     hintStyle: textTheme.bodyMedium?.copyWith(
-                                      color: colorScheme.onSurface.withOpacity(
-                                        0.5,
+                                      color: colorScheme.onSurface.withAlpha(
+                                        153,
                                       ),
                                     ),
                                     border: InputBorder.none,

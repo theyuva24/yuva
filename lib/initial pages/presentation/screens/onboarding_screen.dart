@@ -74,7 +74,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: AppThemeLight.primary.withOpacity(0.2),
+                                color: AppThemeLight.primary.withAlpha(51),
                                 blurRadius: 32.r,
                                 spreadRadius: 8.r,
                               ),
@@ -134,7 +134,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         _currentPage == index
                             ? [
                               BoxShadow(
-                                color: AppThemeLight.primary.withOpacity(0.2),
+                                color: AppThemeLight.primary.withAlpha(51),
                                 blurRadius: 12.r,
                                 spreadRadius: 2.r,
                               ),

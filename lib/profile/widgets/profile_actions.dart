@@ -9,27 +9,21 @@ class ProfileActions extends StatelessWidget {
   final bool isCurrentUser;
   final ProfileModel profile;
   final VoidCallback onMessage;
-  final VoidCallback onEdit;
+  // Removed onEdit callback as Edit button is no longer used
 
   const ProfileActions({
     Key? key,
     required this.isCurrentUser,
     required this.profile,
     required this.onMessage,
-    required this.onEdit,
+    // Removed required this.onEdit
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     if (isCurrentUser) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        child: Row(
-          children: [
-            Expanded(child: GradientButton(text: "Edit", onTap: onEdit)),
-          ],
-        ),
-      );
+      // No actions for current user as per new requirements
+      return SizedBox.shrink();
     } else {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),

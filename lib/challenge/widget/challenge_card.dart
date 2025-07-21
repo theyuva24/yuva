@@ -26,7 +26,7 @@ class ChallengeCard extends StatelessWidget {
         decoration: BoxDecoration(
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.12),
+              color: Colors.black.withAlpha(31),
               blurRadius: 12,
               spreadRadius: 1,
               offset: Offset(0, 4),

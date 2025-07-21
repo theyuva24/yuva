@@ -2,14 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../service/chat_service.dart';
-import '../model/chat_model.dart';
 import 'chat_page.dart';
 import 'hub_chat_page.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../universal/theme/app_theme.dart';
 
 class ChatsPage extends StatelessWidget {
-  const ChatsPage({Key? key}) : super(key: key);
+  const ChatsPage({super.key});
 
   Future<Map<String, dynamic>?> fetchUserProfile(String userId) async {
     final doc =
@@ -163,8 +162,8 @@ class ChatsPage extends StatelessWidget {
                                   ),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: AppThemeLight.primary.withOpacity(
-                                        0.12,
+                                      color: AppThemeLight.primary.withAlpha(
+                                        29,
                                       ),
                                       blurRadius: 8,
                                       spreadRadius: 1,
@@ -187,8 +186,8 @@ class ChatsPage extends StatelessWidget {
                                   ),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: AppThemeLight.primary.withOpacity(
-                                        0.12,
+                                      color: AppThemeLight.primary.withAlpha(
+                                        29,
                                       ),
                                       blurRadius: 8,
                                       spreadRadius: 1,

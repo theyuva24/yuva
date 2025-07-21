@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import '../models/profile_model.dart';
 import '../../universal/theme/app_theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../controllers/profile_controller.dart';
 
 class ProfileHeader extends StatelessWidget {
   final ProfileModel profile;
@@ -29,7 +32,7 @@ class ProfileHeader extends StatelessWidget {
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: AppThemeLight.primary.withOpacity(0.7),
+                      color: AppThemeLight.primary.withAlpha(179),
                       blurRadius: 18.r,
                       spreadRadius: 2.r,
                     ),
@@ -43,6 +46,38 @@ class ProfileHeader extends StatelessWidget {
                         ? NetworkImage(profile.profilePicUrl) as ImageProvider
                         : const AssetImage('assets/avatar_placeholder.png'),
               ),
+              if (isCurrentUser)
+                Positioned(
+                  bottom: 8,
+                  right: 8,
+                  child: GestureDetector(
+                    onTap: () async {
+                      final uid = FirebaseAuth.instance.currentUser?.uid;
+                      if (uid == null) return;
+                      final controller = Provider.of<ProfileController>(
+                        context,
+                        listen: false,
+                      );
+                      await controller.pickProfileImage(uid);
+                      await controller.saveProfile(uid);
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(color: Colors.black12, blurRadius: 2),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.edit,
+                        size: 26,
+                        color: Color(0xFF6C63FF),
+                      ),
+                    ),
+                  ),
+                ),
             ],
           ),
         ),

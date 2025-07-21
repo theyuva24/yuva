@@ -28,7 +28,7 @@ class InterestsCard extends StatelessWidget {
                         interest,
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
-                      backgroundColor: AppThemeLight.primary.withOpacity(0.15),
+                      backgroundColor: AppThemeLight.primary.withAlpha(38),
                       labelStyle: const TextStyle(color: AppThemeLight.primary),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(24),

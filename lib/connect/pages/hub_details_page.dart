@@ -129,7 +129,7 @@ class _HubDetailsPageState extends State<HubDetailsPage> {
                         ),
                         onPressed: () => Navigator.of(context).pop(),
                         splashRadius: 22,
-                        color: Colors.white.withOpacity(0.5),
+                        color: Colors.white.withAlpha(128),
                       ),
                       // Removed hub name overlay here
                     ],

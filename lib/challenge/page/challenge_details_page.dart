@@ -159,7 +159,7 @@ class _ChallengeDetailsPageState extends State<ChallengeDetailsPage> {
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: AppThemeLight.primary.withOpacity(0.06),
+                            color: AppThemeLight.primary.withAlpha(15),
                             blurRadius: 8,
                             spreadRadius: 1,
                           ),
@@ -443,7 +443,7 @@ class _InfoBox extends StatelessWidget {
         border: Border.all(color: AppThemeLight.primary, width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: AppThemeLight.primary.withOpacity(0.04),
+            color: AppThemeLight.primary.withAlpha(10),
             blurRadius: 6,
             spreadRadius: 1,
           ),

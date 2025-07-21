@@ -56,7 +56,7 @@ class NotificationPage extends StatelessWidget {
                   color:
                       read
                           ? colorScheme.surface
-                          : colorScheme.primary.withOpacity(0.08),
+                          : colorScheme.primary.withAlpha(20),
                   borderRadius: BorderRadius.circular(14.r),
                   border: Border.all(
                     color: read ? colorScheme.outline : colorScheme.primary,
@@ -65,7 +65,7 @@ class NotificationPage extends StatelessWidget {
                   boxShadow: [
                     if (!read)
                       BoxShadow(
-                        color: colorScheme.primary.withOpacity(0.12),
+                        color: colorScheme.primary.withAlpha(31),
                         blurRadius: 8.r,
                         spreadRadius: 1.r,
                       ),

@@ -2,11 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'controllers/profile_controller.dart';
 import 'models/profile_model.dart';
-import 'edit_profile_page.dart';
 import 'widgets/profile_header.dart';
 import 'widgets/profile_actions.dart';
 import 'widgets/profile_tabs.dart';
-import 'services/profile_service.dart';
 import 'settings_page.dart';
 import 'package:yuva/universal/theme/app_theme.dart';
 import '../../chat/service/chat_service.dart';
@@ -14,7 +12,7 @@ import '../../chat/page/chat_page.dart';
 
 class ProfilePage extends StatefulWidget {
   final String uid;
-  const ProfilePage({Key? key, required this.uid}) : super(key: key);
+  const ProfilePage({super.key, required this.uid});
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
@@ -31,19 +29,6 @@ class _ProfilePageState extends State<ProfilePage> {
             (context) => ChatPage(chatId: chat.id, otherUserId: profile.uid),
       ),
     );
-  }
-
-  void _editProfile(ProfileModel profile) async {
-    final updatedProfile = await Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => EditProfilePage(profile: profile),
-      ),
-    );
-    if (updatedProfile != null && mounted) {
-      final controller = Provider.of<ProfileController>(context, listen: false);
-      await controller.loadProfile(widget.uid);
-      setState(() {});
-    }
   }
 
   @override
@@ -81,11 +66,6 @@ class _ProfilePageState extends State<ProfilePage> {
                       );
                     },
                   ),
-                if (isCurrentUser)
-                  IconButton(
-                    icon: const Icon(Icons.edit, color: Colors.black),
-                    onPressed: () => _editProfile(profile),
-                  ),
               ],
             ),
             body: RefreshIndicator(
@@ -110,7 +90,6 @@ class _ProfilePageState extends State<ProfilePage> {
                               profile: profile,
                               isCurrentUser: isCurrentUser,
                               onMessage: () => _openChat(profile),
-                              onEdit: () => _editProfile(profile),
                             ),
                           ],
                         ),
@@ -124,6 +103,9 @@ class _ProfilePageState extends State<ProfilePage> {
                       listen: false,
                     );
                     controller.profile = profile.copyWith(bio: newBio);
+                    controller.updateControllersFromProfile(
+                      controller.profile!,
+                    );
                     await controller.saveProfile(widget.uid);
                     await controller.loadProfile(
                       widget.uid,
@@ -132,10 +114,11 @@ class _ProfilePageState extends State<ProfilePage> {
                     setState(() {});
                   },
                   onEducationChanged: (
+                    educationList,
+                    educationLevel,
                     college,
                     course,
                     year,
-                    educationLevel,
                     idCardUrl,
                   ) async {
                     final controller = Provider.of<ProfileController>(
@@ -143,11 +126,52 @@ class _ProfilePageState extends State<ProfilePage> {
                       listen: false,
                     );
                     controller.profile = profile.copyWith(
+                      education: educationList,
+                      educationLevel: educationLevel,
                       college: college,
                       course: course,
                       year: year,
-                      educationLevel: educationLevel,
-                      idCardUrl: idCardUrl,
+                      idCardUrl: idCardUrl ?? '',
+                    );
+                    controller.updateControllersFromProfile(
+                      controller.profile!,
+                    );
+                    await controller.saveProfile(
+                      widget.uid,
+                      education: educationList,
+                    );
+                    await controller.loadProfile(
+                      widget.uid,
+                      forceRefresh: true,
+                    );
+                    setState(() {});
+                  },
+                  onInterestsChanged: (interestsList) async {
+                    final controller = Provider.of<ProfileController>(
+                      context,
+                      listen: false,
+                    );
+                    controller.profile = profile.copyWith(
+                      interests: interestsList,
+                    );
+                    controller.updateControllersFromProfile(
+                      controller.profile!,
+                    );
+                    await controller.saveProfile(widget.uid);
+                    await controller.loadProfile(
+                      widget.uid,
+                      forceRefresh: true,
+                    );
+                    setState(() {});
+                  },
+                  onPersonalInfoChanged: (updatedProfile) async {
+                    final controller = Provider.of<ProfileController>(
+                      context,
+                      listen: false,
+                    );
+                    controller.profile = updatedProfile;
+                    controller.updateControllersFromProfile(
+                      controller.profile!,
                     );
                     await controller.saveProfile(widget.uid);
                     await controller.loadProfile(

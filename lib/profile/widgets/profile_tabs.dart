@@ -11,26 +11,37 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../../registration/widgets/college_autocomplete_field.dart';
 import '../../registration/widgets/course_autocomplete_field.dart';
 import '../../registration/widgets/id_card_picker.dart';
+import '../models/education_model.dart';
+import 'dart:io';
+import '../../registration/widgets/interests_picker.dart';
 
 typedef BioChangedCallback = Future<void> Function(String newBio);
 typedef EducationChangedCallback =
     Future<void> Function(
+      List<EducationModel> educationList,
+      String educationLevel,
       String college,
       String course,
       String year,
-      String educationLevel,
-      String idCardUrl,
+      String? idCardUrl,
     );
+typedef InterestsChangedCallback =
+    Future<void> Function(List<String> interests);
 
 class ProfileTabs extends StatefulWidget {
   final ProfileModel profile;
   final BioChangedCallback? onBioChanged;
   final EducationChangedCallback? onEducationChanged;
+  final InterestsChangedCallback? onInterestsChanged;
+  final Future<void> Function(ProfileModel updatedProfile)?
+  onPersonalInfoChanged;
   const ProfileTabs({
     Key? key,
     required this.profile,
     this.onBioChanged,
     this.onEducationChanged,
+    this.onInterestsChanged,
+    this.onPersonalInfoChanged,
   }) : super(key: key);
 
   @override
@@ -49,10 +60,17 @@ class _ProfileTabsState extends State<ProfileTabs> {
   String _yearDraft = '';
   String? _idCardDraft;
 
+  List<EducationModel> _educationList = [];
+
+  bool _editingInterests = false;
+  List<String> _interestsDraft = [];
+
   @override
   void initState() {
     super.initState();
     _bioDraft = widget.profile.bio;
+    _educationList = List<EducationModel>.from(widget.profile.education);
+    _interestsDraft = List<String>.from(widget.profile.interests);
   }
 
   @override
@@ -122,11 +140,12 @@ class _ProfileTabsState extends State<ProfileTabs> {
   Future<void> _saveEducation() async {
     if (widget.onEducationChanged != null) {
       await widget.onEducationChanged!(
-        _collegeDraft.trim(),
-        _courseDraft.trim(),
-        _yearDraft.trim(),
+        _educationList,
         _educationLevelDraft,
-        _idCardDraft ?? '',
+        _collegeDraft,
+        _courseDraft,
+        _yearDraft,
+        _idCardDraft,
       );
       setState(() {
         _editingEducation = false;
@@ -134,9 +153,214 @@ class _ProfileTabsState extends State<ProfileTabs> {
     }
   }
 
+  void _showEducationDialog({EducationModel? initial, int? index}) async {
+    final isEdit = initial != null && index != null;
+    String schoolName = initial?.schoolName ?? '';
+    String degree = initial?.degree ?? '';
+    String fieldOfStudy = initial?.fieldOfStudy ?? '';
+    DateTime? startDate = initial?.startDate;
+    DateTime? endDate = initial?.endDate;
+    String activities = initial?.activities ?? '';
+    String description = initial?.description ?? '';
+    String schoolLogoUrl = initial?.schoolLogoUrl ?? '';
+
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text(isEdit ? 'Edit Education' : 'Add Education'),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextField(
+                      decoration: const InputDecoration(
+                        labelText: 'School/College Name',
+                      ),
+                      controller: TextEditingController(text: schoolName),
+                      onChanged: (val) => setState(() => schoolName = val),
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      decoration: const InputDecoration(labelText: 'Degree'),
+                      controller: TextEditingController(text: degree),
+                      onChanged: (val) => setState(() => degree = val),
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      decoration: const InputDecoration(
+                        labelText: 'Field of Study',
+                      ),
+                      controller: TextEditingController(text: fieldOfStudy),
+                      onChanged: (val) => setState(() => fieldOfStudy = val),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: InkWell(
+                            onTap: () async {
+                              final picked = await showDatePicker(
+                                context: context,
+                                initialDate: startDate ?? DateTime.now(),
+                                firstDate: DateTime(1970),
+                                lastDate: DateTime(2100),
+                              );
+                              if (picked != null)
+                                setState(() => startDate = picked);
+                            },
+                            child: InputDecorator(
+                              decoration: const InputDecoration(
+                                labelText: 'Start Date',
+                              ),
+                              child: Text(
+                                startDate != null
+                                    ? '${startDate!.year}-${startDate!.month.toString().padLeft(2, '0')}'
+                                    : 'Select',
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: InkWell(
+                            onTap: () async {
+                              final picked = await showDatePicker(
+                                context: context,
+                                initialDate: endDate ?? DateTime.now(),
+                                firstDate: DateTime(1970),
+                                lastDate: DateTime(2100),
+                              );
+                              if (picked != null)
+                                setState(() => endDate = picked);
+                            },
+                            child: InputDecorator(
+                              decoration: const InputDecoration(
+                                labelText: 'End Date',
+                              ),
+                              child: Text(
+                                endDate != null
+                                    ? '${endDate!.year}-${endDate!.month.toString().padLeft(2, '0')}'
+                                    : 'Select',
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      decoration: const InputDecoration(
+                        labelText: 'Activities',
+                      ),
+                      controller: TextEditingController(text: activities),
+                      onChanged: (val) => setState(() => activities = val),
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      decoration: const InputDecoration(
+                        labelText: 'Description',
+                      ),
+                      controller: TextEditingController(text: description),
+                      onChanged: (val) => setState(() => description = val),
+                      maxLines: 2,
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'School/College Logo',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 8),
+                    IdCardPicker(
+                      imagePath: schoolLogoUrl,
+                      onImagePicked:
+                          (path) => setState(() => schoolLogoUrl = path ?? ''),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                if (isEdit)
+                  IconButton(
+                    icon: const Icon(Icons.delete, color: Colors.red),
+                    tooltip: 'Delete',
+                    onPressed: () {
+                      setState(() {
+                        _educationList.removeAt(index!);
+                      });
+                      Navigator.of(context).pop();
+                      if (widget.onEducationChanged != null) {
+                        widget.onEducationChanged!(
+                          _educationList,
+                          '',
+                          '',
+                          '',
+                          '',
+                          null,
+                        );
+                      }
+                    },
+                  ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed:
+                      schoolName.trim().isEmpty
+                          ? null
+                          : () {
+                            final newEdu = EducationModel(
+                              schoolName: schoolName.trim(),
+                              degree: degree.trim(),
+                              fieldOfStudy: fieldOfStudy.trim(),
+                              startDate: startDate,
+                              endDate: endDate,
+                              activities: activities.trim(),
+                              description: description.trim(),
+                              schoolLogoUrl: schoolLogoUrl,
+                            );
+                            setState(() {
+                              if (isEdit) {
+                                _educationList[index!] = newEdu;
+                              } else {
+                                _educationList.add(newEdu);
+                              }
+                            });
+                            Navigator.of(context).pop();
+                            if (widget.onEducationChanged != null) {
+                              widget.onEducationChanged!(
+                                _educationList,
+                                '',
+                                '',
+                                '',
+                                '',
+                                null,
+                              );
+                            }
+                          },
+                  child: const Text('Save'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+    if (widget.onEducationChanged != null) {
+      await widget.onEducationChanged!(_educationList, '', '', '', '', null);
+    }
+    setState(() {}); // Refresh the list after dialog closes
+  }
+
   @override
   Widget build(BuildContext context) {
     final PostService postService = PostService();
+    final double verticalCardSpacing =
+        MediaQuery.of(context).size.height * 0.008; // ~0.8% of screen height
     return DefaultTabController(
       length: 2,
       child: Column(
@@ -168,7 +392,7 @@ class _ProfileTabsState extends State<ProfileTabs> {
                       SizedBox(
                         width: double.infinity,
                         child: Card(
-                          margin: const EdgeInsets.only(bottom: 20.0),
+                          margin: EdgeInsets.only(bottom: verticalCardSpacing),
                           child: Padding(
                             padding: const EdgeInsets.all(16.0),
                             child: Column(
@@ -263,11 +487,11 @@ class _ProfileTabsState extends State<ProfileTabs> {
                           ),
                         ),
                       ),
-                      // Education Card
+                      // Education Section (multi-entry)
                       SizedBox(
                         width: double.infinity,
                         child: Card(
-                          margin: const EdgeInsets.symmetric(vertical: 24.0),
+                          margin: EdgeInsets.only(bottom: verticalCardSpacing),
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 20.0,
@@ -480,11 +704,130 @@ class _ProfileTabsState extends State<ProfileTabs> {
                                           borderRadius: BorderRadius.circular(
                                             12,
                                           ),
-                                          child: Image.network(
-                                            widget.profile.idCardUrl,
-                                            width: double.infinity,
-                                            height: 120,
-                                            fit: BoxFit.cover,
+                                          child: Builder(
+                                            builder: (context) {
+                                              final url =
+                                                  widget.profile.idCardUrl;
+                                              print(
+                                                'DEBUG: College ID image url: ' +
+                                                    url,
+                                              );
+                                              if (url.startsWith('http') ||
+                                                  url.startsWith('https')) {
+                                                return Image.network(
+                                                  url,
+                                                  width: double.infinity,
+                                                  height: 120,
+                                                  fit: BoxFit.cover,
+                                                  errorBuilder:
+                                                      (
+                                                        context,
+                                                        error,
+                                                        stackTrace,
+                                                      ) => Container(
+                                                        width: double.infinity,
+                                                        height: 120,
+                                                        color: Colors.grey[200],
+                                                        child: Column(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
+                                                          children: const [
+                                                            Icon(
+                                                              Icons
+                                                                  .broken_image,
+                                                              size: 40,
+                                                              color:
+                                                                  Colors.grey,
+                                                            ),
+                                                            SizedBox(height: 8),
+                                                            Text(
+                                                              'Failed to load image',
+                                                              style: TextStyle(
+                                                                color:
+                                                                    Colors.grey,
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                );
+                                              } else {
+                                                final file = File(url);
+                                                return file.existsSync()
+                                                    ? Image.file(
+                                                      file,
+                                                      width: double.infinity,
+                                                      height: 120,
+                                                      fit: BoxFit.cover,
+                                                      errorBuilder:
+                                                          (
+                                                            context,
+                                                            error,
+                                                            stackTrace,
+                                                          ) => Container(
+                                                            width:
+                                                                double.infinity,
+                                                            height: 120,
+                                                            color:
+                                                                Colors
+                                                                    .grey[200],
+                                                            child: Column(
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .center,
+                                                              children: const [
+                                                                Icon(
+                                                                  Icons
+                                                                      .broken_image,
+                                                                  size: 40,
+                                                                  color:
+                                                                      Colors
+                                                                          .grey,
+                                                                ),
+                                                                SizedBox(
+                                                                  height: 8,
+                                                                ),
+                                                                Text(
+                                                                  'Failed to load image',
+                                                                  style: TextStyle(
+                                                                    color:
+                                                                        Colors
+                                                                            .grey,
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                    )
+                                                    : Container(
+                                                      width: double.infinity,
+                                                      height: 120,
+                                                      color: Colors.grey[200],
+                                                      child: Column(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
+                                                        children: const [
+                                                          Icon(
+                                                            Icons
+                                                                .image_not_supported,
+                                                            size: 40,
+                                                            color: Colors.grey,
+                                                          ),
+                                                          SizedBox(height: 8),
+                                                          Text(
+                                                            'No image found',
+                                                            style: TextStyle(
+                                                              color:
+                                                                  Colors.grey,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    );
+                                              }
+                                            },
                                           ),
                                         ),
                                       ],
@@ -495,55 +838,146 @@ class _ProfileTabsState extends State<ProfileTabs> {
                           ),
                         ),
                       ),
-                      // Interests Section
-                      const SizedBox(height: 24),
-                      const Text(
-                        "Interests",
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 22,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      widget.profile.interests.isNotEmpty
-                          ? Wrap(
-                            spacing: 12,
-                            runSpacing: 10,
-                            children:
-                                widget.profile.interests
-                                    .map(
-                                      (interest) => Chip(
-                                        label: Text(
-                                          interest,
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        backgroundColor: Colors.blue
-                                            .withOpacity(0.15),
-                                        labelStyle: const TextStyle(
-                                          color: Colors.blue,
-                                        ),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            24,
-                                          ),
-                                          side: const BorderSide(
-                                            color: Colors.blue,
-                                          ),
-                                        ),
+                      // Interests Section as Card with in-place editing
+                      SizedBox(height: verticalCardSpacing),
+                      SizedBox(
+                        width: double.infinity,
+                        child: Card(
+                          margin: EdgeInsets.zero,
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text(
+                                      "Interests",
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 22,
                                       ),
-                                    )
-                                    .toList(),
-                          )
-                          : const Text(
-                            'No interests added yet.',
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontStyle: FontStyle.italic,
+                                    ),
+                                    if (!_editingInterests)
+                                      IconButton(
+                                        icon: const Icon(Icons.edit, size: 20),
+                                        tooltip: 'Edit Interests',
+                                        onPressed: () {
+                                          setState(() {
+                                            _editingInterests = true;
+                                            _interestsDraft = List<String>.from(
+                                              widget.profile.interests,
+                                            );
+                                          });
+                                        },
+                                      ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                if (_editingInterests)
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      InterestsPicker(
+                                        initialSelected: _interestsDraft,
+                                        maxSelection: 5,
+                                        onChanged:
+                                            (list) => setState(
+                                              () => _interestsDraft = list,
+                                            ),
+                                      ),
+                                      const SizedBox(height: 16),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        children: [
+                                          TextButton(
+                                            onPressed: () {
+                                              setState(
+                                                () => _editingInterests = false,
+                                              );
+                                            },
+                                            child: const Text('Cancel'),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          ElevatedButton(
+                                            onPressed:
+                                                _interestsDraft.isEmpty
+                                                    ? null
+                                                    : () async {
+                                                      if (widget
+                                                              .onInterestsChanged !=
+                                                          null) {
+                                                        await widget
+                                                            .onInterestsChanged!(
+                                                          _interestsDraft,
+                                                        );
+                                                      }
+                                                      setState(
+                                                        () =>
+                                                            _editingInterests =
+                                                                false,
+                                                      );
+                                                    },
+                                            child: const Text('Save'),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  )
+                                else if (widget.profile.interests.isNotEmpty)
+                                  Wrap(
+                                    spacing: 12,
+                                    runSpacing: 10,
+                                    children:
+                                        widget.profile.interests
+                                            .map(
+                                              (interest) => Chip(
+                                                label: Text(
+                                                  interest,
+                                                  style: const TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                                backgroundColor: Colors.blue
+                                                    .withAlpha(38),
+                                                labelStyle: const TextStyle(
+                                                  color: Colors.blue,
+                                                ),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(24),
+                                                  side: const BorderSide(
+                                                    color: Colors.blue,
+                                                  ),
+                                                ),
+                                              ),
+                                            )
+                                            .toList(),
+                                  )
+                                else
+                                  const Text(
+                                    'No interests added yet.',
+                                    style: TextStyle(
+                                      color: Colors.grey,
+                                      fontStyle: FontStyle.italic,
+                                    ),
+                                  ),
+                              ],
                             ),
                           ),
+                        ),
+                      ),
+                      // Personal Info Section as Card with in-place editing
+                      SizedBox(height: verticalCardSpacing),
+                      _PersonalInfoCard(
+                        profile: widget.profile,
+                        onPersonalInfoChanged: widget.onPersonalInfoChanged,
+                      ),
                     ],
                   ),
                 ),
@@ -692,6 +1126,210 @@ class _ProfileTabsState extends State<ProfileTabs> {
                   ),
                 ),
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PersonalInfoCard extends StatefulWidget {
+  final ProfileModel profile;
+  final Future<void> Function(ProfileModel updatedProfile)?
+  onPersonalInfoChanged;
+  const _PersonalInfoCard({
+    Key? key,
+    required this.profile,
+    this.onPersonalInfoChanged,
+  }) : super(key: key);
+
+  @override
+  State<_PersonalInfoCard> createState() => _PersonalInfoCardState();
+}
+
+class _PersonalInfoCardState extends State<_PersonalInfoCard> {
+  bool _editing = false;
+  late TextEditingController _locationController;
+  late TextEditingController _emailController;
+  late TextEditingController _linkedInController;
+
+  @override
+  void initState() {
+    super.initState();
+    _initControllers();
+  }
+
+  void _initControllers() {
+    _locationController = TextEditingController(text: widget.profile.location);
+    _emailController = TextEditingController(
+      text: widget.profile.contactInfo.email,
+    );
+    _linkedInController = TextEditingController(
+      text: widget.profile.contactInfo.linkedInUrl,
+    );
+  }
+
+  @override
+  void dispose() {
+    _locationController.dispose();
+    _emailController.dispose();
+    _linkedInController.dispose();
+    super.dispose();
+  }
+
+  void _startEditing() {
+    setState(() {
+      _editing = true;
+      _initControllers();
+    });
+  }
+
+  void _cancelEditing() {
+    setState(() {
+      _editing = false;
+      _initControllers();
+    });
+  }
+
+  Future<void> _save() async {
+    final updatedProfile = widget.profile.copyWith(
+      location: _locationController.text.trim(),
+      contactInfo: widget.profile.contactInfo.copyWith(
+        email: _emailController.text.trim(),
+        linkedInUrl: _linkedInController.text.trim(),
+      ),
+    );
+    if (widget.onPersonalInfoChanged != null) {
+      await widget.onPersonalInfoChanged!(updatedProfile);
+    }
+    setState(() {
+      _editing = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  "Personal Info",
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 22,
+                  ),
+                ),
+                if (!_editing)
+                  IconButton(
+                    icon: const Icon(Icons.edit, size: 20),
+                    tooltip: 'Edit Personal Info',
+                    onPressed: _startEditing,
+                  ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            if (_editing)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _InfoRow(label: 'Phone', value: widget.profile.phone),
+                  _InfoRow(label: 'Gender', value: widget.profile.gender),
+                  _InfoRow(
+                    label: 'Date of Birth',
+                    value:
+                        widget.profile.dob != null
+                            ? '${widget.profile.dob!.year}-${widget.profile.dob!.month.toString().padLeft(2, '0')}-${widget.profile.dob!.day.toString().padLeft(2, '0')}'
+                            : '',
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: _locationController,
+                    decoration: const InputDecoration(labelText: 'Location'),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: _emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: const InputDecoration(labelText: 'Email'),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: _linkedInController,
+                    decoration: const InputDecoration(
+                      labelText: 'LinkedIn URL',
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: _cancelEditing,
+                        child: const Text('Cancel'),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        onPressed: _save,
+                        child: const Text('Save'),
+                      ),
+                    ],
+                  ),
+                ],
+              )
+            else ...[
+              _InfoRow(label: 'Phone', value: widget.profile.phone),
+              _InfoRow(label: 'Gender', value: widget.profile.gender),
+              _InfoRow(
+                label: 'Date of Birth',
+                value:
+                    widget.profile.dob != null
+                        ? '${widget.profile.dob!.year}-${widget.profile.dob!.month.toString().padLeft(2, '0')}-${widget.profile.dob!.day.toString().padLeft(2, '0')}'
+                        : '',
+              ),
+              _InfoRow(label: 'Location', value: widget.profile.location),
+              _InfoRow(label: 'Email', value: widget.profile.contactInfo.email),
+              _InfoRow(
+                label: 'LinkedIn',
+                value: widget.profile.contactInfo.linkedInUrl,
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _InfoRow extends StatelessWidget {
+  final String label;
+  final String value;
+  const _InfoRow({Key? key, required this.label, required this.value})
+    : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '$label: ',
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          ),
+          Expanded(
+            child: Text(
+              value.isNotEmpty ? value : '-',
+              style: const TextStyle(fontSize: 16),
             ),
           ),
         ],

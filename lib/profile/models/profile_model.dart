@@ -17,6 +17,14 @@ class ContactInfo {
     'linkedInUrl': linkedInUrl,
     'phone': phone,
   };
+
+  ContactInfo copyWith({String? email, String? linkedInUrl, String? phone}) {
+    return ContactInfo(
+      email: email ?? this.email,
+      linkedInUrl: linkedInUrl ?? this.linkedInUrl,
+      phone: phone ?? this.phone,
+    );
+  }
 }
 
 class ProfileModel {

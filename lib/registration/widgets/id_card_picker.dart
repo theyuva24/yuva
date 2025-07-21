@@ -60,12 +60,21 @@ class IdCardPicker extends StatelessWidget {
             isUploaded
                 ? ClipRRect(
                   borderRadius: BorderRadius.circular(12),
-                  child: Image.file(
-                    File(imagePath!),
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                    height: double.infinity,
-                  ),
+                  child:
+                      imagePath!.startsWith('http') ||
+                              imagePath!.startsWith('https')
+                          ? Image.network(
+                            imagePath!,
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            height: double.infinity,
+                          )
+                          : Image.file(
+                            File(imagePath!),
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            height: double.infinity,
+                          ),
                 )
                 : Column(
                   mainAxisAlignment: MainAxisAlignment.center,

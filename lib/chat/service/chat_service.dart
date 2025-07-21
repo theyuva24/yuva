@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
 import '../../initial pages/auth_service.dart';
 import '../model/message_model.dart';
+import '../model/chat_model.dart';
 
 class ChatService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -66,6 +67,46 @@ class ChatService {
     await _firestore.collection('chats').doc(chatId).set({
       'lastReadTimestamps': {userId: FieldValue.serverTimestamp()},
     }, SetOptions(merge: true));
+  }
+
+  // Returns a stream of all direct chats for a user
+  Stream<List<ChatModel>> getUserChats(String userId) {
+    return _firestore
+        .collection('chats')
+        .where('participants', arrayContains: userId)
+        .orderBy('lastMessageTime', descending: true)
+        .snapshots()
+        .map(
+          (snapshot) =>
+              snapshot.docs
+                  .map((doc) => ChatModel.fromMap(doc.id, doc.data()))
+                  .toList(),
+        );
+  }
+
+  // Returns the chat between the current user and another user, creating it if it doesn't exist
+  Future<ChatModel> getOrCreateChatWith(String otherUserId) async {
+    final currentUserId = AuthService().currentUser?.uid;
+    if (currentUserId == null) throw Exception('User not authenticated');
+    final query =
+        await _firestore
+            .collection('chats')
+            .where('participants', arrayContains: currentUserId)
+            .get();
+    for (final doc in query.docs) {
+      final participants = List<String>.from(doc['participants'] ?? []);
+      if (participants.contains(otherUserId) && participants.length == 2) {
+        return ChatModel.fromMap(doc.id, doc.data());
+      }
+    }
+    // If not found, create a new chat
+    final chatRef = await _firestore.collection('chats').add({
+      'participants': [currentUserId, otherUserId],
+      'lastMessage': '',
+      'lastMessageTime': DateTime.now(),
+    });
+    final newChatDoc = await chatRef.get();
+    return ChatModel.fromMap(newChatDoc.id, newChatDoc.data()!);
   }
 
   // Helper to send push notification using FCM HTTP v1 API

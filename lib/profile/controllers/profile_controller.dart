@@ -3,6 +3,7 @@ import 'package:image_picker/image_picker.dart';
 import '../models/profile_model.dart';
 import '../services/profile_service.dart';
 import 'dart:io';
+import '../models/education_model.dart';
 
 class ProfileController extends ChangeNotifier {
   final ProfileService _service = ProfileService();
@@ -51,6 +52,22 @@ class ProfileController extends ChangeNotifier {
     notifyListeners();
   }
 
+  void updateControllersFromProfile(ProfileModel profile) {
+    this.profile = profile;
+    fullNameController.text = profile.fullName;
+    phoneController.text = profile.phone;
+    genderController.text = profile.gender;
+    dob = profile.dob;
+    collegeController.text = profile.college;
+    educationLevelController.text = profile.educationLevel;
+    courseController.text = profile.course;
+    yearController.text = profile.year;
+    locationController.text = profile.location;
+    interests = List<String>.from(profile.interests);
+    profilePicUrl = profile.profilePicUrl;
+    idCardUrl = profile.idCardUrl;
+  }
+
   Future<void> pickProfileImage(String uid) async {
     final picker = ImagePicker();
     final picked = await picker.pickImage(
@@ -67,7 +84,10 @@ class ProfileController extends ChangeNotifier {
     }
   }
 
-  Future<void> saveProfile(String uid) async {
+  Future<void> saveProfile(
+    String uid, {
+    List<EducationModel>? education,
+  }) async {
     isLoading = true;
     notifyListeners();
     final updated = ProfileModel(
@@ -86,6 +106,7 @@ class ProfileController extends ChangeNotifier {
       idCardUrl: idCardUrl,
       uniqueName: profile?.uniqueName ?? '',
       bio: profile?.bio ?? '',
+      education: education ?? profile?.education ?? [],
     );
     await _service.updateProfile(updated);
     profile = updated;

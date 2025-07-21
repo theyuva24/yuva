@@ -335,7 +335,7 @@ class _PostContentState extends State<PostContent> {
                   decoration: BoxDecoration(
                     color:
                         _userVotedOptionIdx == idx
-                            ? const Color(0xFF00F6FF).withOpacity(0.2)
+                            ? const Color(0xFF00F6FF).withAlpha(51)
                             : Colors.transparent,
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(

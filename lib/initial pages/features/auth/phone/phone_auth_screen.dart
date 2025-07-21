@@ -345,7 +345,7 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                             shadows: [
                               Shadow(
                                 blurRadius: 8,
-                                color: AppThemeLight.primary.withOpacity(0.3),
+                                color: AppThemeLight.primary.withAlpha(76),
                                 offset: Offset(0, 0),
                               ),
                             ],
@@ -543,7 +543,7 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
             ),
             if (_loading)
               Container(
-                color: Colors.black.withOpacity(0.3),
+                color: Colors.black.withAlpha(76),
                 child: const Center(child: CircularProgressIndicator()),
               ),
           ],

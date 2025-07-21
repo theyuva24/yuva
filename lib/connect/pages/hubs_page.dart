@@ -219,7 +219,7 @@ class HubsPage extends StatelessWidget {
                                                   Icons.broken_image,
                                                   size: 32.w,
                                                   color: AppThemeLight.primary
-                                                      .withOpacity(0.3),
+                                                      .withAlpha(76),
                                                 ),
                                               ),
                                     ),
@@ -259,7 +259,7 @@ class HubsPage extends StatelessWidget {
                                                 ),
                                                 decoration: BoxDecoration(
                                                   color: AppThemeLight.primary
-                                                      .withOpacity(0.1),
+                                                      .withAlpha(25),
                                                   borderRadius:
                                                       BorderRadius.circular(
                                                         12.r,
@@ -354,7 +354,7 @@ class HubsPage extends StatelessWidget {
                             Icon(
                               Icons.group_outlined,
                               size: 64.w,
-                              color: AppThemeLight.primary.withOpacity(0.5),
+                              color: AppThemeLight.primary.withAlpha(128),
                             ),
                             SizedBox(height: 16.h),
                             Text(
@@ -362,7 +362,7 @@ class HubsPage extends StatelessWidget {
                               style: Theme.of(
                                 context,
                               ).textTheme.titleMedium?.copyWith(
-                                color: AppThemeLight.primary.withOpacity(0.7),
+                                color: AppThemeLight.primary.withAlpha(179),
                               ),
                             ),
                             SizedBox(height: 8.h),
@@ -371,7 +371,7 @@ class HubsPage extends StatelessWidget {
                               style: Theme.of(
                                 context,
                               ).textTheme.bodyMedium?.copyWith(
-                                color: AppThemeLight.primary.withOpacity(0.5),
+                                color: AppThemeLight.primary.withAlpha(128),
                               ),
                               textAlign: TextAlign.center,
                             ),
@@ -425,7 +425,7 @@ class HubsPage extends StatelessWidget {
                                                   Icons.broken_image,
                                                   size: 32.w,
                                                   color: AppThemeLight.primary
-                                                      .withOpacity(0.3),
+                                                      .withAlpha(76),
                                                 ),
                                               ),
                                     ),
@@ -464,7 +464,7 @@ class HubsPage extends StatelessWidget {
                                                 ),
                                                 decoration: BoxDecoration(
                                                   color: AppThemeLight.primary
-                                                      .withOpacity(0.1),
+                                                      .withAlpha(25),
                                                   borderRadius:
                                                       BorderRadius.circular(
                                                         12.r,

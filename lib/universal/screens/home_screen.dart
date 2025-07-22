@@ -5,7 +5,7 @@ import '../../connect/pages/post_page.dart';
 import 'notification_page.dart';
 import '../../connect/pages/hubs_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:yuva/profile/profile_page.dart';
+import 'package:yuva/profile/owner_profile_page.dart';
 import '../../../chat/page/chats_page.dart'; // Import ChatsPage
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -91,7 +91,7 @@ class HomeScreenState extends State<HomeScreen> {
                       builder:
                           (context) => ChangeNotifierProvider(
                             create: (_) => ProfileController(),
-                            child: ProfilePage(uid: user.uid),
+                            child: OwnerProfilePage(uid: user.uid),
                           ),
                     ),
                   );

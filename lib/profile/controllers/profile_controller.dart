@@ -107,6 +107,12 @@ class ProfileController extends ChangeNotifier {
       uniqueName: profile?.uniqueName ?? '',
       bio: profile?.bio ?? '',
       education: education ?? profile?.education ?? [],
+      contactInfo: profile?.contactInfo ?? ContactInfo(), // <-- Add this line
+      experience: profile?.experience ?? [],
+      skills: profile?.skills ?? [],
+      headline: profile?.headline ?? '',
+      backgroundBannerUrl: profile?.backgroundBannerUrl ?? '',
+      connectionsCount: profile?.connectionsCount ?? 0,
     );
     await _service.updateProfile(updated);
     profile = updated;

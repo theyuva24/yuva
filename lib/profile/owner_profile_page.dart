@@ -10,15 +10,15 @@ import 'package:yuva/universal/theme/app_theme.dart';
 import '../../chat/service/chat_service.dart';
 import '../../chat/page/chat_page.dart';
 
-class ProfilePage extends StatefulWidget {
+class OwnerProfilePage extends StatefulWidget {
   final String uid;
-  const ProfilePage({super.key, required this.uid});
+  const OwnerProfilePage({super.key, required this.uid});
 
   @override
-  State<ProfilePage> createState() => _ProfilePageState();
+  State<OwnerProfilePage> createState() => _OwnerProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _OwnerProfilePageState extends State<OwnerProfilePage> {
   void _openChat(ProfileModel profile) async {
     final chatService = ChatService();
     final chat = await chatService.getOrCreateChatWith(profile.uid);
@@ -97,6 +97,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     ],
                 body: ProfileTabs(
                   profile: profile,
+                  isPublic: false,
                   onBioChanged: (newBio) async {
                     final controller = Provider.of<ProfileController>(
                       context,

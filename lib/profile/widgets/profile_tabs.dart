@@ -35,6 +35,7 @@ class ProfileTabs extends StatefulWidget {
   final InterestsChangedCallback? onInterestsChanged;
   final Future<void> Function(ProfileModel updatedProfile)?
   onPersonalInfoChanged;
+  final bool isPublic;
   const ProfileTabs({
     Key? key,
     required this.profile,
@@ -42,6 +43,7 @@ class ProfileTabs extends StatefulWidget {
     this.onEducationChanged,
     this.onInterestsChanged,
     this.onPersonalInfoChanged,
+    required this.isPublic,
   }) : super(key: key);
 
   @override
@@ -82,11 +84,13 @@ class _ProfileTabsState extends State<ProfileTabs> {
   int get _bioCharCount => _bioDraft.length;
 
   void _startEditingBio() {
-    setState(() {
-      _editingBio = true;
-      _bioDraft = widget.profile.bio;
-      _bioController = TextEditingController(text: _bioDraft);
-    });
+    if (!widget.isPublic) {
+      setState(() {
+        _editingBio = true;
+        _bioDraft = widget.profile.bio;
+        _bioController = TextEditingController(text: _bioDraft);
+      });
+    }
   }
 
   void _cancelEditingBio() {
@@ -110,17 +114,19 @@ class _ProfileTabsState extends State<ProfileTabs> {
   }
 
   void _startEditingEducation() {
-    setState(() {
-      _editingEducation = true;
-      _collegeDraft = widget.profile.college;
-      _educationLevelDraft =
-          widget.profile.educationLevel.isNotEmpty
-              ? widget.profile.educationLevel
-              : 'Under Graduation';
-      _courseDraft = widget.profile.course;
-      _yearDraft = widget.profile.year;
-      _idCardDraft = widget.profile.idCardUrl;
-    });
+    if (!widget.isPublic) {
+      setState(() {
+        _editingEducation = true;
+        _collegeDraft = widget.profile.college;
+        _educationLevelDraft =
+            widget.profile.educationLevel.isNotEmpty
+                ? widget.profile.educationLevel
+                : 'Under Graduation';
+        _courseDraft = widget.profile.course;
+        _yearDraft = widget.profile.year;
+        _idCardDraft = widget.profile.idCardUrl;
+      });
+    }
   }
 
   void _cancelEditingEducation() {
@@ -410,7 +416,7 @@ class _ProfileTabsState extends State<ProfileTabs> {
                                         fontSize: 22,
                                       ),
                                     ),
-                                    if (!_editingBio)
+                                    if (!_editingBio && !widget.isPublic)
                                       IconButton(
                                         icon: const Icon(Icons.edit, size: 20),
                                         tooltip: 'Edit Bio',
@@ -512,7 +518,7 @@ class _ProfileTabsState extends State<ProfileTabs> {
                                         fontSize: 22,
                                       ),
                                     ),
-                                    if (!_editingEducation)
+                                    if (!_editingEducation && !widget.isPublic)
                                       IconButton(
                                         icon: const Icon(Icons.edit, size: 20),
                                         tooltip: 'Edit Education',
@@ -686,7 +692,8 @@ class _ProfileTabsState extends State<ProfileTabs> {
                                     ),
                                   ),
                                   const SizedBox(height: 8),
-                                  if (widget.profile.idCardUrl.isNotEmpty)
+                                  if (widget.profile.idCardUrl.isNotEmpty &&
+                                      !widget.isPublic)
                                     Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
@@ -861,7 +868,7 @@ class _ProfileTabsState extends State<ProfileTabs> {
                                         fontSize: 22,
                                       ),
                                     ),
-                                    if (!_editingInterests)
+                                    if (!_editingInterests && !widget.isPublic)
                                       IconButton(
                                         icon: const Icon(Icons.edit, size: 20),
                                         tooltip: 'Edit Interests',
@@ -977,6 +984,7 @@ class _ProfileTabsState extends State<ProfileTabs> {
                       _PersonalInfoCard(
                         profile: widget.profile,
                         onPersonalInfoChanged: widget.onPersonalInfoChanged,
+                        isPublic: widget.isPublic,
                       ),
                     ],
                   ),
@@ -1138,10 +1146,12 @@ class _PersonalInfoCard extends StatefulWidget {
   final ProfileModel profile;
   final Future<void> Function(ProfileModel updatedProfile)?
   onPersonalInfoChanged;
+  final bool isPublic;
   const _PersonalInfoCard({
     Key? key,
     required this.profile,
     this.onPersonalInfoChanged,
+    required this.isPublic,
   }) : super(key: key);
 
   @override
@@ -1179,10 +1189,12 @@ class _PersonalInfoCardState extends State<_PersonalInfoCard> {
   }
 
   void _startEditing() {
-    setState(() {
-      _editing = true;
-      _initControllers();
-    });
+    if (!widget.isPublic) {
+      setState(() {
+        _editing = true;
+        _initControllers();
+      });
+    }
   }
 
   void _cancelEditing() {
@@ -1210,6 +1222,13 @@ class _PersonalInfoCardState extends State<_PersonalInfoCard> {
 
   @override
   Widget build(BuildContext context) {
+    // For public profile, only show email/LinkedIn if present, and hide card if both are empty
+    final showEmail = widget.profile.contactInfo.email.isNotEmpty;
+    final showLinkedIn = widget.profile.contactInfo.linkedInUrl.isNotEmpty;
+    final isPublic = widget.isPublic;
+    if (isPublic && !showEmail && !showLinkedIn) {
+      return const SizedBox.shrink();
+    }
     return Card(
       margin: EdgeInsets.zero,
       child: Padding(
@@ -1228,7 +1247,7 @@ class _PersonalInfoCardState extends State<_PersonalInfoCard> {
                     fontSize: 22,
                   ),
                 ),
-                if (!_editing)
+                if (!_editing && !isPublic)
                   IconButton(
                     icon: const Icon(Icons.edit, size: 20),
                     tooltip: 'Edit Personal Info',
@@ -1286,21 +1305,28 @@ class _PersonalInfoCardState extends State<_PersonalInfoCard> {
                 ],
               )
             else ...[
-              _InfoRow(label: 'Phone', value: widget.profile.phone),
-              _InfoRow(label: 'Gender', value: widget.profile.gender),
-              _InfoRow(
-                label: 'Date of Birth',
-                value:
-                    widget.profile.dob != null
-                        ? '${widget.profile.dob!.year}-${widget.profile.dob!.month.toString().padLeft(2, '0')}-${widget.profile.dob!.day.toString().padLeft(2, '0')}'
-                        : '',
-              ),
-              _InfoRow(label: 'Location', value: widget.profile.location),
-              _InfoRow(label: 'Email', value: widget.profile.contactInfo.email),
-              _InfoRow(
-                label: 'LinkedIn',
-                value: widget.profile.contactInfo.linkedInUrl,
-              ),
+              if (!isPublic) ...[
+                _InfoRow(label: 'Phone', value: widget.profile.phone),
+                _InfoRow(label: 'Gender', value: widget.profile.gender),
+                _InfoRow(
+                  label: 'Date of Birth',
+                  value:
+                      widget.profile.dob != null
+                          ? '${widget.profile.dob!.year}-${widget.profile.dob!.month.toString().padLeft(2, '0')}-${widget.profile.dob!.day.toString().padLeft(2, '0')}'
+                          : '',
+                ),
+                _InfoRow(label: 'Location', value: widget.profile.location),
+              ],
+              if (showEmail)
+                _InfoRow(
+                  label: 'Email',
+                  value: widget.profile.contactInfo.email,
+                ),
+              if (showLinkedIn)
+                _InfoRow(
+                  label: 'LinkedIn',
+                  value: widget.profile.contactInfo.linkedInUrl,
+                ),
             ],
           ],
         ),

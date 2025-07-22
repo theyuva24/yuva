@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:share_plus/share_plus.dart';
 import '../service/post_service.dart' hide Comment, buildCommentTree;
-import '../../profile/profile_page.dart';
 import '../pages/hub_details_page.dart';
 import '../models/hub_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -14,6 +13,8 @@ import 'package:url_launcher/url_launcher.dart';
 import 'post_content.dart';
 import '../../universal/theme/app_theme.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import '../../profile/public_profile_page.dart';
+import '../../profile/owner_profile_page.dart';
 
 class PostCard extends StatefulWidget {
   final String postId;
@@ -534,7 +535,11 @@ class _PostCardState extends State<PostCard> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ProfilePage(uid: widget.postOwnerId),
+        builder:
+            (context) =>
+                widget.postOwnerId == FirebaseAuth.instance.currentUser?.uid
+                    ? OwnerProfilePage(uid: widget.postOwnerId)
+                    : PublicProfilePage(uid: widget.postOwnerId),
       ),
     );
   }

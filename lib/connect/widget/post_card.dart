@@ -585,7 +585,9 @@ class _PostCardState extends State<PostCard> {
                             backgroundImage:
                                 (widget.userProfileImage != null &&
                                         widget.userProfileImage.isNotEmpty)
-                                    ? NetworkImage(widget.userProfileImage)
+                                    ? CachedNetworkImageProvider(
+                                      widget.userProfileImage,
+                                    )
                                     : null,
                             child:
                                 (widget.userProfileImage == null ||

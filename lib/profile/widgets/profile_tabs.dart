@@ -14,6 +14,7 @@ import '../../registration/widgets/id_card_picker.dart';
 import '../models/education_model.dart';
 import 'dart:io';
 import '../../registration/widgets/interests_picker.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 typedef BioChangedCallback = Future<void> Function(String newBio);
 typedef EducationChangedCallback =
@@ -721,41 +722,35 @@ class _ProfileTabsState extends State<ProfileTabs> {
                                               );
                                               if (url.startsWith('http') ||
                                                   url.startsWith('https')) {
-                                                return Image.network(
-                                                  url,
+                                                return CachedNetworkImage(
+                                                  imageUrl: url,
                                                   width: double.infinity,
                                                   height: 120,
                                                   fit: BoxFit.cover,
-                                                  errorBuilder:
+                                                  placeholder:
                                                       (
                                                         context,
-                                                        error,
-                                                        stackTrace,
+                                                        url,
                                                       ) => Container(
-                                                        width: double.infinity,
-                                                        height: 120,
                                                         color: Colors.grey[200],
-                                                        child: Column(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .center,
-                                                          children: const [
-                                                            Icon(
-                                                              Icons
-                                                                  .broken_image,
-                                                              size: 40,
-                                                              color:
-                                                                  Colors.grey,
-                                                            ),
-                                                            SizedBox(height: 8),
-                                                            Text(
-                                                              'Failed to load image',
-                                                              style: TextStyle(
-                                                                color:
-                                                                    Colors.grey,
-                                                              ),
-                                                            ),
-                                                          ],
+                                                        child: const Center(
+                                                          child:
+                                                              CircularProgressIndicator(),
+                                                        ),
+                                                      ),
+                                                  errorWidget:
+                                                      (
+                                                        context,
+                                                        url,
+                                                        error,
+                                                      ) => Container(
+                                                        color: Colors.grey[200],
+                                                        child: const Center(
+                                                          child: Icon(
+                                                            Icons.broken_image,
+                                                            color: Colors.grey,
+                                                            size: 48,
+                                                          ),
                                                         ),
                                                       ),
                                                 );

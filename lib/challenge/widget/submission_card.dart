@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../model/submission_model.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class SubmissionCard extends StatelessWidget {
   final Submission submission;
@@ -17,14 +18,29 @@ class SubmissionCard extends StatelessWidget {
                     // Show thumbnail if available, otherwise show a placeholder
                     submission.thumbnailUrl != null &&
                             submission.thumbnailUrl!.isNotEmpty
-                        ? Image.network(
-                          submission.thumbnailUrl!,
+                        ? CachedNetworkImage(
+                          imageUrl: submission.thumbnailUrl!,
                           width: 56,
                           height: 56,
                           fit: BoxFit.cover,
-                          errorBuilder:
-                              (context, error, stackTrace) =>
-                                  _buildVideoPlaceholder(),
+                          placeholder:
+                              (context, url) => Container(
+                                color: Colors.grey[200],
+                                child: const Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                              ),
+                          errorWidget:
+                              (context, url, error) => Container(
+                                color: Colors.grey[200],
+                                child: const Center(
+                                  child: Icon(
+                                    Icons.broken_image,
+                                    color: Colors.grey,
+                                    size: 48,
+                                  ),
+                                ),
+                              ),
                         )
                         : _buildVideoPlaceholder(),
                     // Play icon overlay
@@ -39,21 +55,24 @@ class SubmissionCard extends StatelessWidget {
                     ),
                   ],
                 )
-                : Image.network(
-                  submission.mediaUrl!,
+                : CachedNetworkImage(
+                  imageUrl: submission.mediaUrl!,
                   fit: BoxFit.cover,
                   width: double.infinity,
                   height: 180,
-                  errorBuilder:
-                      (context, error, stackTrace) => Container(
-                        color: Colors.grey[300],
-                        width: double.infinity,
-                        height: 180,
+                  placeholder:
+                      (context, url) => Container(
+                        color: Colors.grey[200],
+                        child: const Center(child: CircularProgressIndicator()),
+                      ),
+                  errorWidget:
+                      (context, url, error) => Container(
+                        color: Colors.grey[200],
                         child: const Center(
                           child: Icon(
                             Icons.broken_image,
-                            size: 48,
                             color: Colors.grey,
+                            size: 48,
                           ),
                         ),
                       ),

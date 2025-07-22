@@ -4,6 +4,7 @@ import '../service/submission_service.dart';
 import '../widget/submission_card.dart';
 import '../model/submission_model.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class SubmissionsGalleryPage extends StatefulWidget {
   final Challenge challenge;
@@ -58,6 +59,26 @@ class _SubmissionsGalleryPageState extends State<SubmissionsGalleryPage> {
           return ListView.builder(
             itemCount: submissions.length,
             itemBuilder: (context, index) {
+              // Prefetch next 3 images/thumbnails
+              for (int i = 1; i <= 3; i++) {
+                if (index + i < submissions.length) {
+                  final next = submissions[index + i];
+                  if (next.isVideo &&
+                      next.thumbnailUrl != null &&
+                      next.thumbnailUrl!.isNotEmpty) {
+                    // Use the constructor, not a method
+                    CachedNetworkImageProvider(
+                      next.thumbnailUrl!,
+                    ).resolve(const ImageConfiguration());
+                  } else if (!next.isVideo &&
+                      next.mediaUrl != null &&
+                      next.mediaUrl!.isNotEmpty) {
+                    CachedNetworkImageProvider(
+                      next.mediaUrl!,
+                    ).resolve(const ImageConfiguration());
+                  }
+                }
+              }
               return SubmissionCard(submission: submissions[index]);
             },
           );

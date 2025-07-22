@@ -7,6 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'voting.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'dart:async';
+import 'package:cached_network_image/cached_network_image.dart';
 
 // --- MODEL ---
 class Comment {
@@ -393,7 +394,9 @@ class _CommentCardState extends State<CommentCard> {
                           radius: 14,
                           backgroundImage:
                               comment.userProfileImage.isNotEmpty
-                                  ? NetworkImage(comment.userProfileImage)
+                                  ? CachedNetworkImageProvider(
+                                    comment.userProfileImage,
+                                  )
                                   : null,
                           child:
                               comment.userProfileImage.isEmpty

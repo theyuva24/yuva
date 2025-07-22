@@ -12,6 +12,8 @@ import 'package:provider/provider.dart';
 import '../../profile/controllers/profile_controller.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:yuva/universal/theme/app_theme.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class HomeScreen extends StatefulWidget {
   final int initialTabIndex;
@@ -104,7 +106,8 @@ class HomeScreenState extends State<HomeScreen> {
                 ),
                 child: CircleAvatar(
                   backgroundColor: AppThemeLight.surface,
-                  backgroundImage: (url.isNotEmpty) ? NetworkImage(url) : null,
+                  backgroundImage:
+                      (url.isNotEmpty) ? CachedNetworkImageProvider(url) : null,
                   child:
                       (url.isEmpty)
                           ? Icon(
@@ -136,6 +139,16 @@ class HomeScreenState extends State<HomeScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const HubsPage()),
+                );
+              },
+            ),
+          if (_currentIndex != 1)
+            IconButton(
+              icon: const Icon(Icons.share, color: AppThemeLight.primary),
+              tooltip: 'Share',
+              onPressed: () {
+                Share.share(
+                  "Connect, grow, and shine with India’s youth-focused social media app.\nDownload now: https://play.google.com/store/apps/details?id=com.yuva.uniqueapp",
                 );
               },
             ),

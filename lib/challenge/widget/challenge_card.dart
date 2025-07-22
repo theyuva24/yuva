@@ -4,6 +4,7 @@ import '../page/challenge_details_page.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../universal/theme/app_theme.dart';
 import 'package:intl/intl.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class ChallengeCard extends StatelessWidget {
   final Challenge challenge;
@@ -22,7 +23,7 @@ class ChallengeCard extends StatelessWidget {
         );
       },
       child: Container(
-        height: 250,
+        height: 280,
         decoration: BoxDecoration(
           boxShadow: [
             BoxShadow(
@@ -47,21 +48,26 @@ class ChallengeCard extends StatelessWidget {
                         topLeft: Radius.circular(20),
                         topRight: Radius.circular(20),
                       ),
-                      child: Image.network(
-                        challenge.imageUrl,
+                      child: CachedNetworkImage(
+                        imageUrl: challenge.imageUrl,
                         width: double.infinity,
                         height: double.infinity,
                         fit: BoxFit.cover,
-                        errorBuilder:
-                            (context, error, stackTrace) => Container(
-                              color: Colors.grey[300],
-                              width: double.infinity,
-                              height: double.infinity,
+                        placeholder:
+                            (context, url) => Container(
+                              color: Colors.grey[200],
+                              child: const Center(
+                                child: CircularProgressIndicator(),
+                              ),
+                            ),
+                        errorWidget:
+                            (context, url, error) => Container(
+                              color: Colors.grey[200],
                               child: const Center(
                                 child: Icon(
                                   Icons.broken_image,
-                                  size: 48,
                                   color: Colors.grey,
+                                  size: 48,
                                 ),
                               ),
                             ),
@@ -82,14 +88,11 @@ class ChallengeCard extends StatelessWidget {
                   ],
                 ),
               ),
-              // Fixed-height timing bar
-              SizedBox(
-                height: 10,
-                child: _ChallengeTimingBar(challenge: challenge),
-              ),
+              // Minimalist pill progress bar, flush with card edges
+              _ChallengeTimingBarMinimal(challenge: challenge),
               // Bottom text area (reduce flex to compensate for bar)
               Expanded(
-                flex: 15,
+                flex: 25,
                 child: Container(
                   width: double.infinity,
                   decoration: const BoxDecoration(
@@ -144,14 +147,17 @@ class _ChallengeTimingBar extends StatelessWidget {
     final progress =
         totalDuration > 0 ? (elapsed / totalDuration).clamp(0.0, 1.0) : 1.0;
 
-    return LinearProgressIndicator(
-      value: progress,
-      minHeight: 10,
-      backgroundColor: const Color(0xFFF3E8FF), // light purple
-      valueColor: AlwaysStoppedAnimation<Color>(
-        progress < 1.0
-            ? const Color(0xFF7C3AED)
-            : Colors.redAccent, // dark purple
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(5),
+      child: LinearProgressIndicator(
+        value: progress,
+        minHeight: 10,
+        backgroundColor: const Color(0xFFF3E8FF), // light purple
+        valueColor: AlwaysStoppedAnimation<Color>(
+          progress < 1.0
+              ? const Color(0xFF7C3AED)
+              : Colors.redAccent, // dark purple
+        ),
       ),
     );
   }
@@ -217,6 +223,54 @@ class _PrizeBadge extends StatelessWidget {
           color: Colors.black,
           fontWeight: FontWeight.w600,
           fontSize: 12,
+        ),
+      ),
+    );
+  }
+}
+
+// Minimalist pill version of the timing bar below the image
+class _ChallengeTimingBarMinimal extends StatelessWidget {
+  final Challenge challenge;
+  const _ChallengeTimingBarMinimal({required this.challenge});
+
+  @override
+  Widget build(BuildContext context) {
+    final now = DateTime.now();
+    final endDate =
+        DateTime.tryParse(challenge.endDate) ?? challenge.deadline.toDate();
+    final startDate = DateTime.tryParse(challenge.startDate) ?? now;
+    final totalDuration = endDate.difference(startDate).inSeconds;
+    final elapsed =
+        now.isBefore(startDate)
+            ? 0
+            : now.isAfter(endDate)
+            ? totalDuration
+            : now.difference(startDate).inSeconds;
+    final progress =
+        totalDuration > 0 ? (elapsed / totalDuration).clamp(0.0, 1.0) : 1.0;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 4,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: LinearProgressIndicator(
+          value: progress,
+          minHeight: 7,
+          backgroundColor: const Color(0xFFF3E8FF),
+          valueColor: AlwaysStoppedAnimation<Color>(
+            progress < 1.0 ? const Color(0xFF7C3AED) : Colors.redAccent,
+          ),
         ),
       ),
     );

@@ -5,6 +5,7 @@ import 'hub_details_page.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../universal/theme/app_theme.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class HubsPage extends StatelessWidget {
   const HubsPage({super.key});
@@ -204,24 +205,35 @@ class HubsPage extends StatelessWidget {
                                 children: [
                                   ClipRRect(
                                     borderRadius: BorderRadius.circular(12.r),
-                                    child: Image.network(
-                                      hub.imageUrl,
+                                    child: CachedNetworkImage(
+                                      imageUrl: hub.imageUrl,
                                       width: 64.w,
                                       height: 64.w,
                                       fit: BoxFit.cover,
-                                      errorBuilder:
-                                          (context, error, stackTrace) =>
-                                              Container(
-                                                width: 64.w,
-                                                height: 64.w,
-                                                color: AppThemeLight.surface,
-                                                child: Icon(
-                                                  Icons.broken_image,
-                                                  size: 32.w,
-                                                  color: AppThemeLight.primary
-                                                      .withAlpha(76),
-                                                ),
-                                              ),
+                                      placeholder:
+                                          (context, url) => Container(
+                                            width: 64.w,
+                                            height: 64.w,
+                                            color: AppThemeLight.surface,
+                                            child: Icon(
+                                              Icons.broken_image,
+                                              size: 32.w,
+                                              color: AppThemeLight.primary
+                                                  .withAlpha(76),
+                                            ),
+                                          ),
+                                      errorWidget:
+                                          (context, url, error) => Container(
+                                            width: 64.w,
+                                            height: 64.w,
+                                            color: AppThemeLight.surface,
+                                            child: Icon(
+                                              Icons.broken_image,
+                                              size: 32.w,
+                                              color: AppThemeLight.primary
+                                                  .withAlpha(76),
+                                            ),
+                                          ),
                                     ),
                                   ),
                                   SizedBox(width: 16.w),
@@ -410,24 +422,35 @@ class HubsPage extends StatelessWidget {
                                 children: [
                                   ClipRRect(
                                     borderRadius: BorderRadius.circular(12.r),
-                                    child: Image.network(
-                                      hub.imageUrl,
+                                    child: CachedNetworkImage(
+                                      imageUrl: hub.imageUrl,
                                       width: 64.w,
                                       height: 64.w,
                                       fit: BoxFit.cover,
-                                      errorBuilder:
-                                          (context, error, stackTrace) =>
-                                              Container(
-                                                width: 64.w,
-                                                height: 64.w,
-                                                color: AppThemeLight.surface,
-                                                child: Icon(
-                                                  Icons.broken_image,
-                                                  size: 32.w,
-                                                  color: AppThemeLight.primary
-                                                      .withAlpha(76),
-                                                ),
-                                              ),
+                                      placeholder:
+                                          (context, url) => Container(
+                                            width: 64.w,
+                                            height: 64.w,
+                                            color: AppThemeLight.surface,
+                                            child: Icon(
+                                              Icons.broken_image,
+                                              size: 32.w,
+                                              color: AppThemeLight.primary
+                                                  .withAlpha(76),
+                                            ),
+                                          ),
+                                      errorWidget:
+                                          (context, url, error) => Container(
+                                            width: 64.w,
+                                            height: 64.w,
+                                            color: AppThemeLight.surface,
+                                            child: Icon(
+                                              Icons.broken_image,
+                                              size: 32.w,
+                                              color: AppThemeLight.primary
+                                                  .withAlpha(76),
+                                            ),
+                                          ),
                                     ),
                                   ),
                                   SizedBox(width: 16.w),

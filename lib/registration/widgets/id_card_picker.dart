@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../universal/theme/app_theme.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class IdCardPicker extends StatelessWidget {
   final String? imagePath;
@@ -63,11 +64,29 @@ class IdCardPicker extends StatelessWidget {
                   child:
                       imagePath!.startsWith('http') ||
                               imagePath!.startsWith('https')
-                          ? Image.network(
-                            imagePath!,
-                            fit: BoxFit.cover,
+                          ? CachedNetworkImage(
+                            imageUrl: imagePath!,
                             width: double.infinity,
-                            height: double.infinity,
+                            height: 180,
+                            fit: BoxFit.cover,
+                            placeholder:
+                                (context, url) => Container(
+                                  color: Colors.grey[200],
+                                  child: const Center(
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                ),
+                            errorWidget:
+                                (context, url, error) => Container(
+                                  color: Colors.grey[200],
+                                  child: const Center(
+                                    child: Icon(
+                                      Icons.broken_image,
+                                      color: Colors.grey,
+                                      size: 48,
+                                    ),
+                                  ),
+                                ),
                           )
                           : Image.file(
                             File(imagePath!),

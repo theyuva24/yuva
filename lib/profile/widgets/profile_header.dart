@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../controllers/profile_controller.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class ProfileHeader extends StatelessWidget {
   final ProfileModel profile;
@@ -43,7 +44,7 @@ class ProfileHeader extends StatelessWidget {
                 radius: 60.r,
                 backgroundImage:
                     (profile.profilePicUrl.isNotEmpty)
-                        ? NetworkImage(profile.profilePicUrl) as ImageProvider
+                        ? CachedNetworkImageProvider(profile.profilePicUrl)
                         : const AssetImage('assets/avatar_placeholder.png'),
               ),
               if (isCurrentUser)

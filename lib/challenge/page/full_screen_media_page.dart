@@ -6,6 +6,10 @@ import '../service/challenge_service.dart';
 import '../model/challenge_model.dart';
 import 'package:video_player/video_player.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import '../service/full_screen_functionality.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 // --- ReelsVideoPlayer Widget ---
 class ReelsVideoPlayer extends StatefulWidget {
@@ -137,6 +141,7 @@ class _FullScreenMediaPageState extends State<FullScreenMediaPage> {
   final ChallengeService _challengeService = ChallengeService();
   final Map<String, Challenge?> _challengeCache = {};
   bool _showFullDesc = false;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
   void initState() {
@@ -187,9 +192,35 @@ class _FullScreenMediaPageState extends State<FullScreenMediaPage> {
             },
             itemBuilder: (context, index) {
               final submission = widget.submissions[index];
+              // Prefetch next 2 media files
+              for (int i = 1; i <= 2; i++) {
+                if (index + i < widget.submissions.length) {
+                  final next = widget.submissions[index + i];
+                  if (next.isVideo &&
+                      next.mediaUrl != null &&
+                      next.mediaUrl!.isNotEmpty) {
+                    DefaultCacheManager().downloadFile(next.mediaUrl!);
+                    if (next.thumbnailUrl != null &&
+                        next.thumbnailUrl!.isNotEmpty) {
+                      CachedNetworkImageProvider(
+                        next.thumbnailUrl!,
+                      ).resolve(const ImageConfiguration());
+                    }
+                  } else if (!next.isVideo &&
+                      next.mediaUrl != null &&
+                      next.mediaUrl!.isNotEmpty) {
+                    CachedNetworkImageProvider(
+                      next.mediaUrl!,
+                    ).resolve(const ImageConfiguration());
+                  }
+                }
+              }
               print(
                 'FullScreenMediaPage: mediaUrl = ${submission.mediaUrl}, thumbnailUrl = ${submission.thumbnailUrl}',
               );
+              final user = _auth.currentUser;
+              final challengeId = submission.challengeId;
+              final submissionId = submission.id;
               return FutureBuilder<Challenge?>(
                 future: _getChallenge(submission.challengeId),
                 builder: (context, challengeSnap) {
@@ -202,171 +233,401 @@ class _FullScreenMediaPageState extends State<FullScreenMediaPage> {
                       final String fullName = profile?.fullName ?? 'Full Name';
                       final String profileImageUrl =
                           profile?.profilePicUrl ?? '';
-                      return Stack(
-                        children: [
-                          Center(
-                            child:
-                                submission.mediaUrl != null &&
-                                        submission.mediaUrl!.isNotEmpty
-                                    ? submission.isVideo
-                                        ? ReelsVideoPlayer(
-                                          videoUrl: submission.mediaUrl!,
-                                          play: index == _currentIndex,
-                                        )
-                                        : Image.network(
-                                          submission.mediaUrl!,
-                                          fit: BoxFit.contain,
-                                          errorBuilder:
-                                              (context, error, stackTrace) =>
-                                                  Container(
-                                                    color: Colors.black,
-                                                    child: const Icon(
-                                                      Icons.broken_image,
-                                                      color: Colors.white,
-                                                      size: 80,
+                      return StreamBuilder<
+                        DocumentSnapshot<Map<String, dynamic>>
+                      >(
+                        stream:
+                            FirebaseFirestore.instance
+                                .collection('challenges')
+                                .doc(challengeId)
+                                .collection('challenge_submission')
+                                .doc(submissionId)
+                                .snapshots(),
+                        builder: (context, snap) {
+                          final data = snap.data?.data();
+                          final likeCount = data?['likeCount'] ?? 0;
+                          final commentCount = data?['commentCount'] ?? 0;
+                          final shareCount = data?['shareCount'] ?? 0;
+                          return StreamBuilder<
+                            DocumentSnapshot<Map<String, dynamic>>
+                          >(
+                            stream:
+                                user == null
+                                    ? null
+                                    : FirebaseFirestore.instance
+                                        .collection('challenges')
+                                        .doc(challengeId)
+                                        .collection('challenge_submission')
+                                        .doc(submissionId)
+                                        .collection('likeInteractions')
+                                        .doc(user.uid)
+                                        .snapshots(),
+                            builder: (context, likeSnap) {
+                              final liked = likeSnap.data?.exists ?? false;
+                              return Stack(
+                                children: [
+                                  Center(
+                                    child:
+                                        submission.mediaUrl != null &&
+                                                submission.mediaUrl!.isNotEmpty
+                                            ? submission.isVideo
+                                                ? Stack(
+                                                  children: [
+                                                    if (submission
+                                                                .thumbnailUrl !=
+                                                            null &&
+                                                        submission
+                                                            .thumbnailUrl!
+                                                            .isNotEmpty)
+                                                      Positioned.fill(
+                                                        child: CachedNetworkImage(
+                                                          imageUrl:
+                                                              submission
+                                                                  .thumbnailUrl!,
+                                                          fit: BoxFit.cover,
+                                                          placeholder:
+                                                              (
+                                                                context,
+                                                                url,
+                                                              ) => const Center(
+                                                                child:
+                                                                    CircularProgressIndicator(),
+                                                              ),
+                                                          errorWidget:
+                                                              (
+                                                                context,
+                                                                url,
+                                                                error,
+                                                              ) => Container(
+                                                                color:
+                                                                    Colors
+                                                                        .black,
+                                                              ),
+                                                        ),
+                                                      ),
+                                                    ReelsVideoPlayer(
+                                                      videoUrl:
+                                                          submission.mediaUrl!,
+                                                      play:
+                                                          index ==
+                                                          _currentIndex,
                                                     ),
-                                                  ),
-                                        )
-                                    : const Icon(
-                                      Icons.image,
-                                      color: Colors.white,
-                                      size: 80,
-                                    ),
-                          ),
-                          // Bottom left: challenge title, description (max 2 lines), show more, and user name
-                          Positioned(
-                            left: 16,
-                            bottom: 32,
-                            right: 100,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                // Challenge title
-                                Text(
-                                  challengeTitle,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18,
-                                    shadows: [
-                                      Shadow(
-                                        blurRadius: 4,
-                                        color: Colors.black54,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(height: 10),
-                                // Description/caption with show more
-                                _DescriptionWithShowMore(
-                                  description: submission.caption,
-                                  onShowMore: () {
-                                    showModalBottomSheet(
-                                      context: context,
-                                      backgroundColor: Colors.black87,
-                                      shape: const RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.vertical(
-                                          top: Radius.circular(20),
-                                        ),
-                                      ),
-                                      builder:
-                                          (context) => Padding(
-                                            padding: const EdgeInsets.all(24.0),
-                                            child: SingleChildScrollView(
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  Text(
-                                                    'Description',
-                                                    style: const TextStyle(
-                                                      color: Colors.white,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      fontSize: 18,
-                                                    ),
-                                                  ),
-                                                  const SizedBox(height: 16),
-                                                  Text(
-                                                    submission.caption,
-                                                    style: const TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize: 16,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
+                                                  ],
+                                                )
+                                                : CachedNetworkImage(
+                                                  imageUrl:
+                                                      submission.mediaUrl!,
+                                                  fit: BoxFit.contain,
+                                                  placeholder:
+                                                      (
+                                                        context,
+                                                        url,
+                                                      ) => const Center(
+                                                        child:
+                                                            CircularProgressIndicator(),
+                                                      ),
+                                                  errorWidget:
+                                                      (
+                                                        context,
+                                                        url,
+                                                        error,
+                                                      ) => Container(
+                                                        color: Colors.black,
+                                                        child: const Icon(
+                                                          Icons.broken_image,
+                                                          color: Colors.white,
+                                                          size: 80,
+                                                        ),
+                                                      ),
+                                                )
+                                            : const Icon(
+                                              Icons.image,
+                                              color: Colors.white,
+                                              size: 80,
                                             ),
-                                          ),
-                                    );
-                                  },
-                                ),
-                                const SizedBox(height: 10),
-                                // User name (full name)
-                                Text(
-                                  fullName,
-                                  style: const TextStyle(
-                                    color: Colors.white70,
-                                    fontSize: 14,
-                                    shadows: [
-                                      Shadow(
-                                        blurRadius: 4,
-                                        color: Colors.black54,
-                                      ),
-                                    ],
                                   ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          // Right: profile image above action buttons
-                          Positioned(
-                            right: 16,
-                            bottom: 180,
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                // Profile image (for TikTok style)
-                                CircleAvatar(
-                                  radius: 28,
-                                  backgroundColor: Colors.white24,
-                                  backgroundImage:
-                                      profileImageUrl.isNotEmpty
-                                          ? NetworkImage(profileImageUrl)
-                                          : null,
-                                  child:
-                                      profileImageUrl.isEmpty
-                                          ? Icon(
-                                            Icons.person,
+                                  // Bottom left: challenge title, description (max 2 lines), show more, and user name
+                                  Positioned(
+                                    left: 16,
+                                    bottom: 32,
+                                    right: 100,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        // Challenge title
+                                        Text(
+                                          challengeTitle,
+                                          style: const TextStyle(
                                             color: Colors.white,
-                                            size: 32,
-                                          )
-                                          : null,
-                                ),
-                                const SizedBox(height: 24),
-                                _ActionButton(
-                                  icon: Icons.favorite_border,
-                                  label: 'Like',
-                                  onTap: () {},
-                                ),
-                                const SizedBox(height: 24),
-                                _ActionButton(
-                                  icon: Icons.comment,
-                                  label: 'Comment',
-                                  onTap: () {},
-                                ),
-                                const SizedBox(height: 24),
-                                _ActionButton(
-                                  icon: Icons.share,
-                                  label: 'Share',
-                                  onTap: () {},
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 18,
+                                            shadows: [
+                                              Shadow(
+                                                blurRadius: 4,
+                                                color: Colors.black54,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        const SizedBox(height: 10),
+                                        // Description/caption with show more
+                                        _DescriptionWithShowMore(
+                                          description: submission.caption,
+                                          onShowMore: () {
+                                            showModalBottomSheet(
+                                              context: context,
+                                              backgroundColor: Colors.black87,
+                                              shape:
+                                                  const RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.vertical(
+                                                          top: Radius.circular(
+                                                            20,
+                                                          ),
+                                                        ),
+                                                  ),
+                                              builder:
+                                                  (context) => Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                          24.0,
+                                                        ),
+                                                    child: SingleChildScrollView(
+                                                      child: Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        mainAxisSize:
+                                                            MainAxisSize.min,
+                                                        children: [
+                                                          Text(
+                                                            'Description',
+                                                            style:
+                                                                const TextStyle(
+                                                                  color:
+                                                                      Colors
+                                                                          .white,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  fontSize: 18,
+                                                                ),
+                                                          ),
+                                                          const SizedBox(
+                                                            height: 16,
+                                                          ),
+                                                          Text(
+                                                            submission.caption,
+                                                            style:
+                                                                const TextStyle(
+                                                                  color:
+                                                                      Colors
+                                                                          .white,
+                                                                  fontSize: 16,
+                                                                ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                            );
+                                          },
+                                        ),
+                                        const SizedBox(height: 10),
+                                        // User name (full name)
+                                        Text(
+                                          fullName,
+                                          style: const TextStyle(
+                                            color: Colors.white70,
+                                            fontSize: 14,
+                                            shadows: [
+                                              Shadow(
+                                                blurRadius: 4,
+                                                color: Colors.black54,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  // Right: profile image above action buttons
+                                  Positioned(
+                                    right: 16,
+                                    bottom: 180,
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        // Profile image (for TikTok style)
+                                        GestureDetector(
+                                          onTap: () {
+                                            FullScreenFunctionality.viewProfile(
+                                              context: context,
+                                              userId: submission.userId,
+                                            );
+                                          },
+                                          child: CircleAvatar(
+                                            radius: 28,
+                                            backgroundColor: Colors.white24,
+                                            backgroundImage:
+                                                profileImageUrl.isNotEmpty
+                                                    ? NetworkImage(
+                                                      profileImageUrl,
+                                                    )
+                                                    : null,
+                                            child:
+                                                profileImageUrl.isEmpty
+                                                    ? Icon(
+                                                      Icons.person,
+                                                      color: Colors.white,
+                                                      size: 32,
+                                                    )
+                                                    : null,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 24),
+                                        _ActionButton(
+                                          icon:
+                                              liked
+                                                  ? Icons.favorite
+                                                  : Icons.favorite_border,
+                                          label: 'Like',
+                                          onTap: () async {
+                                            await FullScreenFunctionality.likeSubmission(
+                                              challengeId:
+                                                  submission.challengeId,
+                                              submissionId: submission.id,
+                                              submissionOwnerId:
+                                                  submission.userId,
+                                              context: context,
+                                            );
+                                          },
+                                          count: likeCount,
+                                        ),
+                                        const SizedBox(height: 24),
+                                        _ActionButton(
+                                          icon: Icons.comment,
+                                          label: 'Comment',
+                                          onTap: () async {
+                                            final TextEditingController
+                                            _commentController =
+                                                TextEditingController();
+                                            await showDialog(
+                                              context: context,
+                                              builder:
+                                                  (context) => AlertDialog(
+                                                    title: const Text(
+                                                      'Add Comment',
+                                                    ),
+                                                    content: TextField(
+                                                      controller:
+                                                          _commentController,
+                                                      decoration: const InputDecoration(
+                                                        hintText:
+                                                            'Write your comment...',
+                                                        border:
+                                                            OutlineInputBorder(),
+                                                      ),
+                                                      maxLines: 3,
+                                                    ),
+                                                    actions: [
+                                                      TextButton(
+                                                        onPressed:
+                                                            () => Navigator.pop(
+                                                              context,
+                                                            ),
+                                                        child: const Text(
+                                                          'Cancel',
+                                                        ),
+                                                      ),
+                                                      ElevatedButton(
+                                                        onPressed: () async {
+                                                          if (_commentController
+                                                              .text
+                                                              .trim()
+                                                              .isNotEmpty) {
+                                                            final user =
+                                                                FirebaseAuth
+                                                                    .instance
+                                                                    .currentUser;
+                                                            if (user == null)
+                                                              return;
+                                                            final commentsRef =
+                                                                FirebaseFirestore
+                                                                    .instance
+                                                                    .collection(
+                                                                      'challenges',
+                                                                    )
+                                                                    .doc(
+                                                                      submission
+                                                                          .challengeId,
+                                                                    )
+                                                                    .collection(
+                                                                      'challenge_submission',
+                                                                    )
+                                                                    .doc(
+                                                                      submission
+                                                                          .id,
+                                                                    )
+                                                                    .collection(
+                                                                      'comments',
+                                                                    );
+                                                            await commentsRef.add({
+                                                              'userId':
+                                                                  user.uid,
+                                                              'commentContent':
+                                                                  _commentController
+                                                                      .text
+                                                                      .trim(),
+                                                              'commentTime':
+                                                                  FieldValue.serverTimestamp(),
+                                                              'upvotes': 0,
+                                                              'downvotes': 0,
+                                                              'score': 0,
+                                                              'parentCommentId':
+                                                                  null,
+                                                            });
+                                                            Navigator.pop(
+                                                              context,
+                                                            );
+                                                          }
+                                                        },
+                                                        child: const Text(
+                                                          'Post',
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                            );
+                                          },
+                                          count: commentCount,
+                                        ),
+                                        const SizedBox(height: 24),
+                                        _ActionButton(
+                                          icon: Icons.share,
+                                          label: 'Share',
+                                          onTap: () async {
+                                            await FullScreenFunctionality.shareSubmission(
+                                              challengeId:
+                                                  submission.challengeId,
+                                              submissionId: submission.id,
+                                              submissionOwnerId:
+                                                  submission.userId,
+                                              context: context,
+                                            );
+                                          },
+                                          count: shareCount,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
                       );
                     },
                   );
@@ -485,10 +746,12 @@ class _ActionButton extends StatelessWidget {
   final IconData icon;
   final String label;
   final VoidCallback onTap;
+  final int? count;
   const _ActionButton({
     required this.icon,
     required this.label,
     required this.onTap,
+    this.count,
   });
 
   @override
@@ -506,13 +769,31 @@ class _ActionButton extends StatelessWidget {
             child: Icon(icon, color: Colors.white, size: 32),
           ),
           const SizedBox(height: 6),
-          Text(
-            label,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 13,
-              shadows: [Shadow(blurRadius: 4, color: Colors.black54)],
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                label,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 13,
+                  shadows: [Shadow(blurRadius: 4, color: Colors.black54)],
+                ),
+              ),
+              if (count != null)
+                Padding(
+                  padding: const EdgeInsets.only(left: 4.0),
+                  child: Text(
+                    count.toString(),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      shadows: [Shadow(blurRadius: 4, color: Colors.black54)],
+                    ),
+                  ),
+                ),
+            ],
           ),
         ],
       ),

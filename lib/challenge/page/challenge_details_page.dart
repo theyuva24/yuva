@@ -7,6 +7,7 @@ import '../../universal/theme/app_theme.dart';
 import '../service/submission_service.dart';
 import '../model/submission_model.dart';
 import 'full_screen_media_page.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class ChallengeDetailsPage extends StatefulWidget {
   final Challenge challenge;
@@ -86,13 +87,22 @@ class _ChallengeDetailsPageState extends State<ChallengeDetailsPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Challenge image at the top
-                  Image.network(
-                    challenge.imageUrl,
+                  CachedNetworkImage(
+                    imageUrl: challenge.imageUrl,
                     width: double.infinity,
                     height: 220,
                     fit: BoxFit.cover,
-                    errorBuilder:
-                        (context, error, stackTrace) => Container(
+                    placeholder:
+                        (context, url) => Container(
+                          color: Colors.grey[300],
+                          width: double.infinity,
+                          height: 220,
+                          child: const Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                        ),
+                    errorWidget:
+                        (context, url, error) => Container(
                           color: Colors.grey[300],
                           width: double.infinity,
                           height: 220,
@@ -304,6 +314,25 @@ class _ChallengeDetailsPageState extends State<ChallengeDetailsPage> {
                                   ),
                               itemBuilder: (context, index) {
                                 final submission = submissions[index];
+                                // Prefetch next 3 images/thumbnails
+                                for (int i = 1; i <= 3; i++) {
+                                  if (index + i < submissions.length) {
+                                    final next = submissions[index + i];
+                                    if (next.isVideo &&
+                                        next.thumbnailUrl != null &&
+                                        next.thumbnailUrl!.isNotEmpty) {
+                                      CachedNetworkImageProvider(
+                                        next.thumbnailUrl!,
+                                      ).resolve(const ImageConfiguration());
+                                    } else if (!next.isVideo &&
+                                        next.mediaUrl != null &&
+                                        next.mediaUrl!.isNotEmpty) {
+                                      CachedNetworkImageProvider(
+                                        next.mediaUrl!,
+                                      ).resolve(const ImageConfiguration());
+                                    }
+                                  }
+                                }
                                 return GestureDetector(
                                   onTap: () {
                                     Navigator.push(
@@ -330,14 +359,29 @@ class _ChallengeDetailsPageState extends State<ChallengeDetailsPage> {
                                                         submission
                                                             .thumbnailUrl!
                                                             .isNotEmpty
-                                                    ? Image.network(
-                                                      submission.thumbnailUrl!,
+                                                    ? CachedNetworkImage(
+                                                      imageUrl:
+                                                          submission
+                                                              .thumbnailUrl!,
                                                       fit: BoxFit.cover,
-                                                      errorBuilder:
+                                                      placeholder:
                                                           (
                                                             context,
+                                                            url,
+                                                          ) => Container(
+                                                            color:
+                                                                Colors
+                                                                    .grey[300],
+                                                            child: const Center(
+                                                              child:
+                                                                  CircularProgressIndicator(),
+                                                            ),
+                                                          ),
+                                                      errorWidget:
+                                                          (
+                                                            context,
+                                                            url,
                                                             error,
-                                                            stackTrace,
                                                           ) =>
                                                               _buildVideoPlaceholder(),
                                                     )
@@ -352,28 +396,35 @@ class _ChallengeDetailsPageState extends State<ChallengeDetailsPage> {
                                                 ),
                                               ],
                                             )
-                                            : Image.network(
-                                              submission.mediaUrl!,
+                                            : CachedNetworkImage(
+                                              imageUrl: submission.mediaUrl!,
                                               fit: BoxFit.cover,
                                               width: double.infinity,
                                               height: 180,
-                                              errorBuilder:
-                                                  (
-                                                    context,
-                                                    error,
-                                                    stackTrace,
-                                                  ) => Container(
+                                              placeholder:
+                                                  (context, url) => Container(
                                                     color: Colors.grey[300],
                                                     width: double.infinity,
                                                     height: 180,
                                                     child: const Center(
-                                                      child: Icon(
-                                                        Icons.broken_image,
-                                                        size: 48,
-                                                        color: Colors.grey,
-                                                      ),
+                                                      child:
+                                                          CircularProgressIndicator(),
                                                     ),
                                                   ),
+                                              errorWidget:
+                                                  (context, url, error) =>
+                                                      Container(
+                                                        color: Colors.grey[300],
+                                                        width: double.infinity,
+                                                        height: 180,
+                                                        child: const Center(
+                                                          child: Icon(
+                                                            Icons.broken_image,
+                                                            size: 48,
+                                                            color: Colors.grey,
+                                                          ),
+                                                        ),
+                                                      ),
                                             ),
                                   ),
                                 );

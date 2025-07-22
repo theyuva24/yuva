@@ -10,6 +10,7 @@ import '../service/hub_service.dart';
 import 'post_details_page.dart'; // Import PostDetailsPage
 import 'package:google_fonts/google_fonts.dart';
 import '../../universal/theme/app_theme.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class HubDetailsPage extends StatefulWidget {
   final Hub hub;
@@ -92,19 +93,24 @@ class _HubDetailsPageState extends State<HubDetailsPage> {
                 Center(
                   child: SizedBox(
                     width: MediaQuery.of(context).size.width,
-                    child: Image.network(
-                      widget.hub.imageUrl,
-                      fit: BoxFit.contain,
-                      errorBuilder:
-                          (context, error, stackTrace) => Container(
-                            color: Colors.grey[300],
-                            width: MediaQuery.of(context).size.width,
-                            height: 200,
+                    child: CachedNetworkImage(
+                      imageUrl: widget.hub.imageUrl,
+                      fit: BoxFit.cover,
+                      placeholder:
+                          (context, url) => Container(
+                            color: Colors.grey[200],
+                            child: const Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                          ),
+                      errorWidget:
+                          (context, url, error) => Container(
+                            color: Colors.grey[200],
                             child: const Center(
                               child: Icon(
                                 Icons.broken_image,
-                                size: 64,
                                 color: Colors.grey,
+                                size: 48,
                               ),
                             ),
                           ),

@@ -17,6 +17,40 @@ service cloud.firestore {
       allow read: if true;
       allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
       allow update, delete: if request.auth != null && request.auth.uid == resource.data.userId;
+
+      // Allow users to like/unlike a submission
+      match /likeInteractions/{userId} {
+        allow read: if true;
+        allow create, delete: if request.auth != null && request.auth.uid == userId;
+      }
+
+      // Allow users to comment on a submission
+      match /comments/{commentId} {
+        allow read: if true;
+        allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+        allow update, delete: if request.auth != null && request.auth.uid == resource.data.userId;
+        // Allow users to like/unlike a comment
+        match /likeInteractions/{userId} {
+          allow read: if true;
+          allow create, delete: if request.auth != null && request.auth.uid == userId;
+        }
+        // Allow anyone to increment likeCount (but not edit other fields)
+        allow update: if request.auth != null &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likeCount']);
+      }
+
+      // Allow users to share a submission
+      match /shareInteractions/{userId} {
+        allow read: if true;
+        allow create: if request.auth != null && request.auth.uid == userId;
+        allow delete: if request.auth != null && request.auth.uid == userId;
+      }
+
+      // Allow anyone to increment likeCount, commentCount, shareCount (but not edit other fields)
+      allow update: if request.auth != null &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'likeCount', 'commentCount', 'shareCount', 'lastSharedAt'
+        ]);
     }
 
     // Allow users to read user profiles

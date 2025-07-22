@@ -10,6 +10,7 @@ import '../service/full_screen_functionality.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import '../widget/challenge_comment.dart';
 
 // --- ReelsVideoPlayer Widget ---
 class ReelsVideoPlayer extends StatefulWidget {
@@ -178,6 +179,7 @@ class _FullScreenMediaPageState extends State<FullScreenMediaPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
+      resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
           PageView.builder(
@@ -378,7 +380,7 @@ class _FullScreenMediaPageState extends State<FullScreenMediaPage> {
                                           onShowMore: () {
                                             showModalBottomSheet(
                                               context: context,
-                                              backgroundColor: Colors.black87,
+                                              // Use app theme background color
                                               shape:
                                                   const RoundedRectangleBorder(
                                                     borderRadius:
@@ -507,98 +509,49 @@ class _FullScreenMediaPageState extends State<FullScreenMediaPage> {
                                           count: likeCount,
                                         ),
                                         const SizedBox(height: 24),
+                                        // Comment button
                                         _ActionButton(
                                           icon: Icons.comment,
                                           label: 'Comment',
                                           onTap: () async {
-                                            final TextEditingController
-                                            _commentController =
-                                                TextEditingController();
-                                            await showDialog(
+                                            showModalBottomSheet(
                                               context: context,
+                                              isScrollControlled:
+                                                  true, // Ensure modal resizes with keyboard
+                                              shape:
+                                                  const RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.vertical(
+                                                          top: Radius.circular(
+                                                            20,
+                                                          ),
+                                                        ),
+                                                  ),
                                               builder:
-                                                  (context) => AlertDialog(
-                                                    title: const Text(
-                                                      'Add Comment',
+                                                  (context) => SafeArea(
+                                                    child: Container(
+                                                      constraints:
+                                                          BoxConstraints(
+                                                            maxHeight:
+                                                                MediaQuery.of(
+                                                                  context,
+                                                                ).size.height *
+                                                                0.95,
+                                                            minHeight:
+                                                                MediaQuery.of(
+                                                                  context,
+                                                                ).size.height *
+                                                                0.4,
+                                                          ),
+                                                      child:
+                                                          ChallengeCommentSection(
+                                                            challengeId:
+                                                                submission
+                                                                    .challengeId,
+                                                            submissionId:
+                                                                submission.id,
+                                                          ),
                                                     ),
-                                                    content: TextField(
-                                                      controller:
-                                                          _commentController,
-                                                      decoration: const InputDecoration(
-                                                        hintText:
-                                                            'Write your comment...',
-                                                        border:
-                                                            OutlineInputBorder(),
-                                                      ),
-                                                      maxLines: 3,
-                                                    ),
-                                                    actions: [
-                                                      TextButton(
-                                                        onPressed:
-                                                            () => Navigator.pop(
-                                                              context,
-                                                            ),
-                                                        child: const Text(
-                                                          'Cancel',
-                                                        ),
-                                                      ),
-                                                      ElevatedButton(
-                                                        onPressed: () async {
-                                                          if (_commentController
-                                                              .text
-                                                              .trim()
-                                                              .isNotEmpty) {
-                                                            final user =
-                                                                FirebaseAuth
-                                                                    .instance
-                                                                    .currentUser;
-                                                            if (user == null)
-                                                              return;
-                                                            final commentsRef =
-                                                                FirebaseFirestore
-                                                                    .instance
-                                                                    .collection(
-                                                                      'challenges',
-                                                                    )
-                                                                    .doc(
-                                                                      submission
-                                                                          .challengeId,
-                                                                    )
-                                                                    .collection(
-                                                                      'challenge_submission',
-                                                                    )
-                                                                    .doc(
-                                                                      submission
-                                                                          .id,
-                                                                    )
-                                                                    .collection(
-                                                                      'comments',
-                                                                    );
-                                                            await commentsRef.add({
-                                                              'userId':
-                                                                  user.uid,
-                                                              'commentContent':
-                                                                  _commentController
-                                                                      .text
-                                                                      .trim(),
-                                                              'commentTime':
-                                                                  FieldValue.serverTimestamp(),
-                                                              'upvotes': 0,
-                                                              'downvotes': 0,
-                                                              'score': 0,
-                                                              'parentCommentId':
-                                                                  null,
-                                                            });
-                                                            Navigator.pop(
-                                                              context,
-                                                            );
-                                                          }
-                                                        },
-                                                        child: const Text(
-                                                          'Post',
-                                                        ),
-                                                      ),
-                                                    ],
                                                   ),
                                             );
                                           },

@@ -68,56 +68,6 @@ class FullScreenFunctionality {
     ).showSnackBar(SnackBar(content: Text('Like updated!')));
   }
 
-  /// Add a comment to a submission
-  static Future<void> commentOnSubmission({
-    required String challengeId,
-    required String submissionId,
-    required String commentContent,
-    required String submissionOwnerId,
-    required BuildContext context,
-  }) async {
-    final user = _auth.currentUser;
-    if (user == null) throw Exception('User not authenticated');
-    final commentsRef = _firestore
-        .collection('challenges')
-        .doc(challengeId)
-        .collection('challenge_submission')
-        .doc(submissionId)
-        .collection('comments');
-    final submissionRef = _firestore
-        .collection('challenges')
-        .doc(challengeId)
-        .collection('challenge_submission')
-        .doc(submissionId);
-    final commentData = {
-      'userId': user.uid,
-      'commentContent': commentContent,
-      'commentTime': FieldValue.serverTimestamp(),
-      'upvotes': 0,
-      'downvotes': 0,
-      'score': 0,
-      'parentCommentId': null,
-    };
-    await commentsRef.add(commentData);
-    await submissionRef.update({'commentCount': FieldValue.increment(1)});
-    // Send notification if not self
-    if (submissionOwnerId != user.uid) {
-      final userDoc = await _firestore.collection('users').doc(user.uid).get();
-      final senderName = userDoc.data()?['fullName'] ?? 'Someone';
-      await _notificationService.addNotification(
-        recipientId: submissionOwnerId,
-        type: 'comment',
-        postId: submissionId,
-        senderId: user.uid,
-        senderName: senderName,
-        commentText: commentContent,
-      );
-    }
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text('Comment added!')));
-  }
-
   /// Share a submission (rate-limited to 1 per hour per user)
   static Future<void> shareSubmission({
     required String challengeId,

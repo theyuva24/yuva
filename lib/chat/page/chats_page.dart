@@ -7,8 +7,32 @@ import 'hub_chat_page.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../universal/theme/app_theme.dart';
 
-class ChatsPage extends StatelessWidget {
+final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
+
+class ChatsPage extends StatefulWidget {
   const ChatsPage({super.key});
+
+  @override
+  State<ChatsPage> createState() => _ChatsPageState();
+}
+
+class _ChatsPageState extends State<ChatsPage> with RouteAware {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context)! as PageRoute);
+  }
+
+  @override
+  void dispose() {
+    routeObserver.unsubscribe(this);
+    super.dispose();
+  }
+
+  @override
+  void didPopNext() {
+    setState(() {}); // Refresh when coming back from message page
+  }
 
   Future<Map<String, dynamic>?> fetchUserProfile(String userId) async {
     final doc =
@@ -26,13 +50,29 @@ class ChatsPage extends StatelessWidget {
         orElse: () => userId,
       );
       final userProfile = await fetchUserProfile(otherUserId);
+      // Fetch latest message from messages subcollection
+      final latestMsgQuery =
+          await FirebaseFirestore.instance
+              .collection('chats')
+              .doc(chat.id)
+              .collection('messages')
+              .orderBy('timestamp', descending: true)
+              .limit(1)
+              .get();
+      String lastMsg = '';
+      DateTime? lastMsgTime;
+      if (latestMsgQuery.docs.isNotEmpty) {
+        lastMsg = latestMsgQuery.docs.first['text'] ?? '';
+        final ts = latestMsgQuery.docs.first['timestamp'];
+        if (ts is Timestamp) lastMsgTime = ts.toDate();
+      }
       unified.add({
         'type': 'direct',
         'id': chat.id,
         'name': userProfile?['fullName'] ?? 'Unknown',
         'imageUrl': userProfile?['profilePicUrl'] ?? '',
-        'lastMsg': chat.lastMessage,
-        'lastMsgTime': chat.lastMessageTime,
+        'lastMsg': lastMsg,
+        'lastMsgTime': lastMsgTime,
         'otherUserId': otherUserId,
       });
     }
@@ -115,16 +155,21 @@ class ChatsPage extends StatelessWidget {
       data: AppThemeLight.theme,
       child: Scaffold(
         backgroundColor: AppThemeLight.background,
-        body: FutureBuilder<List<Map<String, dynamic>>>(
-          future: fetchUnifiedChats(user.uid),
+        body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+          stream:
+              FirebaseFirestore.instance
+                  .collection('chats')
+                  .where('participants', arrayContains: user.uid)
+                  .orderBy('lastMessageTime', descending: true)
+                  .snapshots(),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
               return const Center(
                 child: CircularProgressIndicator(color: AppThemeLight.primary),
               );
             }
-            final chats = snapshot.data!;
-            if (chats.isEmpty) {
+            final chatDocs = snapshot.data!.docs;
+            if (chatDocs.isEmpty) {
               return const Center(
                 child: Padding(
                   padding: EdgeInsets.only(top: 64),
@@ -139,151 +184,228 @@ class ChatsPage extends StatelessWidget {
               );
             }
             return ListView.builder(
-              itemCount: chats.length,
+              itemCount: chatDocs.length,
               itemBuilder: (context, index) {
-                final chat = chats[index];
-                return FutureBuilder<int>(
-                  future:
-                      chat['type'] == 'direct'
-                          ? fetchUnreadCount(chat['id'], user.uid)
-                          : Future.value(0),
-                  builder: (context, unreadSnapshot) {
-                    final unreadCount = unreadSnapshot.data ?? 0;
-                    return ListTile(
-                      tileColor: AppThemeLight.surface,
-                      leading:
-                          chat['imageUrl'].isNotEmpty
-                              ? Container(
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: AppThemeLight.primary,
-                                    width: 2,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: AppThemeLight.primary.withAlpha(
-                                        29,
-                                      ),
-                                      blurRadius: 8,
-                                      spreadRadius: 1,
-                                    ),
-                                  ],
-                                ),
-                                child: CircleAvatar(
-                                  backgroundImage: NetworkImage(
-                                    chat['imageUrl'],
-                                  ),
-                                  backgroundColor: AppThemeLight.surface,
-                                ),
-                              )
-                              : Container(
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: AppThemeLight.primary,
-                                    width: 2,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: AppThemeLight.primary.withAlpha(
-                                        29,
-                                      ),
-                                      blurRadius: 8,
-                                      spreadRadius: 1,
-                                    ),
-                                  ],
-                                ),
-                                child: CircleAvatar(
-                                  backgroundColor: AppThemeLight.surface,
-                                  child: Icon(
-                                    chat['type'] == 'hub'
-                                        ? Icons.groups
-                                        : Icons.person,
-                                    color: AppThemeLight.primary,
-                                  ),
-                                ),
-                              ),
-                      title: Text(
-                        chat['name'],
-                        style: GoogleFonts.orbitron(
-                          textStyle: const TextStyle(
-                            color: AppThemeLight.primary,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                            letterSpacing: 1,
-                            shadows: [
-                              Shadow(
-                                color: AppThemeLight.primary,
-                                blurRadius: 8,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      subtitle: Text(
-                        chat['lastMsg'] ?? '',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(color: AppThemeLight.textLight),
-                      ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (chat['lastMsgTime'] != null)
-                            Text(
-                              TimeOfDay.fromDateTime(
-                                chat['lastMsgTime'],
-                              ).format(context),
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: AppThemeLight.primary,
-                              ),
-                            ),
-                          if (unreadCount > 0)
-                            Container(
-                              margin: const EdgeInsets.only(left: 8),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 2,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.red,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Text(
-                                unreadCount.toString(),
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                      onTap: () {
-                        if (chat['type'] == 'hub') {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder:
-                                  (context) => HubChatPage(
-                                    hubId: chat['id'],
-                                    hubName: chat['name'],
-                                  ),
-                            ),
-                          );
-                        } else {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder:
-                                  (context) => ChatPage(
-                                    chatId: chat['id'],
-                                    otherUserId: chat['otherUserId'],
-                                  ),
-                            ),
-                          );
+                final chatDoc = chatDocs[index];
+                final chatData = chatDoc.data();
+                final chatId = chatDoc.id;
+                final participants = List<String>.from(
+                  chatData['participants'] ?? [],
+                );
+                final otherUserId = participants.firstWhere(
+                  (id) => id != user.uid,
+                  orElse: () => user.uid,
+                );
+                return FutureBuilder<Map<String, dynamic>?>(
+                  future: fetchUserProfile(otherUserId),
+                  builder: (context, userProfileSnapshot) {
+                    final userProfile = userProfileSnapshot.data;
+                    final currentUserId = user.uid;
+                    return StreamBuilder<
+                      DocumentSnapshot<Map<String, dynamic>>
+                    >(
+                      stream:
+                          FirebaseFirestore.instance
+                              .collection('chats')
+                              .doc(chatId)
+                              .snapshots(),
+                      builder: (context, chatDocSnapshot) {
+                        if (!chatDocSnapshot.hasData ||
+                            chatDocSnapshot.data == null) {
+                          return const SizedBox.shrink();
                         }
+                        final chatData = chatDocSnapshot.data!.data();
+                        final lastReadTimestamps =
+                            chatData?['lastReadTimestamps'] ?? {};
+                        final lastRead =
+                            lastReadTimestamps[currentUserId] != null &&
+                                    lastReadTimestamps[currentUserId]
+                                        is Timestamp
+                                ? (lastReadTimestamps[currentUserId]
+                                        as Timestamp)
+                                    .toDate()
+                                : DateTime.fromMillisecondsSinceEpoch(0);
+                        return StreamBuilder<
+                          QuerySnapshot<Map<String, dynamic>>
+                        >(
+                          stream:
+                              FirebaseFirestore.instance
+                                  .collection('chats')
+                                  .doc(chatId)
+                                  .collection('messages')
+                                  .orderBy('timestamp', descending: true)
+                                  .limit(1)
+                                  .snapshots(),
+                          builder: (context, latestMsgSnapshot) {
+                            String lastMsg = '';
+                            DateTime? lastMsgTime;
+                            if (latestMsgSnapshot.hasData &&
+                                latestMsgSnapshot.data!.docs.isNotEmpty) {
+                              final msgDoc = latestMsgSnapshot.data!.docs.first;
+                              lastMsg = msgDoc['text'] ?? '';
+                              final ts = msgDoc['timestamp'];
+                              if (ts is Timestamp) lastMsgTime = ts.toDate();
+                            }
+                            return StreamBuilder<
+                              QuerySnapshot<Map<String, dynamic>>
+                            >(
+                              stream:
+                                  FirebaseFirestore.instance
+                                      .collection('chats')
+                                      .doc(chatId)
+                                      .collection('messages')
+                                      .where(
+                                        'timestamp',
+                                        isGreaterThan: lastRead,
+                                      )
+                                      .where('timestamp', isNotEqualTo: null)
+                                      .where(
+                                        'senderId',
+                                        isNotEqualTo: currentUserId,
+                                      )
+                                      .snapshots(),
+                              builder: (context, unreadSnapshot) {
+                                int unreadCount = 0;
+                                if (unreadSnapshot.hasData) {
+                                  unreadCount =
+                                      unreadSnapshot.data!.docs.length;
+                                }
+                                return ListTile(
+                                  tileColor: AppThemeLight.surface,
+                                  leading:
+                                      userProfile != null &&
+                                              (userProfile['profilePicUrl'] ??
+                                                      '')
+                                                  .isNotEmpty
+                                          ? Container(
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              border: Border.all(
+                                                color: AppThemeLight.primary,
+                                                width: 2,
+                                              ),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: AppThemeLight.primary
+                                                      .withAlpha(29),
+                                                  blurRadius: 8,
+                                                  spreadRadius: 1,
+                                                ),
+                                              ],
+                                            ),
+                                            child: CircleAvatar(
+                                              backgroundImage: NetworkImage(
+                                                userProfile['profilePicUrl'],
+                                              ),
+                                              backgroundColor:
+                                                  AppThemeLight.surface,
+                                            ),
+                                          )
+                                          : Container(
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              border: Border.all(
+                                                color: AppThemeLight.primary,
+                                                width: 2,
+                                              ),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: AppThemeLight.primary
+                                                      .withAlpha(29),
+                                                  blurRadius: 8,
+                                                  spreadRadius: 1,
+                                                ),
+                                              ],
+                                            ),
+                                            child: CircleAvatar(
+                                              backgroundColor:
+                                                  AppThemeLight.surface,
+                                              child: Icon(
+                                                Icons.person,
+                                                color: AppThemeLight.primary,
+                                              ),
+                                            ),
+                                          ),
+                                  title: Text(
+                                    userProfile?['fullName'] ?? 'Unknown',
+                                    style: GoogleFonts.orbitron(
+                                      textStyle: const TextStyle(
+                                        color: AppThemeLight.primary,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                        letterSpacing: 1,
+                                        shadows: [
+                                          Shadow(
+                                            color: AppThemeLight.primary,
+                                            blurRadius: 8,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  subtitle: Text(
+                                    lastMsg,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      color: AppThemeLight.textLight,
+                                    ),
+                                  ),
+                                  trailing: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      if (lastMsgTime != null)
+                                        Text(
+                                          TimeOfDay.fromDateTime(
+                                            lastMsgTime,
+                                          ).format(context),
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            color: AppThemeLight.primary,
+                                          ),
+                                        ),
+                                      if (unreadCount > 0)
+                                        Container(
+                                          margin: const EdgeInsets.only(
+                                            left: 8,
+                                          ),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 2,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: Colors.red,
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                          ),
+                                          child: Text(
+                                            unreadCount.toString(),
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                  onTap: () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder:
+                                            (context) => ChatPage(
+                                              chatId: chatId,
+                                              otherUserId: otherUserId,
+                                            ),
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
+                            );
+                          },
+                        );
                       },
                     );
                   },

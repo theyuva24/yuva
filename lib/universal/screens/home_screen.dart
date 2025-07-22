@@ -5,6 +5,7 @@ import '../../connect/pages/post_page.dart';
 import 'notification_page.dart';
 import '../../connect/pages/hubs_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:yuva/profile/owner_profile_page.dart';
 import '../../../chat/page/chats_page.dart'; // Import ChatsPage
 import 'package:google_fonts/google_fonts.dart';
@@ -75,6 +76,7 @@ class HomeScreenState extends State<HomeScreen> {
     if (_currentIndex > maxIndex) {
       _currentIndex = maxIndex;
     }
+    final user = FirebaseAuth.instance.currentUser;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppThemeLight.surface,
@@ -155,46 +157,156 @@ class HomeScreenState extends State<HomeScreen> {
         ],
       ),
       body: _pages[_currentIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        selectedItemColor: AppThemeLight.primary,
-        unselectedItemColor: AppThemeLight.textLight,
-        backgroundColor: AppThemeLight.surface,
-        elevation: 12,
-        selectedLabelStyle: const TextStyle(
-          fontWeight: FontWeight.bold,
-          letterSpacing: 1,
-          color: AppThemeLight.primary,
-        ),
-        unselectedLabelStyle: const TextStyle(
-          letterSpacing: 1,
-          color: AppThemeLight.textLight,
-        ),
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.emoji_events_outlined),
-            label: 'Challenges',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.people_outline),
-            label: 'Connect',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.chat_bubble_outline),
-            label: 'Chats',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.notifications_outlined),
-            label: 'Notifications',
-          ),
-        ],
-      ),
+      bottomNavigationBar:
+          user == null
+              ? BottomNavigationBar(
+                type: BottomNavigationBarType.fixed,
+                currentIndex: _currentIndex,
+                onTap: (index) {
+                  setState(() {
+                    _currentIndex = index;
+                  });
+                },
+                selectedItemColor: AppThemeLight.primary,
+                unselectedItemColor: AppThemeLight.textLight,
+                backgroundColor: AppThemeLight.surface,
+                elevation: 12,
+                selectedLabelStyle: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1,
+                  color: AppThemeLight.primary,
+                ),
+                unselectedLabelStyle: const TextStyle(
+                  letterSpacing: 1,
+                  color: AppThemeLight.textLight,
+                ),
+                items: const [
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.emoji_events_outlined),
+                    label: 'Challenges',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.people_outline),
+                    label: 'Connect',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.chat_bubble_outline),
+                    label: 'Chats',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.notifications_outlined),
+                    label: 'Notifications',
+                  ),
+                ],
+              )
+              : StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                stream:
+                    FirebaseFirestore.instance
+                        .collection('chats')
+                        .where('participants', arrayContains: user.uid)
+                        .snapshots(),
+                builder: (context, snapshot) {
+                  final chatDocs = snapshot.data?.docs ?? [];
+                  return FutureBuilder<int>(
+                    future: () async {
+                      int totalUnread = 0;
+                      for (final chatDoc in chatDocs) {
+                        final chatData = chatDoc.data();
+                        final chatId = chatDoc.id;
+                        final lastReadTimestamps =
+                            chatData['lastReadTimestamps'] ?? {};
+                        final lastRead =
+                            lastReadTimestamps[user.uid] != null &&
+                                    lastReadTimestamps[user.uid] is Timestamp
+                                ? (lastReadTimestamps[user.uid] as Timestamp)
+                                    .toDate()
+                                : DateTime.fromMillisecondsSinceEpoch(0);
+                        final unreadQuery =
+                            await FirebaseFirestore.instance
+                                .collection('chats')
+                                .doc(chatId)
+                                .collection('messages')
+                                .where('timestamp', isGreaterThan: lastRead)
+                                .where('senderId', isNotEqualTo: user.uid)
+                                .get();
+                        totalUnread += unreadQuery.docs.length;
+                      }
+                      return totalUnread;
+                    }(),
+                    builder: (context, unreadSnapshot) {
+                      final totalUnread = unreadSnapshot.data ?? 0;
+                      final showBadge = _currentIndex != 2 && totalUnread > 0;
+                      return BottomNavigationBar(
+                        type: BottomNavigationBarType.fixed,
+                        currentIndex: _currentIndex,
+                        onTap: (index) {
+                          setState(() {
+                            _currentIndex = index;
+                          });
+                        },
+                        selectedItemColor: AppThemeLight.primary,
+                        unselectedItemColor: AppThemeLight.textLight,
+                        backgroundColor: AppThemeLight.surface,
+                        elevation: 12,
+                        selectedLabelStyle: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1,
+                          color: AppThemeLight.primary,
+                        ),
+                        unselectedLabelStyle: const TextStyle(
+                          letterSpacing: 1,
+                          color: AppThemeLight.textLight,
+                        ),
+                        items: [
+                          const BottomNavigationBarItem(
+                            icon: Icon(Icons.emoji_events_outlined),
+                            label: 'Challenges',
+                          ),
+                          const BottomNavigationBarItem(
+                            icon: Icon(Icons.people_outline),
+                            label: 'Connect',
+                          ),
+                          BottomNavigationBarItem(
+                            icon: Stack(
+                              children: [
+                                const Icon(Icons.chat_bubble_outline),
+                                if (showBadge)
+                                  Positioned(
+                                    right: 0,
+                                    top: 0,
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 6,
+                                        vertical: 2,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.red,
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Text(
+                                        totalUnread.toString(),
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            label: 'Chats',
+                          ),
+                          const BottomNavigationBarItem(
+                            icon: Icon(Icons.notifications_outlined),
+                            label: 'Notifications',
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+              ),
     );
   }
 }

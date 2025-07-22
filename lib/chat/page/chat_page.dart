@@ -30,6 +30,7 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
+    final currentUserId = AuthService().currentUser?.uid;
     return Theme(
       data: AppThemeLight.theme,
       child: Scaffold(
@@ -150,8 +151,8 @@ class _ChatPageState extends State<ChatPage> {
                     onPressed: () async {
                       final text = _controller.text.trim();
                       if (text.isNotEmpty) {
-                        await _chatService.sendMessage(widget.chatId, text);
                         _controller.clear();
+                        await _chatService.sendMessage(widget.chatId, text);
                       }
                     },
                   ),

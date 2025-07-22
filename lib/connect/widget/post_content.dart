@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -14,6 +15,8 @@ class PostContent extends StatefulWidget {
   final String postType; // text, image, link, poll
   final String? linkUrl;
   final Map<String, dynamic>? pollData;
+  final bool brief; // NEW: whether to show brief mode
+  final VoidCallback? onReadMore; // NEW: callback for read more
 
   const PostContent({
     Key? key,
@@ -23,6 +26,8 @@ class PostContent extends StatefulWidget {
     required this.postType,
     this.linkUrl,
     this.pollData,
+    this.brief = false,
+    this.onReadMore,
   }) : super(key: key);
 
   @override
@@ -218,56 +223,67 @@ class _PostContentState extends State<PostContent> {
     if (start < text.length) {
       spans.add(TextSpan(text: text.substring(start)));
     }
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Text.rich(
-        TextSpan(children: spans),
-        style: const TextStyle(fontSize: 13),
-        maxLines: 6,
-        overflow: TextOverflow.ellipsis,
-      ),
-    );
+    if (!widget.brief) {
+      // Full mode: show all text
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: Text.rich(
+          TextSpan(children: spans),
+          style: const TextStyle(fontSize: 13),
+        ),
+      );
+    } else {
+      // Brief mode: show limited lines with read more only if needed
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: _BriefTextWithReadMore(
+          spans: spans,
+          onReadMore: widget.onReadMore,
+        ),
+      );
+    }
   }
 
   Widget _buildImageContent(String imageUrl) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: GestureDetector(
-        onTap: () {
-          showDialog(
-            context: context,
-            builder:
-                (_) => Dialog(
-                  child: InteractiveViewer(
-                    child: CachedNetworkImage(
-                      imageUrl: imageUrl,
-                      placeholder:
-                          (context, url) =>
-                              const Center(child: CircularProgressIndicator()),
-                      errorWidget:
-                          (context, url, error) => Container(
-                            decoration: BoxDecoration(
-                              color: Colors.grey[300],
-                              borderRadius: BorderRadius.circular(8),
+    if (!widget.brief) {
+      // Full mode: show full image
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: GestureDetector(
+          onTap: () {
+            showDialog(
+              context: context,
+              builder:
+                  (_) => Dialog(
+                    child: InteractiveViewer(
+                      child: CachedNetworkImage(
+                        imageUrl: imageUrl,
+                        placeholder:
+                            (context, url) => const Center(
+                              child: CircularProgressIndicator(),
                             ),
-                            child: const Icon(
-                              Icons.image_not_supported,
-                              color: Colors.grey,
-                              size: 40,
+                        errorWidget:
+                            (context, url, error) => Container(
+                              decoration: BoxDecoration(
+                                color: Colors.grey[300],
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Icon(
+                                Icons.image_not_supported,
+                                color: Colors.grey,
+                                size: 40,
+                              ),
                             ),
-                          ),
+                      ),
                     ),
                   ),
-                ),
-          );
-        },
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: AspectRatio(
-            aspectRatio: 16 / 9,
+            );
+          },
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(8),
             child: CachedNetworkImage(
               imageUrl: imageUrl,
-              fit: BoxFit.cover,
+              fit: BoxFit.contain,
               placeholder:
                   (context, url) =>
                       const Center(child: CircularProgressIndicator()),
@@ -286,8 +302,42 @@ class _PostContentState extends State<PostContent> {
             ),
           ),
         ),
-      ),
-    );
+      );
+    } else {
+      // Brief mode: show cropped image
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: GestureDetector(
+          onTap: widget.onReadMore,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: SizedBox(
+              height: 160,
+              width: double.infinity,
+              child: CachedNetworkImage(
+                imageUrl: imageUrl,
+                fit: BoxFit.cover,
+                placeholder:
+                    (context, url) =>
+                        const Center(child: CircularProgressIndicator()),
+                errorWidget:
+                    (context, url, error) => Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(
+                        Icons.image_not_supported,
+                        color: Colors.grey,
+                        size: 40,
+                      ),
+                    ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
   }
 
   Widget _buildLinkContent(String urlString) {
@@ -418,6 +468,76 @@ class _PostContentState extends State<PostContent> {
             ),
         ],
       ),
+    );
+  }
+}
+
+class _BriefTextWithReadMore extends StatefulWidget {
+  final List<InlineSpan> spans;
+  final VoidCallback? onReadMore;
+  const _BriefTextWithReadMore({required this.spans, this.onReadMore});
+
+  @override
+  State<_BriefTextWithReadMore> createState() => _BriefTextWithReadMoreState();
+}
+
+class _BriefTextWithReadMoreState extends State<_BriefTextWithReadMore> {
+  bool _showReadMore = false;
+  final GlobalKey _textKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _checkOverflow());
+  }
+
+  void _checkOverflow() {
+    final render = _textKey.currentContext?.findRenderObject();
+    if (render is RenderParagraph) {
+      final didOverflow = render.didExceedMaxLines;
+      if (didOverflow != _showReadMore) {
+        setState(() {
+          _showReadMore = didOverflow;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        GestureDetector(
+          onTap: _showReadMore ? widget.onReadMore : null,
+          child: Text.rich(
+            TextSpan(children: widget.spans),
+            key: _textKey,
+            style: const TextStyle(fontSize: 13),
+            maxLines: 4,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        if (_showReadMore)
+          Positioned(
+            bottom: 0,
+            right: 0,
+            child: GestureDetector(
+              onTap: widget.onReadMore,
+              child: Container(
+                color: Colors.white,
+                padding: const EdgeInsets.only(left: 8, top: 2),
+                child: Text(
+                  'Read more',
+                  style: TextStyle(
+                    color: Color(0xFF00F6FF),
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

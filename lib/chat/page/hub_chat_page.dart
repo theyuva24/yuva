@@ -132,8 +132,8 @@ class _HubChatPageState extends State<HubChatPage> {
                   onPressed: () async {
                     final text = _controller.text.trim();
                     if (text.isNotEmpty) {
-                      await _sendMessage(text);
                       _controller.clear();
+                      await _sendMessage(text);
                     }
                   },
                 ),

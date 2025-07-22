@@ -550,6 +550,10 @@ class _PostCardState extends State<PostCard> {
         widget.commentTree != null
             ? comment.countAllComments(widget.commentTree!)
             : widget.commentCount;
+    final bool isDetailsPage =
+        widget.onCardTap == null &&
+        widget.onCommentTap !=
+            null; // Heuristic: only details page disables onCardTap
     return InkWell(
       onTap: widget.onCardTap, // Handles navigation for the whole card
       borderRadius: BorderRadius.circular(12),
@@ -753,6 +757,17 @@ class _PostCardState extends State<PostCard> {
                 postType: widget.postType,
                 linkUrl: widget.linkUrl,
                 pollData: widget.pollData,
+                brief: !isDetailsPage,
+                onReadMore:
+                    !isDetailsPage
+                        ? () {
+                          if (widget.onCardTap != null) {
+                            widget.onCardTap!();
+                          } else {
+                            _openDetailsPage();
+                          }
+                        }
+                        : null,
               ),
               // Engagement section (voting, comments, share, report, etc.) remains here
               SingleChildScrollView(

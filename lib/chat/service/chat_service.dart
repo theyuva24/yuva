@@ -35,6 +35,11 @@ class ChatService {
       'text': text,
       'timestamp': FieldValue.serverTimestamp(),
     });
+    // Ensure timestamp is set
+    final written = await messageRef.get();
+    if (written['timestamp'] == null) {
+      await messageRef.update({'timestamp': FieldValue.serverTimestamp()});
+    }
     // Update last message in chat
     await _firestore.collection('chats').doc(chatId).update({
       'lastMessage': text,

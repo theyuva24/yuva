@@ -11,6 +11,8 @@ import '../../../../universal/screens/home_screen.dart';
 import 'package:yuva/universal/theme/app_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
+import '../../../../profile/terms_and_conditions_page.dart';
+import '../../../../profile/privacy_policy_page.dart';
 
 class PhoneAuthScreen extends StatefulWidget {
   const PhoneAuthScreen({super.key});
@@ -452,6 +454,78 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                       GradientButton(
                         text: 'SEND OTP',
                         onTap: _loading ? () {} : _startPhoneAuth,
+                      ),
+                      const SizedBox(height: 16),
+                      Center(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 8.0),
+                          child: Wrap(
+                            alignment: WrapAlignment.center,
+                            children: [
+                              Text(
+                                'By continuing, you agree to YUVA’s ',
+                                style: TextStyle(
+                                  color: AppThemeLight.textLight,
+                                  fontSize: 13,
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) =>
+                                              const TermsAndConditionsPage(),
+                                    ),
+                                  );
+                                },
+                                child: Text(
+                                  'Terms & Conditions',
+                                  style: TextStyle(
+                                    color: AppThemeLight.primary,
+                                    decoration: TextDecoration.underline,
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ),
+                              Text(
+                                ' and ',
+                                style: TextStyle(
+                                  color: AppThemeLight.textLight,
+                                  fontSize: 13,
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) =>
+                                              const PrivacyPolicyPage(),
+                                    ),
+                                  );
+                                },
+                                child: Text(
+                                  'Privacy Policy',
+                                  style: TextStyle(
+                                    color: AppThemeLight.primary,
+                                    decoration: TextDecoration.underline,
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ),
+                              Text(
+                                '.',
+                                style: TextStyle(
+                                  color: AppThemeLight.textLight,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ] else ...[
                       const SizedBox(height: 8),

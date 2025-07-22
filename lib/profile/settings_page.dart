@@ -5,6 +5,9 @@ import '../profile/models/profile_model.dart';
 import 'package:share_plus/share_plus.dart';
 import '../initial pages/presentation/screens/onboarding_screen.dart';
 import 'package:yuva/universal/theme/app_theme.dart';
+import 'privacy_policy_page.dart';
+import 'terms_and_conditions_page.dart';
+import 'about_yuva_page.dart';
 
 class SettingsPage extends StatelessWidget {
   final ProfileModel profile;
@@ -34,28 +37,8 @@ class SettingsPage extends StatelessWidget {
               style: TextStyle(color: AppThemeLight.textDark),
             ),
             onTap: () {
-              showDialog(
-                context: context,
-                builder:
-                    (context) => AlertDialog(
-                      title: const Text(
-                        'About Yuva',
-                        style: TextStyle(color: AppThemeLight.textDark),
-                      ),
-                      content: const Text(
-                        'Yuva is a modern learning platform.',
-                        style: TextStyle(color: AppThemeLight.textDark),
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text(
-                            'OK',
-                            style: TextStyle(color: AppThemeLight.primary),
-                          ),
-                        ),
-                      ],
-                    ),
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => const AboutYuvaPage()),
               );
             },
           ),
@@ -69,28 +52,24 @@ class SettingsPage extends StatelessWidget {
               style: TextStyle(color: AppThemeLight.textDark),
             ),
             onTap: () {
-              showDialog(
-                context: context,
-                builder:
-                    (context) => AlertDialog(
-                      title: const Text(
-                        'Privacy Policy',
-                        style: TextStyle(color: AppThemeLight.textDark),
-                      ),
-                      content: const Text(
-                        'Privacy policy details go here.',
-                        style: TextStyle(color: AppThemeLight.textDark),
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text(
-                            'OK',
-                            style: TextStyle(color: AppThemeLight.primary),
-                          ),
-                        ),
-                      ],
-                    ),
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const PrivacyPolicyPage(),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.article, color: AppThemeLight.textDark),
+            title: const Text(
+              'Terms & Conditions',
+              style: TextStyle(color: AppThemeLight.textDark),
+            ),
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const TermsAndConditionsPage(),
+                ),
               );
             },
           ),

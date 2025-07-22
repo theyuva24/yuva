@@ -52,18 +52,17 @@ class BackgroundSubmissionService {
     required String userId,
     required String challengeId,
     required String? mediaType,
-    required BuildContext context,
   }) async {
     // Show immediate feedback to user
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Your entry is being processed in the background. Please keep the app open and connected to the internet. You’ll get a notification when your upload is complete!',
-        ),
-        duration: Duration(seconds: 5),
-      ),
-    );
-    Navigator.of(context).pop(); // Go back to previous screen
+    // ScaffoldMessenger.of(context).showSnackBar(
+    //   SnackBar(
+    //     content: Text(
+    //       'Your entry is being processed in the background. Please keep the app open and connected to the internet. You’ll get a notification when your upload is complete!',
+    //     ),
+    //     duration: Duration(seconds: 5),
+    //   ),
+    // );
+    // Navigator.of(context).pop(); // Go back to previous screen
 
     // Start background work (not a true isolate for now, but off the UI thread)
     Future(() async {

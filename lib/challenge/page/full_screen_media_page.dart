@@ -11,6 +11,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../widget/challenge_comment.dart';
+import 'package:share_plus/share_plus.dart';
 
 // --- ReelsVideoPlayer Widget ---
 class ReelsVideoPlayer extends StatefulWidget {
@@ -528,30 +529,31 @@ class _FullScreenMediaPageState extends State<FullScreenMediaPage> {
                                                         ),
                                                   ),
                                               builder:
-                                                  (context) => SafeArea(
-                                                    child: Container(
-                                                      constraints:
-                                                          BoxConstraints(
-                                                            maxHeight:
-                                                                MediaQuery.of(
-                                                                  context,
-                                                                ).size.height *
-                                                                0.95,
-                                                            minHeight:
-                                                                MediaQuery.of(
-                                                                  context,
-                                                                ).size.height *
-                                                                0.4,
-                                                          ),
-                                                      child:
-                                                          ChallengeCommentSection(
+                                                  (
+                                                    context,
+                                                  ) => DraggableScrollableSheet(
+                                                    initialChildSize:
+                                                        0.6, // 60% of screen by default
+                                                    minChildSize:
+                                                        0.4, // 40% minimum
+                                                    maxChildSize:
+                                                        0.85, // 85% maximum (keyboard or drag)
+                                                    expand: false,
+                                                    builder:
+                                                        (
+                                                          context,
+                                                          scrollController,
+                                                        ) => SafeArea(
+                                                          child: ChallengeCommentSection(
                                                             challengeId:
                                                                 submission
                                                                     .challengeId,
                                                             submissionId:
                                                                 submission.id,
+                                                            scrollController:
+                                                                scrollController,
                                                           ),
-                                                    ),
+                                                        ),
                                                   ),
                                             );
                                           },
@@ -562,6 +564,22 @@ class _FullScreenMediaPageState extends State<FullScreenMediaPage> {
                                           icon: Icons.share,
                                           label: 'Share',
                                           onTap: () async {
+                                            final challengeTitle =
+                                                challengeSnap.data?.title ??
+                                                'Challenge';
+                                            final caption = submission.caption;
+                                            String shareText =
+                                                'Check out this submission in "$challengeTitle" on YUVA!';
+                                            if (caption.isNotEmpty) {
+                                              shareText += '\n\n$caption';
+                                            }
+                                            shareText +=
+                                                '\n\nConnect, grow, and shine with India’s youth-focused social media app.\nDownload now: https://play.google.com/store/apps/details?id=com.yuva.uniqueapp';
+                                            await Share.share(
+                                              shareText,
+                                              subject:
+                                                  'Check out this submission from YUVA',
+                                            );
                                             await FullScreenFunctionality.shareSubmission(
                                               challengeId:
                                                   submission.challengeId,

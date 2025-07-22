@@ -96,6 +96,21 @@ class _SubmitEntryPageState extends State<SubmitEntryPage> {
         mediaType = 'video';
       }
       // Use background submission service
+      // Show immediate feedback to user
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Your entry is being processed in the background. Please keep the app open and connected to the internet. You’ll get a notification when your upload is complete!',
+          ),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      // Pop the page after the snackbar is shown
+      Future.delayed(Duration(seconds: 2), () {
+        if (mounted) {
+          Navigator.of(context).pop();
+        }
+      });
       await BackgroundSubmissionService.submitInBackground(
         imageFile: _selectedImage,
         videoFile: _selectedVideo,
@@ -104,7 +119,6 @@ class _SubmitEntryPageState extends State<SubmitEntryPage> {
         userId: userId,
         challengeId: challengeId,
         mediaType: mediaType,
-        context: context,
       );
       setState(() {
         _submitting = false;
@@ -143,6 +157,7 @@ class _SubmitEntryPageState extends State<SubmitEntryPage> {
       );
       await submissionService.addSubmission(submission);
       Navigator.of(context, rootNavigator: true).pop();
+      if (!mounted) return;
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Entry submitted!')));
@@ -153,6 +168,7 @@ class _SubmitEntryPageState extends State<SubmitEntryPage> {
         _submitting = false;
       });
       // Navigator.of(context, rootNavigator: true).pop();
+      if (!mounted) return;
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Submission failed: $e')));

@@ -1158,6 +1158,9 @@ class _PersonalInfoCardState extends State<_PersonalInfoCard> {
   late TextEditingController _locationController;
   late TextEditingController _emailController;
   late TextEditingController _linkedInController;
+  late TextEditingController _uniqueNameController;
+  String? _uniqueNameError;
+  bool _checkingUnique = false;
 
   @override
   void initState() {
@@ -1173,6 +1176,10 @@ class _PersonalInfoCardState extends State<_PersonalInfoCard> {
     _linkedInController = TextEditingController(
       text: widget.profile.contactInfo.linkedInUrl,
     );
+    _uniqueNameController = TextEditingController(
+      text: widget.profile.uniqueName,
+    );
+    _uniqueNameError = null;
   }
 
   @override
@@ -1180,7 +1187,29 @@ class _PersonalInfoCardState extends State<_PersonalInfoCard> {
     _locationController.dispose();
     _emailController.dispose();
     _linkedInController.dispose();
+    _uniqueNameController.dispose();
     super.dispose();
+  }
+
+  Future<bool> _isUniqueNameAvailable(String name) async {
+    if (name == widget.profile.uniqueName) return true;
+    final query =
+        await FirebaseFirestore.instance
+            .collection('users')
+            .where('uniqueName', isEqualTo: name)
+            .limit(1)
+            .get();
+    return query.docs.isEmpty;
+  }
+
+  String? _validateUniqueName(String value) {
+    if (value.isEmpty) return 'Anonymous name cannot be empty';
+    if (value.length > 20) return 'Max 20 characters allowed';
+    if (!RegExp(r'[A-Za-z]').hasMatch(value)) return 'Must contain a letter';
+    if (!RegExp(r'[0-9]').hasMatch(value)) return 'Must contain a number';
+    if (!RegExp(r'[^A-Za-z0-9]').hasMatch(value))
+      return 'Must contain a symbol';
+    return null;
   }
 
   void _startEditing() {
@@ -1200,7 +1229,30 @@ class _PersonalInfoCardState extends State<_PersonalInfoCard> {
   }
 
   Future<void> _save() async {
+    final uniqueName = _uniqueNameController.text.trim();
+    final error = _validateUniqueName(uniqueName);
+    if (error != null) {
+      setState(() {
+        _uniqueNameError = error;
+      });
+      return;
+    }
+    setState(() {
+      _checkingUnique = true;
+      _uniqueNameError = null;
+    });
+    final isAvailable = await _isUniqueNameAvailable(uniqueName);
+    setState(() {
+      _checkingUnique = false;
+    });
+    if (!isAvailable) {
+      setState(() {
+        _uniqueNameError = 'This anonymous name is already taken';
+      });
+      return;
+    }
     final updatedProfile = widget.profile.copyWith(
+      uniqueName: uniqueName,
       location: _locationController.text.trim(),
       contactInfo: widget.profile.contactInfo.copyWith(
         email: _emailController.text.trim(),
@@ -1251,10 +1303,34 @@ class _PersonalInfoCardState extends State<_PersonalInfoCard> {
               ],
             ),
             const SizedBox(height: 8),
+            // Show Anonymous Name (uniqueName) always
             if (_editing)
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  TextField(
+                    controller: _uniqueNameController,
+                    maxLength: 20,
+                    decoration: InputDecoration(
+                      labelText: 'Anonymous Name',
+                      errorText: _uniqueNameError,
+                      suffixIcon:
+                          _checkingUnique
+                              ? SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                              : null,
+                    ),
+                    onChanged: (val) {
+                      setState(() {
+                        _uniqueNameError = null;
+                      });
+                    },
+                  ),
                   _InfoRow(label: 'Phone', value: widget.profile.phone),
                   _InfoRow(label: 'Gender', value: widget.profile.gender),
                   _InfoRow(
@@ -1300,6 +1376,13 @@ class _PersonalInfoCardState extends State<_PersonalInfoCard> {
                 ],
               )
             else ...[
+              _InfoRow(
+                label: 'Anonymous Name',
+                value:
+                    widget.profile.uniqueName.isNotEmpty
+                        ? widget.profile.uniqueName
+                        : 'Not set',
+              ),
               if (!isPublic) ...[
                 _InfoRow(label: 'Phone', value: widget.profile.phone),
                 _InfoRow(label: 'Gender', value: widget.profile.gender),

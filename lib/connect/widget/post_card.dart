@@ -126,11 +126,13 @@ class _PostCardState extends State<PostCard> {
                 }, doc.id),
               );
             }
+            if (!mounted) return;
             setState(() {
               _comments = flat; // No longer need buildCommentTree
               _loadingComments = false;
             });
           } catch (e) {
+            if (!mounted) return;
             setState(() {
               _commentsError = 'Failed to load comments: $e';
               _loadingComments = false;
@@ -268,9 +270,9 @@ class _PostCardState extends State<PostCard> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text('Post shared successfully!'),
-            backgroundColor: Colors.green,
+            backgroundColor: Theme.of(context).colorScheme.secondary,
           ),
         );
       }
@@ -282,7 +284,10 @@ class _PostCardState extends State<PostCard> {
       }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(errorMsg), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text(errorMsg),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
         );
       }
     } finally {
@@ -379,8 +384,10 @@ class _PostCardState extends State<PostCard> {
                                     });
                                   },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF6C63FF),
-                            foregroundColor: Colors.white,
+                            backgroundColor:
+                                Theme.of(context).colorScheme.primary,
+                            foregroundColor:
+                                Theme.of(context).colorScheme.onPrimary,
                           ),
                           child: const Text('Submit'),
                         ),
@@ -596,9 +603,12 @@ class _PostCardState extends State<PostCard> {
                             child:
                                 (widget.userProfileImage == null ||
                                         widget.userProfileImage.isEmpty)
-                                    ? const Icon(
+                                    ? Icon(
                                       Icons.person,
-                                      color: Colors.white,
+                                      color:
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.onPrimary,
                                       size: 20,
                                     )
                                     : null,
@@ -621,7 +631,9 @@ class _PostCardState extends State<PostCard> {
                                 Text(
                                   widget.timestamp,
                                   style: TextStyle(
-                                    color: Colors.grey[600],
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface.withAlpha(153),
                                     fontSize: 11,
                                   ),
                                   overflow: TextOverflow.ellipsis,
@@ -655,13 +667,13 @@ class _PostCardState extends State<PostCard> {
                     },
                     child: CircleAvatar(
                       radius: 18,
-                      backgroundColor: Colors.grey[200],
+                      backgroundColor: Theme.of(context).colorScheme.surface,
                       backgroundImage: null, // Remove NetworkImage
                       child:
                           widget.hubProfileImage.isEmpty
-                              ? const Icon(
+                              ? Icon(
                                 Icons.group,
-                                color: Colors.white,
+                                color: Theme.of(context).colorScheme.onPrimary,
                                 size: 20,
                               )
                               : ClipOval(
@@ -679,9 +691,12 @@ class _PostCardState extends State<PostCard> {
                                         ),
                                       ),
                                   errorWidget:
-                                      (context, url, error) => const Icon(
+                                      (context, url, error) => Icon(
                                         Icons.group,
-                                        color: Colors.white,
+                                        color:
+                                            Theme.of(
+                                              context,
+                                            ).colorScheme.onPrimary,
                                         size: 20,
                                       ),
                                 ),
@@ -792,8 +807,8 @@ class _PostCardState extends State<PostCard> {
                       children: [
                         IconButton(
                           onPressed: widget.onCommentTap ?? _openDetailsPage,
-                          icon: const Icon(Icons.chat_bubble_outline),
-                          color: AppThemeLight.primary,
+                          icon: Icon(Icons.chat_bubble_outline),
+                          color: Theme.of(context).colorScheme.onPrimary,
                           iconSize: 18,
                           padding: EdgeInsets.zero,
                           constraints: BoxConstraints(),
@@ -801,7 +816,9 @@ class _PostCardState extends State<PostCard> {
                         Text(
                           ' $displayedCommentCount',
                           style: TextStyle(
-                            color: AppThemeLight.textLight,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withAlpha(153),
                             fontSize: 12,
                           ),
                         ),
@@ -813,16 +830,17 @@ class _PostCardState extends State<PostCard> {
                       onPressed: _isSharing ? null : _handleShare,
                       icon:
                           _isSharing
-                              ? const SizedBox(
+                              ? SizedBox(
                                 width: 16,
                                 height: 16,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
-                                  color: AppThemeLight.primary,
+                                  color:
+                                      Theme.of(context).colorScheme.onPrimary,
                                 ),
                               )
-                              : const Icon(Icons.share_outlined),
-                      color: AppThemeLight.primary,
+                              : Icon(Icons.share_outlined),
+                      color: Theme.of(context).colorScheme.onPrimary,
                       iconSize: 18,
                       padding: EdgeInsets.zero,
                       constraints: BoxConstraints(),
@@ -831,8 +849,10 @@ class _PostCardState extends State<PostCard> {
                     // Report button
                     IconButton(
                       onPressed: _handleReport,
-                      icon: const Icon(Icons.more_horiz),
-                      color: Colors.grey[600],
+                      icon: Icon(Icons.more_horiz),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withAlpha(102),
                       iconSize: 18,
                       padding: EdgeInsets.zero,
                       constraints: BoxConstraints(),

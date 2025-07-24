@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/gestures.dart';
+import '../../universal/theme/app_theme.dart';
 
 /// Widget to display ONLY the post content (text, image, link, poll) and direct interactions (open image, open link, vote poll, show poll results).
 /// No header, no interaction bar, no share/report/vote/comment logic.
@@ -207,8 +208,8 @@ class _PostContentState extends State<PostContent> {
       spans.add(
         TextSpan(
           text: url,
-          style: const TextStyle(
-            color: Color(0xFF00F6FF),
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.primary,
             decoration: TextDecoration.underline,
           ),
           recognizer:
@@ -265,12 +266,14 @@ class _PostContentState extends State<PostContent> {
                         errorWidget:
                             (context, url, error) => Container(
                               decoration: BoxDecoration(
-                                color: Colors.grey[300],
+                                color: Theme.of(context).dividerColor,
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              child: const Icon(
+                              child: Icon(
                                 Icons.image_not_supported,
-                                color: Colors.grey,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withOpacity(0.6),
                                 size: 40,
                               ),
                             ),
@@ -290,12 +293,14 @@ class _PostContentState extends State<PostContent> {
               errorWidget:
                   (context, url, error) => Container(
                     decoration: BoxDecoration(
-                      color: Colors.grey[300],
+                      color: Theme.of(context).dividerColor,
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.image_not_supported,
-                      color: Colors.grey,
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withOpacity(0.6),
                       size: 40,
                     ),
                   ),
@@ -323,12 +328,14 @@ class _PostContentState extends State<PostContent> {
                 errorWidget:
                     (context, url, error) => Container(
                       decoration: BoxDecoration(
-                        color: Colors.grey[300],
+                        color: Theme.of(context).dividerColor,
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.image_not_supported,
-                        color: Colors.grey,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withOpacity(0.6),
                         size: 40,
                       ),
                     ),
@@ -349,8 +356,8 @@ class _PostContentState extends State<PostContent> {
         },
         child: Text(
           urlString,
-          style: const TextStyle(
-            color: Color(0xFF00F6FF),
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.primary,
             decoration: TextDecoration.underline,
             fontSize: 14,
           ),
@@ -370,7 +377,7 @@ class _PostContentState extends State<PostContent> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Poll:', style: TextStyle(fontWeight: FontWeight.bold)),
+          Text('Poll:', style: TextStyle(fontWeight: FontWeight.bold)),
           ...List.generate(
             options.length,
             (idx) => Padding(
@@ -385,14 +392,16 @@ class _PostContentState extends State<PostContent> {
                   decoration: BoxDecoration(
                     color:
                         _userVotedOptionIdx == idx
-                            ? const Color(0xFF00F6FF).withAlpha(51)
-                            : Colors.transparent,
+                            ? Theme.of(
+                              context,
+                            ).colorScheme.primary.withOpacity(0.2)
+                            : AppThemeLight.transparent,
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
                       color:
                           _userVotedOptionIdx == idx
-                              ? const Color(0xFF00F6FF)
-                              : Colors.grey[700]!,
+                              ? Theme.of(context).colorScheme.primary
+                              : Theme.of(context).dividerColor,
                       width: _userVotedOptionIdx == idx ? 2 : 1,
                     ),
                   ),
@@ -409,8 +418,10 @@ class _PostContentState extends State<PostContent> {
                         size: 18,
                         color:
                             _userVotedOptionIdx == idx
-                                ? const Color(0xFF00F6FF)
-                                : Colors.grey,
+                                ? Theme.of(context).colorScheme.primary
+                                : Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withOpacity(0.6),
                         semanticLabel:
                             _userVotedOptionIdx == idx
                                 ? 'Selected'
@@ -426,9 +437,11 @@ class _PostContentState extends State<PostContent> {
                       if (votes.isNotEmpty)
                         Text(
                           ' (${votes[idx]})',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
-                            color: Colors.grey,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withOpacity(0.6),
                           ),
                         ),
                       if (_userVotedOptionIdx != null && totalVotes > 0)
@@ -438,11 +451,13 @@ class _PostContentState extends State<PostContent> {
                             width: 60,
                             child: LinearProgressIndicator(
                               value: votes[idx] / totalVotes,
-                              backgroundColor: Colors.grey[300],
+                              backgroundColor: Theme.of(context).dividerColor,
                               valueColor: AlwaysStoppedAnimation<Color>(
                                 _userVotedOptionIdx == idx
-                                    ? const Color(0xFF00F6FF)
-                                    : Colors.grey,
+                                    ? Theme.of(context).colorScheme.primary
+                                    : Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface.withOpacity(0.6),
                               ),
                             ),
                           ),
@@ -454,16 +469,16 @@ class _PostContentState extends State<PostContent> {
             ),
           ),
           if (_isVoting)
-            const Padding(
-              padding: EdgeInsets.only(top: 8.0),
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0),
               child: LinearProgressIndicator(),
             ),
           if (_userVotedOptionIdx != null)
-            const Padding(
-              padding: EdgeInsets.only(top: 8.0),
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0),
               child: Text(
                 'You have voted.',
-                style: TextStyle(color: Color(0xFF00F6FF)),
+                style: TextStyle(color: Theme.of(context).colorScheme.primary),
               ),
             ),
         ],
@@ -524,12 +539,12 @@ class _BriefTextWithReadMoreState extends State<_BriefTextWithReadMore> {
             child: GestureDetector(
               onTap: widget.onReadMore,
               child: Container(
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.onPrimary,
                 padding: const EdgeInsets.only(left: 8, top: 2),
                 child: Text(
                   'Read more',
                   style: TextStyle(
-                    color: Color(0xFF00F6FF),
+                    color: Theme.of(context).colorScheme.primary,
                     fontSize: 13,
                     fontWeight: FontWeight.bold,
                   ),

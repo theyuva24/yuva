@@ -292,7 +292,10 @@ class _ProfileTabsState extends State<ProfileTabs> {
               actions: [
                 if (isEdit)
                   IconButton(
-                    icon: const Icon(Icons.delete, color: Colors.red),
+                    icon: Icon(
+                      Icons.delete,
+                      color: Theme.of(context).colorScheme.error,
+                    ),
                     tooltip: 'Delete',
                     onPressed: () {
                       setState(() {
@@ -369,27 +372,180 @@ class _ProfileTabsState extends State<ProfileTabs> {
     final double verticalCardSpacing =
         MediaQuery.of(context).size.height * 0.008; // ~0.8% of screen height
     return DefaultTabController(
-      length: 2,
+      length: 4,
       child: Column(
         children: [
           Container(
-            color: AppThemeLight.background,
-            child: const TabBar(
+            color: Theme.of(context).colorScheme.surface,
+            child: TabBar(
               indicatorColor: AppThemeLight.primary,
-              labelColor: AppThemeLight.textDark,
-              unselectedLabelColor: AppThemeLight.textLight,
+              labelColor: AppThemeLight.textPrimary,
+              unselectedLabelColor: AppThemeLight.textSecondary,
               labelStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               unselectedLabelStyle: TextStyle(
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.normal,
                 fontSize: 16,
               ),
-              tabs: [Tab(text: "About Me"), Tab(text: "Posts")],
+              tabs: [
+                Tab(text: 'Posts'),
+                Tab(text: 'Bio'),
+                Tab(text: 'Education'),
+                Tab(text: 'Interests'),
+              ],
             ),
           ),
           Expanded(
             child: TabBarView(
               children: [
-                // About Me Tab
+                // Posts Tab
+                RefreshIndicator(
+                  onRefresh: () async {
+                    await Future.delayed(const Duration(milliseconds: 800));
+                  },
+                  color: Theme.of(context).colorScheme.primary,
+                  child: StreamBuilder<List<Post>>(
+                    stream: postService.getPostsStream(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Center(
+                          child: CircularProgressIndicator(
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        );
+                      }
+                      if (snapshot.hasError) {
+                        return Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.error_outline,
+                                size: 64,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                              SizedBox(height: 16),
+                              Text(
+                                'Error loading posts',
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.primary,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              SizedBox(height: 8),
+                              TextButton(
+                                onPressed: () {
+                                  (context as Element).markNeedsBuild();
+                                },
+                                child: const Text('Retry'),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+                      final currentUserId =
+                          FirebaseAuth.instance.currentUser?.uid;
+                      final userPosts =
+                          (snapshot.data ?? [])
+                              .where(
+                                (post) =>
+                                    post.postOwnerId == widget.profile.uid,
+                              )
+                              .where((post) {
+                                // Only show anonymous posts to the owner
+                                if (widget.profile.uid == currentUserId) {
+                                  return true;
+                                } else {
+                                  return !post.isAnonymous;
+                                }
+                              })
+                              .toList();
+                      if (userPosts.isEmpty) {
+                        return Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.forum_outlined,
+                                size: 64,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withOpacity(0.6),
+                              ),
+                              SizedBox(height: 16),
+                              Text(
+                                'No posts yet',
+                                style: TextStyle(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface.withOpacity(0.6),
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+                      return ListView.builder(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        itemCount: userPosts.length,
+                        itemBuilder: (context, index) {
+                          final post = userPosts[index];
+                          return AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 300),
+                            child: PostCard(
+                              key: ValueKey(post.id),
+                              postId: post.id,
+                              userName: post.userName,
+                              userProfileImage: post.userProfileImage,
+                              hubName: post.hubName,
+                              hubProfileImage: post.hubProfileImage,
+                              postContent: post.postContent,
+                              timestamp: post.timestamp,
+                              upvotes: post.upvotes,
+                              downvotes: post.downvotes,
+                              commentCount: post.commentCount,
+                              shareCount: post.shareCount,
+                              postImage: post.postImage,
+                              postOwnerId: post.postOwnerId,
+                              postType: post.postType,
+                              linkUrl: post.linkUrl,
+                              pollData: post.pollData,
+                              hubId: post.hubId,
+                              onCardTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (context) => PostDetailsPage(
+                                          postId: post.id,
+                                          userName: post.userName,
+                                          userProfileImage:
+                                              post.userProfileImage,
+                                          hubName: post.hubName,
+                                          hubProfileImage: post.hubProfileImage,
+                                          postContent: post.postContent,
+                                          timestamp: post.timestamp,
+                                          upvotes: post.upvotes,
+                                          downvotes: post.downvotes,
+                                          commentCount: post.commentCount,
+                                          shareCount: post.shareCount,
+                                          postImage: post.postImage,
+                                          postOwnerId: post.postOwnerId,
+                                          postType: post.postType,
+                                          linkUrl: post.linkUrl,
+                                          pollData: post.pollData,
+                                        ),
+                                  ),
+                                );
+                              },
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ),
+                // Bio Tab
                 SingleChildScrollView(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
@@ -409,10 +565,13 @@ class _ProfileTabsState extends State<ProfileTabs> {
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    const Text(
+                                    Text(
                                       "Bio",
                                       style: TextStyle(
-                                        color: Colors.black,
+                                        color:
+                                            Theme.of(
+                                              context,
+                                            ).colorScheme.onSurface,
                                         fontWeight: FontWeight.bold,
                                         fontSize: 22,
                                       ),
@@ -440,10 +599,13 @@ class _ProfileTabsState extends State<ProfileTabs> {
                                         onChanged:
                                             (val) =>
                                                 setState(() => _bioDraft = val),
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           fontSize: 16,
                                           fontStyle: FontStyle.italic,
-                                          color: Colors.black87,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSurface
+                                              .withOpacity(0.87),
                                         ),
                                         decoration: InputDecoration(
                                           hintText:
@@ -485,8 +647,14 @@ class _ProfileTabsState extends State<ProfileTabs> {
                                       fontStyle: FontStyle.italic,
                                       color:
                                           widget.profile.bio.isNotEmpty
-                                              ? Colors.black87
-                                              : Colors.grey,
+                                              ? Theme.of(context)
+                                                  .colorScheme
+                                                  .onSurface
+                                                  .withOpacity(0.87)
+                                              : Theme.of(context)
+                                                  .colorScheme
+                                                  .onSurface
+                                                  .withOpacity(0.6),
                                     ),
                                   ),
                               ],
@@ -494,6 +662,15 @@ class _ProfileTabsState extends State<ProfileTabs> {
                           ),
                         ),
                       ),
+                    ],
+                  ),
+                ),
+                // Education Tab
+                SingleChildScrollView(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                       // Education Section (multi-entry)
                       SizedBox(
                         width: double.infinity,
@@ -511,10 +688,13 @@ class _ProfileTabsState extends State<ProfileTabs> {
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    const Text(
+                                    Text(
                                       "Education",
                                       style: TextStyle(
-                                        color: Colors.black,
+                                        color:
+                                            Theme.of(
+                                              context,
+                                            ).colorScheme.onSurface,
                                         fontWeight: FontWeight.bold,
                                         fontSize: 22,
                                       ),
@@ -615,7 +795,10 @@ class _ProfileTabsState extends State<ProfileTabs> {
                                       Text(
                                         'College ID Image',
                                         style: TextStyle(
-                                          color: Colors.black,
+                                          color:
+                                              Theme.of(
+                                                context,
+                                              ).colorScheme.onSurface,
                                           fontWeight: FontWeight.bold,
                                           fontSize: 16,
                                         ),
@@ -663,36 +846,48 @@ class _ProfileTabsState extends State<ProfileTabs> {
                                 else ...[
                                   Text(
                                     'College:  ${widget.profile.college}',
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 16,
-                                      color: Colors.black,
+                                      color:
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.onSurface,
                                     ),
                                   ),
-                                  const SizedBox(height: 8),
+                                  SizedBox(height: 8),
                                   Text(
                                     'Education Level:  ${widget.profile.educationLevel}',
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 16,
-                                      color: Colors.black,
+                                      color:
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.onSurface,
                                     ),
                                   ),
-                                  const SizedBox(height: 8),
+                                  SizedBox(height: 8),
                                   Text(
                                     'Course:  ${widget.profile.course}',
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 16,
-                                      color: Colors.black,
+                                      color:
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.onSurface,
                                     ),
                                   ),
-                                  const SizedBox(height: 8),
+                                  SizedBox(height: 8),
                                   Text(
                                     'Year:  ${widget.profile.year}',
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 16,
-                                      color: Colors.black,
+                                      color:
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.onSurface,
                                     ),
                                   ),
-                                  const SizedBox(height: 8),
+                                  SizedBox(height: 8),
                                   if (widget.profile.idCardUrl.isNotEmpty &&
                                       !widget.isPublic)
                                     Column(
@@ -702,7 +897,10 @@ class _ProfileTabsState extends State<ProfileTabs> {
                                         Text(
                                           'College ID Image:',
                                           style: TextStyle(
-                                            color: Colors.black,
+                                            color:
+                                                Theme.of(
+                                                  context,
+                                                ).colorScheme.onSurface,
                                             fontWeight: FontWeight.bold,
                                             fontSize: 16,
                                           ),
@@ -732,7 +930,10 @@ class _ProfileTabsState extends State<ProfileTabs> {
                                                         context,
                                                         url,
                                                       ) => Container(
-                                                        color: Colors.grey[200],
+                                                        color:
+                                                            Theme.of(context)
+                                                                .colorScheme
+                                                                .surface,
                                                         child: const Center(
                                                           child:
                                                               CircularProgressIndicator(),
@@ -744,13 +945,19 @@ class _ProfileTabsState extends State<ProfileTabs> {
                                                         url,
                                                         error,
                                                       ) => Container(
-                                                        color: Colors.grey[200],
-                                                        child: const Center(
-                                                          child: Icon(
-                                                            Icons.broken_image,
-                                                            color: Colors.grey,
-                                                            size: 48,
-                                                          ),
+                                                        color:
+                                                            Theme.of(context)
+                                                                .colorScheme
+                                                                .surface,
+                                                        child: Icon(
+                                                          Icons.broken_image,
+                                                          color: Theme.of(
+                                                                context,
+                                                              )
+                                                              .colorScheme
+                                                              .onSurface
+                                                              .withOpacity(0.6),
+                                                          size: 48,
                                                         ),
                                                       ),
                                                 );
@@ -772,20 +979,28 @@ class _ProfileTabsState extends State<ProfileTabs> {
                                                                 double.infinity,
                                                             height: 120,
                                                             color:
-                                                                Colors
-                                                                    .grey[200],
+                                                                Theme.of(
+                                                                      context,
+                                                                    )
+                                                                    .colorScheme
+                                                                    .surface,
                                                             child: Column(
                                                               mainAxisAlignment:
                                                                   MainAxisAlignment
                                                                       .center,
-                                                              children: const [
+                                                              children: [
                                                                 Icon(
                                                                   Icons
                                                                       .broken_image,
                                                                   size: 40,
-                                                                  color:
-                                                                      Colors
-                                                                          .grey,
+                                                                  color: Theme.of(
+                                                                        context,
+                                                                      )
+                                                                      .colorScheme
+                                                                      .onSurface
+                                                                      .withOpacity(
+                                                                        0.6,
+                                                                      ),
                                                                 ),
                                                                 SizedBox(
                                                                   height: 8,
@@ -793,9 +1008,14 @@ class _ProfileTabsState extends State<ProfileTabs> {
                                                                 Text(
                                                                   'Failed to load image',
                                                                   style: TextStyle(
-                                                                    color:
-                                                                        Colors
-                                                                            .grey,
+                                                                    color: Theme.of(
+                                                                          context,
+                                                                        )
+                                                                        .colorScheme
+                                                                        .onSurface
+                                                                        .withOpacity(
+                                                                          0.6,
+                                                                        ),
                                                                   ),
                                                                 ),
                                                               ],
@@ -805,24 +1025,40 @@ class _ProfileTabsState extends State<ProfileTabs> {
                                                     : Container(
                                                       width: double.infinity,
                                                       height: 120,
-                                                      color: Colors.grey[200],
+                                                      color:
+                                                          Theme.of(
+                                                            context,
+                                                          ).colorScheme.surface,
                                                       child: Column(
                                                         mainAxisAlignment:
                                                             MainAxisAlignment
                                                                 .center,
-                                                        children: const [
+                                                        children: [
                                                           Icon(
                                                             Icons
                                                                 .image_not_supported,
                                                             size: 40,
-                                                            color: Colors.grey,
+                                                            color: Theme.of(
+                                                                  context,
+                                                                )
+                                                                .colorScheme
+                                                                .onSurface
+                                                                .withOpacity(
+                                                                  0.6,
+                                                                ),
                                                           ),
                                                           SizedBox(height: 8),
                                                           Text(
                                                             'No image found',
                                                             style: TextStyle(
-                                                              color:
-                                                                  Colors.grey,
+                                                              color: Theme.of(
+                                                                    context,
+                                                                  )
+                                                                  .colorScheme
+                                                                  .onSurface
+                                                                  .withOpacity(
+                                                                    0.6,
+                                                                  ),
                                                             ),
                                                           ),
                                                         ],
@@ -840,8 +1076,16 @@ class _ProfileTabsState extends State<ProfileTabs> {
                           ),
                         ),
                       ),
+                    ],
+                  ),
+                ),
+                // Interests Tab
+                SingleChildScrollView(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                       // Interests Section as Card with in-place editing
-                      SizedBox(height: verticalCardSpacing),
                       SizedBox(
                         width: double.infinity,
                         child: Card(
@@ -855,10 +1099,13 @@ class _ProfileTabsState extends State<ProfileTabs> {
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    const Text(
+                                    Text(
                                       "Interests",
                                       style: TextStyle(
-                                        color: Colors.black,
+                                        color:
+                                            Theme.of(
+                                              context,
+                                            ).colorScheme.onSurface,
                                         fontWeight: FontWeight.bold,
                                         fontSize: 22,
                                       ),
@@ -941,20 +1188,33 @@ class _ProfileTabsState extends State<ProfileTabs> {
                                               (interest) => Chip(
                                                 label: Text(
                                                   interest,
-                                                  style: const TextStyle(
+                                                  style: TextStyle(
                                                     fontWeight: FontWeight.bold,
+                                                    color:
+                                                        Theme.of(
+                                                          context,
+                                                        ).colorScheme.primary,
                                                   ),
                                                 ),
-                                                backgroundColor: Colors.blue
-                                                    .withAlpha(38),
-                                                labelStyle: const TextStyle(
-                                                  color: Colors.blue,
+                                                backgroundColor: Theme.of(
+                                                  context,
+                                                ).colorScheme.primary.withAlpha(
+                                                  38,
+                                                ),
+                                                labelStyle: TextStyle(
+                                                  color:
+                                                      Theme.of(
+                                                        context,
+                                                      ).colorScheme.primary,
                                                 ),
                                                 shape: RoundedRectangleBorder(
                                                   borderRadius:
                                                       BorderRadius.circular(24),
-                                                  side: const BorderSide(
-                                                    color: Colors.blue,
+                                                  side: BorderSide(
+                                                    color:
+                                                        Theme.of(
+                                                          context,
+                                                        ).colorScheme.primary,
                                                   ),
                                                 ),
                                               ),
@@ -962,10 +1222,12 @@ class _ProfileTabsState extends State<ProfileTabs> {
                                             .toList(),
                                   )
                                 else
-                                  const Text(
+                                  Text(
                                     'No interests added yet.',
                                     style: TextStyle(
-                                      color: Colors.grey,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurface.withOpacity(0.6),
                                       fontStyle: FontStyle.italic,
                                     ),
                                   ),
@@ -974,158 +1236,7 @@ class _ProfileTabsState extends State<ProfileTabs> {
                           ),
                         ),
                       ),
-                      // Personal Info Section as Card with in-place editing
-                      SizedBox(height: verticalCardSpacing),
-                      _PersonalInfoCard(
-                        profile: widget.profile,
-                        onPersonalInfoChanged: widget.onPersonalInfoChanged,
-                        isPublic: widget.isPublic,
-                      ),
                     ],
-                  ),
-                ),
-                // Posts Tab
-                RefreshIndicator(
-                  onRefresh: () async {
-                    await Future.delayed(const Duration(milliseconds: 800));
-                  },
-                  color: AppThemeLight.primary,
-                  child: StreamBuilder<List<Post>>(
-                    stream: postService.getPostsStream(),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(
-                          child: CircularProgressIndicator(
-                            color: AppThemeLight.primary,
-                          ),
-                        );
-                      }
-                      if (snapshot.hasError) {
-                        return Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.error_outline,
-                                size: 64,
-                                color: AppThemeLight.primary,
-                              ),
-                              const SizedBox(height: 16),
-                              Text(
-                                'Error loading posts',
-                                style: TextStyle(
-                                  color: AppThemeLight.primary,
-                                  fontSize: 16,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              TextButton(
-                                onPressed: () {
-                                  (context as Element).markNeedsBuild();
-                                },
-                                child: const Text('Retry'),
-                              ),
-                            ],
-                          ),
-                        );
-                      }
-                      final currentUserId =
-                          FirebaseAuth.instance.currentUser?.uid;
-                      final userPosts =
-                          (snapshot.data ?? [])
-                              .where(
-                                (post) =>
-                                    post.postOwnerId == widget.profile.uid,
-                              )
-                              .where((post) {
-                                // Only show anonymous posts to the owner
-                                if (widget.profile.uid == currentUserId) {
-                                  return true;
-                                } else {
-                                  return !post.isAnonymous;
-                                }
-                              })
-                              .toList();
-                      if (userPosts.isEmpty) {
-                        return Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.forum_outlined,
-                                size: 64,
-                                color: AppThemeLight.textLight,
-                              ),
-                              const SizedBox(height: 16),
-                              Text(
-                                'No posts yet',
-                                style: TextStyle(
-                                  color: AppThemeLight.textLight,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      }
-                      return ListView.builder(
-                        padding: const EdgeInsets.symmetric(vertical: 4),
-                        itemCount: userPosts.length,
-                        itemBuilder: (context, index) {
-                          final post = userPosts[index];
-                          return AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 300),
-                            child: PostCard(
-                              key: ValueKey(post.id),
-                              postId: post.id,
-                              userName: post.userName,
-                              userProfileImage: post.userProfileImage,
-                              hubName: post.hubName,
-                              hubProfileImage: post.hubProfileImage,
-                              postContent: post.postContent,
-                              timestamp: post.timestamp,
-                              upvotes: post.upvotes,
-                              downvotes: post.downvotes,
-                              commentCount: post.commentCount,
-                              shareCount: post.shareCount,
-                              postImage: post.postImage,
-                              postOwnerId: post.postOwnerId,
-                              postType: post.postType,
-                              linkUrl: post.linkUrl,
-                              pollData: post.pollData,
-                              hubId: post.hubId,
-                              onCardTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder:
-                                        (context) => PostDetailsPage(
-                                          postId: post.id,
-                                          userName: post.userName,
-                                          userProfileImage:
-                                              post.userProfileImage,
-                                          hubName: post.hubName,
-                                          hubProfileImage: post.hubProfileImage,
-                                          postContent: post.postContent,
-                                          timestamp: post.timestamp,
-                                          upvotes: post.upvotes,
-                                          downvotes: post.downvotes,
-                                          commentCount: post.commentCount,
-                                          shareCount: post.shareCount,
-                                          postImage: post.postImage,
-                                          postOwnerId: post.postOwnerId,
-                                          postType: post.postType,
-                                          linkUrl: post.linkUrl,
-                                          pollData: post.pollData,
-                                        ),
-                                  ),
-                                );
-                              },
-                            ),
-                          );
-                        },
-                      );
-                    },
                   ),
                 ),
               ],
@@ -1286,10 +1397,10 @@ class _PersonalInfoCardState extends State<_PersonalInfoCard> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   "Personal Info",
                   style: TextStyle(
-                    color: Colors.black,
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontWeight: FontWeight.bold,
                     fontSize: 22,
                   ),

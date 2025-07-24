@@ -147,7 +147,7 @@ class _ChatsPageState extends State<ChatsPage> with RouteAware {
       return const Center(
         child: Text(
           'Not logged in',
-          style: TextStyle(color: AppThemeLight.textDark),
+          style: TextStyle(color: AppThemeLight.textPrimary),
         ),
       );
     }
@@ -328,19 +328,18 @@ class _ChatsPageState extends State<ChatsPage> with RouteAware {
                                           ),
                                   title: Text(
                                     userProfile?['fullName'] ?? 'Unknown',
-                                    style: GoogleFonts.orbitron(
-                                      textStyle: const TextStyle(
-                                        color: AppThemeLight.primary,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                        letterSpacing: 1,
-                                        shadows: [
-                                          Shadow(
-                                            color: AppThemeLight.primary,
-                                            blurRadius: 8,
-                                          ),
-                                        ],
-                                      ),
+                                    style: const TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppThemeLight.primary,
+                                      letterSpacing: 2,
+                                      shadows: [
+                                        Shadow(
+                                          blurRadius: 8,
+                                          color: AppThemeLight.primary,
+                                          offset: Offset(0, 0),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                   subtitle: Text(
@@ -348,7 +347,7 @@ class _ChatsPageState extends State<ChatsPage> with RouteAware {
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     style: const TextStyle(
-                                      color: AppThemeLight.textLight,
+                                      color: AppThemeLight.textSecondary,
                                     ),
                                   ),
                                   trailing: Row(
@@ -374,15 +373,21 @@ class _ChatsPageState extends State<ChatsPage> with RouteAware {
                                             vertical: 2,
                                           ),
                                           decoration: BoxDecoration(
-                                            color: Colors.red,
+                                            color:
+                                                Theme.of(
+                                                  context,
+                                                ).colorScheme.error,
                                             borderRadius: BorderRadius.circular(
                                               12,
                                             ),
                                           ),
                                           child: Text(
                                             unreadCount.toString(),
-                                            style: const TextStyle(
-                                              color: Colors.white,
+                                            style: TextStyle(
+                                              color:
+                                                  Theme.of(
+                                                    context,
+                                                  ).colorScheme.onPrimary,
                                               fontSize: 12,
                                               fontWeight: FontWeight.bold,
                                             ),

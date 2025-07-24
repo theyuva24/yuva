@@ -28,7 +28,7 @@ class _Step3InterestsState extends State<Step3Interests> {
               'Choose your interests (max 5):',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                color: AppThemeLight.textDark, // Changed to darker color
+                color: Theme.of(context).colorScheme.onPrimary,
                 fontSize: 16.sp,
               ),
             ),
@@ -47,9 +47,9 @@ class _Step3InterestsState extends State<Step3Interests> {
                 child: SizedBox(
                   width: 20.w,
                   height: 20.w,
-                  child: const CircularProgressIndicator(
+                  child: CircularProgressIndicator(
                     strokeWidth: 2,
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.onPrimary,
                   ),
                 ),
               ),
@@ -61,10 +61,12 @@ class _Step3InterestsState extends State<Step3Interests> {
                       : () async {
                         if (controller.data.interests.isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
+                            SnackBar(
                               content: Text(
                                 'Please select at least one interest',
                               ),
+                              backgroundColor:
+                                  Theme.of(context).colorScheme.secondary,
                             ),
                           );
                           return;
@@ -98,7 +100,8 @@ class _Step3InterestsState extends State<Step3Interests> {
                                 content: Text(
                                   'Profile created! Some data may not be saved due to network issues.',
                                 ),
-                                backgroundColor: Colors.orange,
+                                backgroundColor:
+                                    Theme.of(context).colorScheme.secondary,
                               ),
                             );
                             Navigator.of(context).pushReplacement(
@@ -117,7 +120,8 @@ class _Step3InterestsState extends State<Step3Interests> {
                               content: Text(
                                 'Profile created! Some data may not be saved due to network issues.',
                               ),
-                              backgroundColor: Colors.orange,
+                              backgroundColor:
+                                  Theme.of(context).colorScheme.secondary,
                             ),
                           );
                           Navigator.of(context).pushReplacement(
@@ -140,7 +144,7 @@ class _ProfileSetupDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.onPrimary,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
       child: Padding(
         padding: EdgeInsets.all(32.w),
@@ -148,7 +152,9 @@ class _ProfileSetupDialog extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             SizedBox(height: 16.h),
-            const CircularProgressIndicator(color: Color(0xFF6C63FF)),
+            CircularProgressIndicator(
+              color: Theme.of(context).colorScheme.primary,
+            ),
             SizedBox(height: 24.h),
             Text(
               'Setting up your profile...',

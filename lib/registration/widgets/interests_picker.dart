@@ -115,7 +115,10 @@ class _InterestsPickerState extends State<InterestsPicker> {
     if (_loading) return const Center(child: CircularProgressIndicator());
     if (_error != null)
       return Center(
-        child: Text(_error!, style: const TextStyle(color: Colors.red)),
+        child: Text(
+          _error!,
+          style: TextStyle(color: Theme.of(context).colorScheme.error),
+        ),
       );
     final query = _searchController.text.trim();
     final canAddCustom =
@@ -133,14 +136,14 @@ class _InterestsPickerState extends State<InterestsPicker> {
             labelText: 'Search interests',
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
-              borderSide: BorderSide(color: AppThemeLight.border),
+              borderSide: BorderSide(color: AppThemeLight.divider),
             ),
             labelStyle: TextStyle(color: AppThemeLight.primary),
             filled: true,
             fillColor: AppThemeLight.surface,
-            hintStyle: TextStyle(color: AppThemeLight.textLight),
+            hintStyle: TextStyle(color: AppThemeLight.textSecondary),
           ),
-          style: TextStyle(color: AppThemeLight.textDark),
+          style: TextStyle(color: AppThemeLight.textPrimary),
         ),
         const SizedBox(height: 12),
         if (_selected.isNotEmpty)
@@ -169,11 +172,11 @@ class _InterestsPickerState extends State<InterestsPicker> {
               (interest) => FilterChip(
                 label: Text(
                   interest,
-                  style: TextStyle(color: AppThemeLight.textDark),
+                  style: TextStyle(color: AppThemeLight.textPrimary),
                 ),
                 selected: false,
                 backgroundColor: AppThemeLight.surface,
-                side: BorderSide(color: AppThemeLight.border, width: 2),
+                side: BorderSide(color: AppThemeLight.divider, width: 2),
                 checkmarkColor: AppThemeLight.primary,
                 onSelected: (_) => _addInterest(interest),
               ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../../universal/theme/app_theme.dart';
 
 class HubChatPage extends StatefulWidget {
   final String hubId;
@@ -99,9 +100,9 @@ class _HubChatPageState extends State<HubChatPage> {
                                   TimeOfDay.fromDateTime(
                                     timestamp.toDate(),
                                   ).format(context),
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 12,
-                                    color: Colors.grey,
+                                    color: AppThemeLight.textSecondary,
                                   ),
                                 ),
                             ],

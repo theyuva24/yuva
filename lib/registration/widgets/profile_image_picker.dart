@@ -60,13 +60,13 @@ class ProfileImagePicker extends StatelessWidget {
               radius: 48,
               backgroundImage:
                   imagePath != null ? FileImage(File(imagePath!)) : null,
-              backgroundColor: Colors.transparent,
+              backgroundColor: Theme.of(context).colorScheme.background,
               child:
                   imagePath == null
-                      ? const Icon(
+                      ? Icon(
                         Icons.person,
                         size: 48,
-                        color: Color(0xFF2D1457), // AppThemeLight.textDark
+                        color: Theme.of(context).colorScheme.onSurface,
                       )
                       : null,
             ),
@@ -78,16 +78,19 @@ class ProfileImagePicker extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.onPrimary,
                     shape: BoxShape.circle,
                     boxShadow: [
-                      BoxShadow(color: Colors.black12, blurRadius: 2),
+                      BoxShadow(
+                        color: Theme.of(context).shadowColor.withOpacity(0.1),
+                        blurRadius: 2,
+                      ),
                     ],
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.edit,
                     size: 26, // Increased size for better visibility
-                    color: Color(0xFF6C63FF),
+                    color: Theme.of(context).colorScheme.onPrimary,
                   ),
                 ),
               ),

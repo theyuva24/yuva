@@ -139,3 +139,34 @@ exports.updatePostTrendingScores = onSchedule("every 8 hours", async () => {
 
   console.log("Updated trending scores for all posts (Refined formula).");
 });
+
+exports.sendMilestoneNotification = onDocumentCreated(
+  'notifications/{notificationId}',
+  async (event) => {
+    const notification = event.data.data();
+    if (!notification || notification.type !== 'milestone') return;
+
+    const recipientId = notification.recipientId;
+    const postId = notification.postId;
+    const milestone = notification.milestone;
+
+    // Get recipient's FCM token
+    const userDoc = await admin.firestore().collection('users').doc(recipientId).get();
+    const fcmToken = userDoc.data().fcmToken;
+    if (!fcmToken) return;
+
+    const payload = {
+      notification: {
+        title: 'Your post is trending!',
+        body: `Your post just reached ${milestone} positive reactions! Keep it up!`,
+      },
+      data: {
+        type: 'milestone',
+        postId: postId,
+        milestone: milestone ? milestone.toString() : '',
+      },
+    };
+
+    await admin.messaging().sendToDevice(fcmToken, payload);
+  }
+);

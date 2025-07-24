@@ -304,21 +304,38 @@ class PostService {
               downvotes += 1;
               score -= 1;
             }
-            // Send notification only for upvotes and not for own post
-            if (voteType == 'upvote' &&
+            // --- Milestone Notification Logic ---
+            // Define milestone thresholds
+            final List<int> milestones = [5, 10, 25, 50, 100, 250, 500, 1000];
+            // Fetch notified milestones from post data (default to empty list)
+            List<dynamic> notifiedMilestones =
+                postData['notifiedMilestones'] ?? [];
+            // Find the highest milestone crossed by the new score
+            int? newMilestone;
+            for (final m in milestones) {
+              if (score >= m && !notifiedMilestones.contains(m)) {
+                newMilestone = m;
+              }
+            }
+            // If a new milestone is reached, notify and update Firestore
+            if (newMilestone != null &&
                 postOwnerId != null &&
                 postOwnerId != user.uid) {
-              final userDoc =
-                  await firestore.collection('users').doc(user.uid).get();
-              final senderName = userDoc.data()?['fullName'] ?? 'Someone';
-              print('[DEBUG] Sending notification to post owner: $postOwnerId');
+              // Send milestone notification
               await _notificationService.addNotification(
                 recipientId: postOwnerId,
-                type: 'like',
+                type: 'milestone',
                 postId: postId,
                 senderId: user.uid,
-                senderName: senderName,
+                senderName: '', // Not needed for milestone
+                commentText: null,
+                milestone: newMilestone, // Add milestone to notification
               );
+              // Update notifiedMilestones in Firestore
+              notifiedMilestones.add(newMilestone);
+              transaction.update(postRef, {
+                'notifiedMilestones': notifiedMilestones,
+              });
             }
           }
           print('[DEBUG] Updating post engagement fields');
@@ -454,6 +471,7 @@ class PostService {
     String postId,
     String commentContent, {
     String? parentCommentId,
+    bool isAnonymous = false,
   }) async {
     try {
       final user = _auth.currentUser;
@@ -467,6 +485,7 @@ class PostService {
         'downvotes': 0,
         'score': 0,
         'parentCommentId': parentCommentId,
+        'isAnonymous': isAnonymous,
       };
 
       await firestore
@@ -480,20 +499,23 @@ class PostService {
         'commentCount': FieldValue.increment(1),
       });
 
-      // Send notification to post owner (not for own comment)
-      final postDoc = await firestore.collection('posts').doc(postId).get();
-      final postOwnerId = postDoc.data()?['userId'];
-      if (postOwnerId != null && postOwnerId != user.uid) {
-        final userDoc = await firestore.collection('users').doc(user.uid).get();
-        final senderName = userDoc.data()?['fullName'] ?? 'Someone';
-        await _notificationService.addNotification(
-          recipientId: postOwnerId,
-          type: 'comment',
-          postId: postId,
-          senderId: user.uid,
-          senderName: senderName,
-          commentText: commentContent,
-        );
+      // Send notification to post owner only for direct comments (not replies)
+      if (parentCommentId == null) {
+        final postDoc = await firestore.collection('posts').doc(postId).get();
+        final postOwnerId = postDoc.data()?['userId'];
+        if (postOwnerId != null && postOwnerId != user.uid) {
+          final userDoc =
+              await firestore.collection('users').doc(user.uid).get();
+          final senderName = userDoc.data()?['fullName'] ?? 'Someone';
+          await _notificationService.addNotification(
+            recipientId: postOwnerId,
+            type: 'comment',
+            postId: postId,
+            senderId: user.uid,
+            senderName: senderName,
+            commentText: commentContent,
+          );
+        }
       }
     } catch (e) {
       throw Exception('Failed to add comment: $e');

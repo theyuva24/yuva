@@ -89,7 +89,9 @@ class _StepProgress extends StatelessWidget {
           height: 8,
           decoration: BoxDecoration(
             color:
-                i <= currentStep ? AppThemeLight.primary : AppThemeLight.border,
+                i <= currentStep
+                    ? AppThemeLight.primary
+                    : AppThemeLight.divider,
             borderRadius: BorderRadius.circular(4),
             boxShadow:
                 i == currentStep

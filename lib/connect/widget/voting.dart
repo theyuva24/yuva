@@ -207,15 +207,16 @@ class VotingService {
             await firestore.collection('posts').doc(postId).get();
         final postData = postSnapshot.data() as Map<String, dynamic>?;
         final postOwnerId = postData?['userId'] as String?;
-        if (postOwnerId != null && postOwnerId != user.uid) {
-          await _notificationService.addNotification(
-            recipientId: postOwnerId,
-            type: 'vote',
-            postId: postId,
-            senderId: user.uid,
-            senderName: user.displayName ?? 'Someone',
-          );
-        }
+        // REMOVE: No more per-upvote notification here
+        // if (postOwnerId != null && postOwnerId != user.uid) {
+        //   await _notificationService.addNotification(
+        //     recipientId: postOwnerId,
+        //     type: 'vote',
+        //     postId: postId,
+        //     senderId: user.uid,
+        //     senderName: user.displayName ?? 'Someone',
+        //   );
+        // }
         break; // Success, exit retry loop
       } catch (e) {
         if (attempt < maxRetries) {
@@ -527,7 +528,7 @@ class _VotingBarState extends State<VotingBar> {
                     )
                     : const Icon(
                       Icons.arrow_upward_outlined,
-                      color: AppThemeLight.textLight,
+                      color: AppThemeLight.textSecondary,
                       size: 22,
                     ),
             tooltip: _isUpvoted ? 'You upvoted' : 'Upvote',
@@ -559,7 +560,7 @@ class _VotingBarState extends State<VotingBar> {
                     )
                     : const Icon(
                       Icons.arrow_downward_outlined,
-                      color: AppThemeLight.textLight,
+                      color: AppThemeLight.textSecondary,
                       size: 22,
                     ),
             tooltip: _isDownvoted ? 'You downvoted' : 'Downvote',
@@ -574,11 +575,18 @@ class _VotingBarState extends State<VotingBar> {
               padding: const EdgeInsets.only(left: 8.0),
               child: Row(
                 children: [
-                  const Icon(Icons.error, color: Colors.red, size: 18),
+                  Icon(
+                    Icons.error,
+                    color: Theme.of(context).colorScheme.error,
+                    size: 18,
+                  ),
                   const SizedBox(width: 4),
                   Text(
                     _voteError!,
-                    style: const TextStyle(color: Colors.red, fontSize: 12),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                      fontSize: 12,
+                    ),
                   ),
                 ],
               ),

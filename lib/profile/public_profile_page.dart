@@ -51,7 +51,10 @@ class _PublicProfilePageState extends State<PublicProfilePage> {
               backgroundColor: AppThemeLight.background,
               elevation: 0,
               leading: IconButton(
-                icon: const Icon(Icons.arrow_back, color: Colors.black),
+                icon: Icon(
+                  Icons.arrow_back,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
                 onPressed: () => Navigator.of(context).pop(),
               ),
               // No actions for public profile

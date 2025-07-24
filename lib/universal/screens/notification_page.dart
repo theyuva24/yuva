@@ -5,6 +5,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../universal/theme/app_theme.dart';
+import '../../main.dart';
+import '../../connect/pages/post_details_loader.dart';
+import '../../challenge/pages/submission_details_loader.dart';
 
 class NotificationPage extends StatelessWidget {
   const NotificationPage({super.key});
@@ -47,6 +50,10 @@ class NotificationPage extends StatelessWidget {
                 message = '$senderName liked your post.';
               } else if (type == 'comment') {
                 message = '$senderName commented: "$commentText"';
+              } else if (type == 'milestone') {
+                final milestone = data['milestone'] ?? 0;
+                message =
+                    'Your post just reached $milestone positive reactions! Keep it up!';
               } else {
                 message = 'You have a new notification.';
               }
@@ -73,7 +80,13 @@ class NotificationPage extends StatelessWidget {
                 ),
                 child: ListTile(
                   leading: Icon(
-                    type == 'like' ? Icons.thumb_up : Icons.comment,
+                    type == 'like'
+                        ? Icons.thumb_up
+                        : type == 'comment'
+                        ? Icons.comment
+                        : type == 'milestone'
+                        ? Icons.star
+                        : Icons.notifications,
                     color: colorScheme.primary,
                   ),
                   title: Text(
@@ -95,8 +108,31 @@ class NotificationPage extends StatelessWidget {
                             ),
                           )
                           : null,
-                  tileColor: Colors.transparent,
+                  tileColor: AppThemeLight.transparent,
                   onTap: () {
+                    if ((type == 'milestone' || type == 'comment') &&
+                        data['postId'] != null) {
+                      if (data['challengeId'] != null) {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder:
+                                (context) => SubmissionDetailsPageLoader(
+                                  submissionId: data['postId'],
+                                  challengeId: data['challengeId'],
+                                ),
+                          ),
+                        );
+                      } else {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder:
+                                (context) => PostDetailsPageLoader(
+                                  postId: data['postId'],
+                                ),
+                          ),
+                        );
+                      }
+                    }
                     notificationService.markAsRead(notifications[index].id);
                   },
                 ),

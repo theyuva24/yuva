@@ -51,13 +51,19 @@ class _OwnerProfilePageState extends State<OwnerProfilePage> {
               backgroundColor: AppThemeLight.background,
               elevation: 0,
               leading: IconButton(
-                icon: const Icon(Icons.arrow_back, color: Colors.black),
+                icon: Icon(
+                  Icons.arrow_back,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
                 onPressed: () => Navigator.of(context).pop(),
               ),
               actions: [
                 if (isCurrentUser)
                   IconButton(
-                    icon: const Icon(Icons.settings, color: Colors.black),
+                    icon: Icon(
+                      Icons.settings,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
                     onPressed: () {
                       Navigator.of(context).push(
                         MaterialPageRoute(

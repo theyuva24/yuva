@@ -5,6 +5,7 @@ import '../challenge/service/challenge_service.dart';
 import '../challenge/model/challenge_model.dart';
 import '../registration/widgets/profile_image_picker.dart';
 import 'dart:io';
+import '../universal/theme/app_theme.dart';
 
 class ChallengeAdminPage extends StatefulWidget {
   const ChallengeAdminPage({Key? key}) : super(key: key);
@@ -45,42 +46,56 @@ class _ChallengeAdminPageState extends State<ChallengeAdminPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Challenge Admin')),
-      body: FutureBuilder<List<Challenge>>(
-        future: _challengesFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return Center(child: Text('Error loading challenges'));
-          }
-          final challenges = snapshot.data ?? [];
-          if (challenges.isEmpty) {
-            return const Center(child: Text('No challenges available.'));
-          }
-          return ListView.separated(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-            itemCount: challenges.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 16),
-            itemBuilder: (context, index) {
-              final challenge = challenges[index];
-              return Card(
-                child: ListTile(
-                  title: Text(challenge.title),
-                  subtitle: Text(challenge.description),
-                  onTap: () => _openChallengeForm(challenge: challenge),
-                ),
-              );
-            },
-          );
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _openChallengeForm(),
-        child: const Icon(Icons.add),
-        tooltip: 'Create Challenge',
+    return Theme(
+      data:
+          Theme.of(context).brightness == Brightness.dark
+              ? AppThemeDark.theme
+              : AppThemeLight.theme,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Challenge Admin'),
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          iconTheme: IconThemeData(
+            color: Theme.of(context).colorScheme.primary,
+          ),
+          titleTextStyle: Theme.of(context).textTheme.titleLarge,
+        ),
+        backgroundColor: Theme.of(context).colorScheme.background,
+        body: FutureBuilder<List<Challenge>>(
+          future: _challengesFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (snapshot.hasError) {
+              return Center(child: Text('Error loading challenges'));
+            }
+            final challenges = snapshot.data ?? [];
+            if (challenges.isEmpty) {
+              return const Center(child: Text('No challenges available.'));
+            }
+            return ListView.separated(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              itemCount: challenges.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 16),
+              itemBuilder: (context, index) {
+                final challenge = challenges[index];
+                return Card(
+                  child: ListTile(
+                    title: Text(challenge.title),
+                    subtitle: Text(challenge.description),
+                    onTap: () => _openChallengeForm(challenge: challenge),
+                  ),
+                );
+              },
+            );
+          },
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => _openChallengeForm(),
+          child: const Icon(Icons.add),
+          tooltip: 'Create Challenge',
+        ),
       ),
     );
   }
@@ -207,120 +222,136 @@ class _ChallengeFormPageState extends State<ChallengeFormPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          widget.challenge == null ? 'Create Challenge' : 'Edit Challenge',
+    return Theme(
+      data:
+          Theme.of(context).brightness == Brightness.dark
+              ? AppThemeDark.theme
+              : AppThemeLight.theme,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(
+            widget.challenge == null ? 'Create Challenge' : 'Edit Challenge',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          iconTheme: IconThemeData(
+            color: Theme.of(context).colorScheme.primary,
+          ),
         ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              ProfileImagePicker(
-                imagePath: _imagePath ?? _imageUrl,
-                onImagePicked: (path) => setState(() => _imagePath = path),
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _titleController,
-                decoration: const InputDecoration(labelText: 'Challenge Title'),
-                validator: (v) => v == null || v.isEmpty ? 'Required' : null,
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _skillsController,
-                decoration: const InputDecoration(
-                  labelText: 'Challenge Skills',
+        backgroundColor: Theme.of(context).colorScheme.background,
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Form(
+            key: _formKey,
+            child: ListView(
+              children: [
+                ProfileImagePicker(
+                  imagePath: _imagePath ?? _imageUrl,
+                  onImagePicked: (path) => setState(() => _imagePath = path),
                 ),
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _postTypeController,
-                decoration: const InputDecoration(labelText: 'Post Type'),
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _rewardController,
-                decoration: const InputDecoration(
-                  labelText: 'Challenge Reward',
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _titleController,
+                  decoration: const InputDecoration(
+                    labelText: 'Challenge Title',
+                  ),
+                  validator: (v) => v == null || v.isEmpty ? 'Required' : null,
                 ),
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _whoCanWinController,
-                decoration: const InputDecoration(labelText: 'Who Can Win'),
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _startDateController,
-                decoration: const InputDecoration(labelText: 'Start Date'),
-                onTap: () async {
-                  FocusScope.of(context).requestFocus(FocusNode());
-                  final picked = await showDatePicker(
-                    context: context,
-                    initialDate: DateTime.now(),
-                    firstDate: DateTime(2020),
-                    lastDate: DateTime(2100),
-                  );
-                  if (picked != null) {
-                    _startDateController.text =
-                        picked.toIso8601String().split('T').first;
-                  }
-                },
-                readOnly: true,
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _endDateController,
-                decoration: const InputDecoration(labelText: 'End Date'),
-                onTap: () async {
-                  FocusScope.of(context).requestFocus(FocusNode());
-                  final picked = await showDatePicker(
-                    context: context,
-                    initialDate: DateTime.now(),
-                    firstDate: DateTime(2020),
-                    lastDate: DateTime(2100),
-                  );
-                  if (picked != null) {
-                    _endDateController.text =
-                        picked.toIso8601String().split('T').first;
-                  }
-                },
-                readOnly: true,
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _linkController,
-                decoration: const InputDecoration(labelText: 'Challenge Link'),
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _descriptionController,
-                decoration: const InputDecoration(
-                  labelText: 'Challenge Description',
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _skillsController,
+                  decoration: const InputDecoration(
+                    labelText: 'Challenge Skills',
+                  ),
                 ),
-                maxLines: 3,
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: isLoading ? null : _saveChallenge,
-                child:
-                    isLoading
-                        ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                        : Text(
-                          widget.challenge == null
-                              ? 'Create Challenge'
-                              : 'Save Changes',
-                        ),
-              ),
-            ],
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _postTypeController,
+                  decoration: const InputDecoration(labelText: 'Post Type'),
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _rewardController,
+                  decoration: const InputDecoration(
+                    labelText: 'Challenge Reward',
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _whoCanWinController,
+                  decoration: const InputDecoration(labelText: 'Who Can Win'),
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _startDateController,
+                  decoration: const InputDecoration(labelText: 'Start Date'),
+                  onTap: () async {
+                    FocusScope.of(context).requestFocus(FocusNode());
+                    final picked = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime(2020),
+                      lastDate: DateTime(2100),
+                    );
+                    if (picked != null) {
+                      _startDateController.text =
+                          picked.toIso8601String().split('T').first;
+                    }
+                  },
+                  readOnly: true,
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _endDateController,
+                  decoration: const InputDecoration(labelText: 'End Date'),
+                  onTap: () async {
+                    FocusScope.of(context).requestFocus(FocusNode());
+                    final picked = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime(2020),
+                      lastDate: DateTime(2100),
+                    );
+                    if (picked != null) {
+                      _endDateController.text =
+                          picked.toIso8601String().split('T').first;
+                    }
+                  },
+                  readOnly: true,
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _linkController,
+                  decoration: const InputDecoration(
+                    labelText: 'Challenge Link',
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _descriptionController,
+                  decoration: const InputDecoration(
+                    labelText: 'Challenge Description',
+                  ),
+                  maxLines: 3,
+                ),
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  onPressed: isLoading ? null : _saveChallenge,
+                  child:
+                      isLoading
+                          ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                          : Text(
+                            widget.challenge == null
+                                ? 'Create Challenge'
+                                : 'Save Changes',
+                          ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

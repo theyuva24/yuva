@@ -27,7 +27,7 @@ class ChallengeCard extends StatelessWidget {
         decoration: BoxDecoration(
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withAlpha(31),
+              color: Theme.of(context).shadowColor.withOpacity(0.12),
               blurRadius: 12,
               spreadRadius: 1,
               offset: Offset(0, 4),
@@ -55,18 +55,22 @@ class ChallengeCard extends StatelessWidget {
                         fit: BoxFit.cover,
                         placeholder:
                             (context, url) => Container(
-                              color: Colors.grey[200],
-                              child: const Center(
-                                child: CircularProgressIndicator(),
+                              color: Theme.of(context).colorScheme.surface,
+                              child: Center(
+                                child: CircularProgressIndicator(
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
                               ),
                             ),
                         errorWidget:
                             (context, url, error) => Container(
-                              color: Colors.grey[200],
-                              child: const Center(
+                              color: Theme.of(context).colorScheme.surface,
+                              child: Center(
                                 child: Icon(
                                   Icons.broken_image,
-                                  color: Colors.grey,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface.withOpacity(0.6),
                                   size: 48,
                                 ),
                               ),
@@ -95,8 +99,8 @@ class ChallengeCard extends StatelessWidget {
                 flex: 25,
                 child: Container(
                   width: double.infinity,
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surface,
                     borderRadius: BorderRadius.only(
                       bottomLeft: Radius.circular(20),
                       bottomRight: Radius.circular(20),
@@ -106,13 +110,11 @@ class ChallengeCard extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Text(
                     challenge.title,
-                    style: GoogleFonts.orbitron(
-                      textStyle: const TextStyle(
-                        color: AppThemeLight.textDark,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                        letterSpacing: 1.2,
-                      ),
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.primary,
+                      letterSpacing: 1.5,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -152,11 +154,11 @@ class _ChallengeTimingBar extends StatelessWidget {
       child: LinearProgressIndicator(
         value: progress,
         minHeight: 10,
-        backgroundColor: const Color(0xFFF3E8FF), // light purple
+        backgroundColor: Theme.of(context).colorScheme.surface,
         valueColor: AlwaysStoppedAnimation<Color>(
           progress < 1.0
-              ? const Color(0xFF7C3AED)
-              : Colors.redAccent, // dark purple
+              ? Theme.of(context).colorScheme.primary
+              : Theme.of(context).colorScheme.error,
         ),
       ),
     );
@@ -179,8 +181,8 @@ class _DaysLeftBadge extends StatelessWidget {
             : (daysLeft == 0 ? 'Last day' : 'Closed');
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: const BoxDecoration(
-        color: Color(0xFFF3E8FF),
+      decoration: BoxDecoration(
+        color: Theme.of(context).dividerColor,
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(12),
           topRight: Radius.circular(0),
@@ -190,8 +192,8 @@ class _DaysLeftBadge extends StatelessWidget {
       ),
       child: Text(
         text,
-        style: const TextStyle(
-          color: Colors.black,
+        style: TextStyle(
+          color: Theme.of(context).colorScheme.onSurface,
           fontWeight: FontWeight.w600,
           fontSize: 12,
         ),
@@ -208,8 +210,8 @@ class _PrizeBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: const BoxDecoration(
-        color: Color(0xFFF3E8FF),
+      decoration: BoxDecoration(
+        color: Theme.of(context).dividerColor,
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(0),
           topRight: Radius.circular(0),
@@ -219,8 +221,8 @@ class _PrizeBadge extends StatelessWidget {
       ),
       child: Text(
         'Win ₹$prize',
-        style: const TextStyle(
-          color: Colors.black,
+        style: TextStyle(
+          color: Theme.of(context).colorScheme.onSurface,
           fontWeight: FontWeight.w600,
           fontSize: 12,
         ),
@@ -252,11 +254,11 @@ class _ChallengeTimingBarMinimal extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Theme.of(context).shadowColor.withOpacity(0.06),
             blurRadius: 4,
             offset: Offset(0, 2),
           ),
@@ -267,9 +269,11 @@ class _ChallengeTimingBarMinimal extends StatelessWidget {
         child: LinearProgressIndicator(
           value: progress,
           minHeight: 7,
-          backgroundColor: const Color(0xFFF3E8FF),
+          backgroundColor: Theme.of(context).colorScheme.surface,
           valueColor: AlwaysStoppedAnimation<Color>(
-            progress < 1.0 ? const Color(0xFF7C3AED) : Colors.redAccent,
+            progress < 1.0
+                ? Theme.of(context).colorScheme.primary
+                : Theme.of(context).colorScheme.error,
           ),
         ),
       ),

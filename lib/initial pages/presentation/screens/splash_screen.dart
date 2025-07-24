@@ -54,7 +54,7 @@ class SplashScreen extends StatelessWidget {
     });
 
     return Scaffold(
-      backgroundColor: AppThemeLight.background,
+      backgroundColor: Theme.of(context).colorScheme.background,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -63,20 +63,23 @@ class SplashScreen extends StatelessWidget {
               width: 120.w,
               height: 120.w,
               decoration: BoxDecoration(
-                color: Colors.transparent,
+                color: AppThemeLight.transparent,
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: AppThemeLight.primary.withAlpha(51),
+                    color: Theme.of(context).colorScheme.primary.withAlpha(51),
                     blurRadius: 32.r,
                     spreadRadius: 8.r,
                   ),
                 ],
-                border: Border.all(color: AppThemeLight.primary, width: 4.w),
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.primary,
+                  width: 4.w,
+                ),
               ),
               child: Icon(
                 Icons.school,
-                color: AppThemeLight.primary,
+                color: Theme.of(context).colorScheme.primary,
                 size: 64.sp,
               ),
             ),
@@ -86,7 +89,7 @@ class SplashScreen extends StatelessWidget {
               style: TextStyle(
                 fontSize: 48.sp,
                 fontWeight: FontWeight.bold,
-                color: AppThemeLight.primary,
+                color: Theme.of(context).colorScheme.primary,
                 letterSpacing: 4.w,
               ),
             ),

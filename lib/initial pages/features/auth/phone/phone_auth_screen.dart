@@ -138,7 +138,10 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
               _successMessage = message;
             });
             _startResendTimer();
-            _showSnackBar('OTP sent successfully!', Colors.green);
+            _showSnackBar(
+              'OTP sent successfully!',
+              Theme.of(context).colorScheme.secondary,
+            );
             Future.delayed(const Duration(milliseconds: 500), () {
               if (mounted) {
                 _otpFocusNode.requestFocus();
@@ -161,7 +164,10 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
             setState(() {
               _autoVerified = true;
             });
-            _showSnackBar('Phone number verified automatically!', Colors.green);
+            _showSnackBar(
+              'Phone number verified automatically!',
+              Theme.of(context).colorScheme.secondary,
+            );
             // Await user existence check result if not already done
             _isExistingUser ??= await userExistenceFuture;
             _navigateToNextScreen();
@@ -209,7 +215,10 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
 
       if (mounted) {
         if (result['success'] == true) {
-          _showSnackBar('Phone number verified successfully!', Colors.green);
+          _showSnackBar(
+            'Phone number verified successfully!',
+            Theme.of(context).colorScheme.secondary,
+          );
           // Ensure user existence check is complete
           if (_isExistingUser == null) {
             final authService = AuthService();
@@ -255,7 +264,10 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
       if (mounted) {
         if (result['success']) {
           _startResendTimer();
-          _showSnackBar('OTP resent successfully!', Colors.green);
+          _showSnackBar(
+            'OTP resent successfully!',
+            Theme.of(context).colorScheme.secondary,
+          );
         } else {
           _setError(result['error']);
         }
@@ -359,7 +371,7 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                     Text(
                       'Login to explore opportunities',
                       style: theme.textTheme.bodyLarge?.copyWith(
-                        color: AppThemeLight.textLight,
+                        color: AppThemeLight.textSecondary,
                         fontWeight: FontWeight.w400,
                         letterSpacing: 0.5,
                       ),
@@ -370,21 +382,28 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: Colors.green[50],
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.secondary.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.green[300]!),
+                          border: Border.all(
+                            color: Theme.of(context).colorScheme.secondary,
+                          ),
                         ),
                         child: Row(
                           children: [
                             Icon(
                               Icons.check_circle_outline,
-                              color: Colors.green[700],
+                              color: Theme.of(context).colorScheme.secondary,
                             ),
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
                                 _successMessage!,
-                                style: const TextStyle(color: Colors.green),
+                                style: TextStyle(
+                                  color:
+                                      Theme.of(context).colorScheme.secondary,
+                                ),
                               ),
                             ),
                           ],
@@ -396,18 +415,27 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: Colors.red[50],
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.error.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.red[300]!),
+                          border: Border.all(
+                            color: Theme.of(context).colorScheme.error,
+                          ),
                         ),
                         child: Row(
                           children: [
-                            Icon(Icons.error_outline, color: Colors.red[700]),
+                            Icon(
+                              Icons.error_outline,
+                              color: Theme.of(context).colorScheme.error,
+                            ),
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
                                 _error!,
-                                style: const TextStyle(color: Colors.red),
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.error,
+                                ),
                               ),
                             ),
                           ],
@@ -465,7 +493,7 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                               Text(
                                 'By continuing, you agree to YUVA’s ',
                                 style: TextStyle(
-                                  color: AppThemeLight.textLight,
+                                  color: AppThemeLight.textSecondary,
                                   fontSize: 13,
                                 ),
                               ),
@@ -492,7 +520,7 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                               Text(
                                 ' and ',
                                 style: TextStyle(
-                                  color: AppThemeLight.textLight,
+                                  color: AppThemeLight.textSecondary,
                                   fontSize: 13,
                                 ),
                               ),
@@ -519,7 +547,7 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                               Text(
                                 '.',
                                 style: TextStyle(
-                                  color: AppThemeLight.textLight,
+                                  color: AppThemeLight.textSecondary,
                                   fontSize: 13,
                                 ),
                               ),
@@ -535,7 +563,7 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                             Text(
                               'Enter the OTP code',
                               style: theme.textTheme.titleMedium?.copyWith(
-                                color: AppThemeLight.textDark,
+                                color: AppThemeLight.textPrimary,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
@@ -543,7 +571,7 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                             Text(
                               'Sent to $_currentPhoneNumber',
                               style: theme.textTheme.bodyMedium?.copyWith(
-                                color: AppThemeLight.textLight,
+                                color: AppThemeLight.textSecondary,
                               ),
                             ),
                           ],
@@ -565,14 +593,14 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                           fieldWidth: 50,
                           activeColor: AppThemeLight.primary,
                           selectedColor: AppThemeLight.secondary,
-                          inactiveColor: AppThemeLight.border,
-                          activeFillColor: Colors.transparent,
-                          selectedFillColor: Colors.transparent,
-                          inactiveFillColor: Colors.transparent,
+                          inactiveColor: AppThemeLight.divider,
+                          activeFillColor: AppThemeLight.transparent,
+                          selectedFillColor: AppThemeLight.transparent,
+                          inactiveFillColor: AppThemeLight.transparent,
                           borderWidth: 2,
                         ),
                         textStyle: theme.textTheme.headlineMedium?.copyWith(
-                          color: AppThemeLight.textDark,
+                          color: AppThemeLight.textPrimary,
                           fontWeight: FontWeight.bold,
                         ),
                         enableActiveFill: false,
@@ -604,7 +632,7 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                                 ? 'Resend code in 00: ${_resendTimer.toString().padLeft(2, '0')}'
                                 : 'Resend code',
                             style: theme.textTheme.bodyLarge?.copyWith(
-                              color: AppThemeLight.textLight,
+                              color: AppThemeLight.textSecondary,
                             ),
                           ),
                         ),
@@ -617,7 +645,7 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
             ),
             if (_loading)
               Container(
-                color: Colors.black.withAlpha(76),
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
                 child: const Center(child: CircularProgressIndicator()),
               ),
           ],

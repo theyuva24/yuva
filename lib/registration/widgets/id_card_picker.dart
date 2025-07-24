@@ -71,21 +71,18 @@ class IdCardPicker extends StatelessWidget {
                             fit: BoxFit.cover,
                             placeholder:
                                 (context, url) => Container(
-                                  color: Colors.grey[200],
+                                  color: Theme.of(context).colorScheme.surface,
                                   child: const Center(
                                     child: CircularProgressIndicator(),
                                   ),
                                 ),
                             errorWidget:
-                                (context, url, error) => Container(
-                                  color: Colors.grey[200],
-                                  child: const Center(
-                                    child: Icon(
-                                      Icons.broken_image,
-                                      color: Colors.grey,
-                                      size: 48,
-                                    ),
-                                  ),
+                                (context, url, error) => Icon(
+                                  Icons.broken_image,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface.withOpacity(0.6),
+                                  size: 48,
                                 ),
                           )
                           : Image.file(
@@ -108,7 +105,7 @@ class IdCardPicker extends StatelessWidget {
                     Text(
                       'Click here to upload ID',
                       style: TextStyle(
-                        color: AppThemeLight.textDark,
+                        color: AppThemeLight.textPrimary,
                         fontWeight: FontWeight.bold,
                         fontSize: 18,
                       ),

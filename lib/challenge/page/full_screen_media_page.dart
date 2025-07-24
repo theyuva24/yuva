@@ -179,7 +179,7 @@ class _FullScreenMediaPageState extends State<FullScreenMediaPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Theme.of(context).colorScheme.background,
       resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
@@ -303,8 +303,11 @@ class _FullScreenMediaPageState extends State<FullScreenMediaPage> {
                                                                 error,
                                                               ) => Container(
                                                                 color:
-                                                                    Colors
-                                                                        .black,
+                                                                    Theme.of(
+                                                                          context,
+                                                                        )
+                                                                        .colorScheme
+                                                                        .background,
                                                               ),
                                                         ),
                                                       ),
@@ -335,17 +338,26 @@ class _FullScreenMediaPageState extends State<FullScreenMediaPage> {
                                                         url,
                                                         error,
                                                       ) => Container(
-                                                        color: Colors.black,
-                                                        child: const Icon(
+                                                        color:
+                                                            Theme.of(context)
+                                                                .colorScheme
+                                                                .background,
+                                                        child: Icon(
                                                           Icons.broken_image,
-                                                          color: Colors.white,
+                                                          color:
+                                                              Theme.of(context)
+                                                                  .colorScheme
+                                                                  .onPrimary,
                                                           size: 80,
                                                         ),
                                                       ),
                                                 )
-                                            : const Icon(
+                                            : Icon(
                                               Icons.image,
-                                              color: Colors.white,
+                                              color:
+                                                  Theme.of(
+                                                    context,
+                                                  ).colorScheme.onPrimary,
                                               size: 80,
                                             ),
                                   ),
@@ -362,14 +374,20 @@ class _FullScreenMediaPageState extends State<FullScreenMediaPage> {
                                         // Challenge title
                                         Text(
                                           challengeTitle,
-                                          style: const TextStyle(
-                                            color: Colors.white,
+                                          style: TextStyle(
+                                            color:
+                                                Theme.of(
+                                                  context,
+                                                ).colorScheme.onPrimary,
                                             fontWeight: FontWeight.bold,
                                             fontSize: 18,
                                             shadows: [
                                               Shadow(
                                                 blurRadius: 4,
-                                                color: Colors.black54,
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .onSurface
+                                                    .withOpacity(0.54),
                                               ),
                                             ],
                                           ),
@@ -407,29 +425,33 @@ class _FullScreenMediaPageState extends State<FullScreenMediaPage> {
                                                         children: [
                                                           Text(
                                                             'Description',
-                                                            style:
-                                                                const TextStyle(
-                                                                  color:
-                                                                      Colors
-                                                                          .white,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                  fontSize: 18,
-                                                                ),
+                                                            style: TextStyle(
+                                                              color:
+                                                                  Theme.of(
+                                                                        context,
+                                                                      )
+                                                                      .colorScheme
+                                                                      .onPrimary,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              fontSize: 18,
+                                                            ),
                                                           ),
                                                           const SizedBox(
                                                             height: 16,
                                                           ),
                                                           Text(
                                                             submission.caption,
-                                                            style:
-                                                                const TextStyle(
-                                                                  color:
-                                                                      Colors
-                                                                          .white,
-                                                                  fontSize: 16,
-                                                                ),
+                                                            style: TextStyle(
+                                                              color:
+                                                                  Theme.of(
+                                                                        context,
+                                                                      )
+                                                                      .colorScheme
+                                                                      .onPrimary,
+                                                              fontSize: 16,
+                                                            ),
                                                           ),
                                                         ],
                                                       ),
@@ -442,13 +464,19 @@ class _FullScreenMediaPageState extends State<FullScreenMediaPage> {
                                         // User name (full name)
                                         Text(
                                           fullName,
-                                          style: const TextStyle(
-                                            color: Colors.white70,
+                                          style: TextStyle(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onSurface
+                                                .withOpacity(0.54),
                                             fontSize: 14,
                                             shadows: [
                                               Shadow(
                                                 blurRadius: 4,
-                                                color: Colors.black54,
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .onSurface
+                                                    .withOpacity(0.54),
                                               ),
                                             ],
                                           ),
@@ -473,7 +501,10 @@ class _FullScreenMediaPageState extends State<FullScreenMediaPage> {
                                           },
                                           child: CircleAvatar(
                                             radius: 28,
-                                            backgroundColor: Colors.white24,
+                                            backgroundColor: Theme.of(context)
+                                                .colorScheme
+                                                .onSurface
+                                                .withOpacity(0.24),
                                             backgroundImage:
                                                 profileImageUrl.isNotEmpty
                                                     ? NetworkImage(
@@ -484,7 +515,10 @@ class _FullScreenMediaPageState extends State<FullScreenMediaPage> {
                                                 profileImageUrl.isEmpty
                                                     ? Icon(
                                                       Icons.person,
-                                                      color: Colors.white,
+                                                      color:
+                                                          Theme.of(context)
+                                                              .colorScheme
+                                                              .onPrimary,
                                                       size: 32,
                                                     )
                                                     : null,
@@ -611,7 +645,11 @@ class _FullScreenMediaPageState extends State<FullScreenMediaPage> {
             right: 20,
             child: SafeArea(
               child: IconButton(
-                icon: const Icon(Icons.close, color: Colors.white, size: 32),
+                icon: Icon(
+                  Icons.close,
+                  color: Theme.of(context).colorScheme.onPrimary,
+                  size: 32,
+                ),
                 onPressed: () => Navigator.pop(context),
               ),
             ),
@@ -658,10 +696,17 @@ class _DescriptionWithShowMoreState extends State<_DescriptionWithShowMore> {
       final textPainter = TextPainter(
         text: TextSpan(
           text: widget.description,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onPrimary,
             fontSize: 15,
-            shadows: [Shadow(blurRadius: 4, color: Colors.black54)],
+            shadows: [
+              Shadow(
+                blurRadius: 4,
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withOpacity(0.54),
+              ),
+            ],
           ),
         ),
         maxLines: 2,
@@ -685,22 +730,29 @@ class _DescriptionWithShowMoreState extends State<_DescriptionWithShowMore> {
             key: _key,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onPrimary,
               fontSize: 15,
-              shadows: [Shadow(blurRadius: 4, color: Colors.black54)],
+              shadows: [
+                Shadow(
+                  blurRadius: 4,
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withOpacity(0.54),
+                ),
+              ],
             ),
           ),
         ),
         if (_isOverflowing)
           GestureDetector(
             onTap: widget.onShowMore,
-            child: const Padding(
-              padding: EdgeInsets.only(left: 8.0, top: 2),
+            child: Padding(
+              padding: const EdgeInsets.only(left: 8.0, top: 2),
               child: Text(
                 'Show more',
                 style: TextStyle(
-                  color: Colors.blueAccent,
+                  color: Theme.of(context).colorScheme.primary,
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
                   decoration: TextDecoration.underline,
@@ -733,11 +785,15 @@ class _ActionButton extends StatelessWidget {
         children: [
           Container(
             decoration: BoxDecoration(
-              color: Colors.white24,
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.24),
               shape: BoxShape.circle,
             ),
             padding: const EdgeInsets.all(12),
-            child: Icon(icon, color: Colors.white, size: 32),
+            child: Icon(
+              icon,
+              color: Theme.of(context).colorScheme.onPrimary,
+              size: 32,
+            ),
           ),
           const SizedBox(height: 6),
           Row(
@@ -745,10 +801,17 @@ class _ActionButton extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onPrimary,
                   fontSize: 13,
-                  shadows: [Shadow(blurRadius: 4, color: Colors.black54)],
+                  shadows: [
+                    Shadow(
+                      blurRadius: 4,
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withOpacity(0.54),
+                    ),
+                  ],
                 ),
               ),
               if (count != null)
@@ -756,11 +819,18 @@ class _ActionButton extends StatelessWidget {
                   padding: const EdgeInsets.only(left: 4.0),
                   child: Text(
                     count.toString(),
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onPrimary,
                       fontSize: 13,
                       fontWeight: FontWeight.bold,
-                      shadows: [Shadow(blurRadius: 4, color: Colors.black54)],
+                      shadows: [
+                        Shadow(
+                          blurRadius: 4,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withOpacity(0.54),
+                        ),
+                      ],
                     ),
                   ),
                 ),

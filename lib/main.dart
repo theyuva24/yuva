@@ -15,6 +15,7 @@ import 'challenge/model/timestamp_adapter.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'chat/page/chats_page.dart';
+import 'connect/pages/post_details_loader.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
@@ -104,6 +105,8 @@ class YuvaApp extends StatelessWidget {
             title: 'YUVA',
             debugShowCheckedModeBanner: false,
             theme: AppThemeLight.theme,
+            darkTheme: AppThemeDark.theme,
+            themeMode: ThemeMode.system,
             home: const SplashScreen(),
             navigatorObservers: [routeObserver],
           ),

@@ -92,7 +92,7 @@ class _ConnectPageState extends State<ConnectPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppThemeLight.transparent,
       body: SafeArea(
         child: Column(
           children: [
@@ -100,20 +100,18 @@ class _ConnectPageState extends State<ConnectPage>
               color: AppThemeLight.surface,
               child: TabBar(
                 controller: _tabController,
-                labelColor: AppThemeLight.textDark,
-                unselectedLabelColor: AppThemeLight.textLight,
+                labelColor: AppThemeLight.textPrimary,
+                unselectedLabelColor: AppThemeLight.textSecondary,
                 indicatorColor: AppThemeLight.primary,
                 indicatorWeight: 4.h,
                 labelStyle: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                   letterSpacing: 1,
-                  fontFamily: 'Urbanist',
                 ),
                 unselectedLabelStyle: const TextStyle(
                   fontSize: 16,
                   letterSpacing: 1,
-                  fontFamily: 'Urbanist',
                 ),
                 tabs: const [Tab(text: 'Trending'), Tab(text: 'My Feed')],
               ),
@@ -146,7 +144,7 @@ class _ConnectPageState extends State<ConnectPage>
                                 Icon(
                                   Icons.error_outline,
                                   size: 64.w,
-                                  color: AppThemeLight.primary,
+                                  color: AppThemeLight.error,
                                 ),
                                 SizedBox(height: 16.h),
                                 Text(
@@ -165,7 +163,7 @@ class _ConnectPageState extends State<ConnectPage>
                                     child: Text(
                                       snapshot.error.toString(),
                                       style: TextStyle(
-                                        color: Colors.red,
+                                        color: AppThemeLight.error,
                                         fontSize: 12.sp,
                                       ),
                                       textAlign: TextAlign.center,
@@ -190,13 +188,13 @@ class _ConnectPageState extends State<ConnectPage>
                                 Icon(
                                   Icons.forum_outlined,
                                   size: 64.w,
-                                  color: AppThemeLight.textLight,
+                                  color: AppThemeLight.textSecondary,
                                 ),
                                 SizedBox(height: 16.h),
                                 Text(
                                   'No posts yet',
                                   style: TextStyle(
-                                    color: AppThemeLight.textLight,
+                                    color: AppThemeLight.textSecondary,
                                     fontSize: 16.sp,
                                   ),
                                 ),
@@ -305,7 +303,8 @@ class _ConnectPageState extends State<ConnectPage>
                                     Icon(
                                       Icons.error_outline,
                                       size: 64.w,
-                                      color: AppThemeLight.primary,
+                                      color:
+                                          Theme.of(context).colorScheme.error,
                                     ),
                                     SizedBox(height: 16.h),
                                     Text(
@@ -340,7 +339,7 @@ class _ConnectPageState extends State<ConnectPage>
                                     Icon(
                                       Icons.rss_feed_outlined,
                                       size: 64.w,
-                                      color: AppThemeLight.textLight,
+                                      color: AppThemeLight.textSecondary,
                                     ),
                                     SizedBox(height: 16.h),
                                     Text(
@@ -348,7 +347,7 @@ class _ConnectPageState extends State<ConnectPage>
                                           ? 'Join some hubs to see posts here'
                                           : 'No posts in your hubs yet',
                                       style: TextStyle(
-                                        color: AppThemeLight.textLight,
+                                        color: AppThemeLight.textSecondary,
                                         fontSize: 16.sp,
                                       ),
                                     ),
@@ -450,7 +449,7 @@ class _ConnectPageState extends State<ConnectPage>
           );
         },
         backgroundColor: AppThemeLight.primary,
-        child: const Icon(Icons.add, color: Colors.white),
+        child: const Icon(Icons.add, color: AppThemeLight.surface),
       ),
     );
   }

@@ -79,7 +79,7 @@ class HomeScreenState extends State<HomeScreen> {
     final user = FirebaseAuth.instance.currentUser;
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: AppThemeLight.surface,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
         centerTitle: true,
         leading: Consumer<ProfileController>(
@@ -104,17 +104,20 @@ class HomeScreenState extends State<HomeScreen> {
               icon: Container(
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(color: AppThemeLight.primary, width: 2.w),
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.primary,
+                    width: 2.w,
+                  ),
                 ),
                 child: CircleAvatar(
-                  backgroundColor: AppThemeLight.surface,
+                  backgroundColor: Theme.of(context).colorScheme.surface,
                   backgroundImage:
                       (url.isNotEmpty) ? CachedNetworkImageProvider(url) : null,
                   child:
                       (url.isEmpty)
                           ? Icon(
                             Icons.person,
-                            color: AppThemeLight.primary,
+                            color: Theme.of(context).colorScheme.primary,
                             size: 24,
                           )
                           : null,
@@ -125,17 +128,20 @@ class HomeScreenState extends State<HomeScreen> {
         ),
         title: Text(
           _pageTitles[_currentIndex],
-          style: const TextStyle(
+          style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 24,
-            color: AppThemeLight.textDark,
+            color: Theme.of(context).colorScheme.onSurface,
             letterSpacing: 2,
           ),
         ),
         actions: [
           if (_currentIndex == 1)
             IconButton(
-              icon: const Icon(Icons.groups, color: AppThemeLight.primary),
+              icon: Icon(
+                Icons.groups,
+                color: Theme.of(context).colorScheme.primary,
+              ),
               tooltip: 'Hubs',
               onPressed: () {
                 Navigator.push(
@@ -146,7 +152,10 @@ class HomeScreenState extends State<HomeScreen> {
             ),
           if (_currentIndex != 1)
             IconButton(
-              icon: const Icon(Icons.share, color: AppThemeLight.primary),
+              icon: Icon(
+                Icons.share,
+                color: Theme.of(context).colorScheme.primary,
+              ),
               tooltip: 'Share',
               onPressed: () {
                 Share.share(
@@ -167,18 +176,18 @@ class HomeScreenState extends State<HomeScreen> {
                     _currentIndex = index;
                   });
                 },
-                selectedItemColor: AppThemeLight.primary,
-                unselectedItemColor: AppThemeLight.textLight,
-                backgroundColor: AppThemeLight.surface,
+                selectedItemColor: Theme.of(context).colorScheme.primary,
+                unselectedItemColor: Theme.of(context).colorScheme.secondary,
+                backgroundColor: Theme.of(context).colorScheme.surface,
                 elevation: 12,
-                selectedLabelStyle: const TextStyle(
+                selectedLabelStyle: TextStyle(
                   fontWeight: FontWeight.bold,
                   letterSpacing: 1,
-                  color: AppThemeLight.primary,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
-                unselectedLabelStyle: const TextStyle(
+                unselectedLabelStyle: TextStyle(
                   letterSpacing: 1,
-                  color: AppThemeLight.textLight,
+                  color: Theme.of(context).colorScheme.secondary,
                 ),
                 items: const [
                   BottomNavigationBarItem(
@@ -244,18 +253,20 @@ class HomeScreenState extends State<HomeScreen> {
                             _currentIndex = index;
                           });
                         },
-                        selectedItemColor: AppThemeLight.primary,
-                        unselectedItemColor: AppThemeLight.textLight,
-                        backgroundColor: AppThemeLight.surface,
+                        selectedItemColor:
+                            Theme.of(context).colorScheme.primary,
+                        unselectedItemColor:
+                            Theme.of(context).colorScheme.secondary,
+                        backgroundColor: Theme.of(context).colorScheme.surface,
                         elevation: 12,
-                        selectedLabelStyle: const TextStyle(
+                        selectedLabelStyle: TextStyle(
                           fontWeight: FontWeight.bold,
                           letterSpacing: 1,
-                          color: AppThemeLight.primary,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
-                        unselectedLabelStyle: const TextStyle(
+                        unselectedLabelStyle: TextStyle(
                           letterSpacing: 1,
-                          color: AppThemeLight.textLight,
+                          color: Theme.of(context).colorScheme.secondary,
                         ),
                         items: [
                           const BottomNavigationBarItem(
@@ -280,13 +291,17 @@ class HomeScreenState extends State<HomeScreen> {
                                         vertical: 2,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: Colors.red,
+                                        color:
+                                            Theme.of(context).colorScheme.error,
                                         borderRadius: BorderRadius.circular(12),
                                       ),
                                       child: Text(
                                         totalUnread.toString(),
-                                        style: const TextStyle(
-                                          color: Colors.white,
+                                        style: TextStyle(
+                                          color:
+                                              Theme.of(
+                                                context,
+                                              ).colorScheme.onPrimary,
                                           fontSize: 12,
                                           fontWeight: FontWeight.bold,
                                         ),

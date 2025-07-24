@@ -53,29 +53,27 @@ class _ChallengeDetailsPageState extends State<ChallengeDetailsPage> {
     return Scaffold(
       backgroundColor: AppThemeLight.background,
       appBar: AppBar(
-        backgroundColor: AppThemeLight.surface,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
-        iconTheme: const IconThemeData(color: AppThemeLight.primary),
+        iconTheme: IconThemeData(color: Theme.of(context).colorScheme.primary),
         centerTitle: true,
         title: Text(
           challenge.title,
-          style: GoogleFonts.orbitron(
-            textStyle:
-                textTheme.titleLarge?.copyWith(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: AppThemeLight.primary,
-                  letterSpacing: 2,
-                  shadows: const [
-                    Shadow(
-                      blurRadius: 4,
-                      color: Colors.black12,
-                      offset: Offset(0, 0),
-                    ),
-                  ],
-                ) ??
-                const TextStyle(),
-          ),
+          style:
+              textTheme.titleLarge?.copyWith(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.primary,
+                letterSpacing: 2,
+                shadows: [
+                  Shadow(
+                    blurRadius: 4,
+                    color: Theme.of(context).shadowColor.withOpacity(0.1),
+                    offset: Offset(0, 0),
+                  ),
+                ],
+              ) ??
+              TextStyle(),
         ),
       ),
       body: Stack(
@@ -94,7 +92,7 @@ class _ChallengeDetailsPageState extends State<ChallengeDetailsPage> {
                     fit: BoxFit.cover,
                     placeholder:
                         (context, url) => Container(
-                          color: Colors.grey[300],
+                          color: Theme.of(context).dividerColor,
                           width: double.infinity,
                           height: 220,
                           child: const Center(
@@ -103,15 +101,15 @@ class _ChallengeDetailsPageState extends State<ChallengeDetailsPage> {
                         ),
                     errorWidget:
                         (context, url, error) => Container(
-                          color: Colors.grey[300],
+                          color: Theme.of(context).dividerColor,
                           width: double.infinity,
                           height: 220,
-                          child: const Center(
-                            child: Icon(
-                              Icons.broken_image,
-                              size: 48,
-                              color: Colors.grey,
-                            ),
+                          child: Icon(
+                            Icons.broken_image,
+                            size: 48,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withOpacity(0.6),
                           ),
                         ),
                   ),
@@ -125,11 +123,12 @@ class _ChallengeDetailsPageState extends State<ChallengeDetailsPage> {
                         LinearProgressIndicator(
                           value: progress,
                           minHeight: 8,
-                          backgroundColor: AppThemeLight.surface,
+                          backgroundColor:
+                              Theme.of(context).colorScheme.surface,
                           valueColor: AlwaysStoppedAnimation<Color>(
                             progress < 1.0
-                                ? AppThemeLight.primary
-                                : Colors.redAccent,
+                                ? Theme.of(context).colorScheme.primary
+                                : Theme.of(context).colorScheme.error,
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -161,7 +160,7 @@ class _ChallengeDetailsPageState extends State<ChallengeDetailsPage> {
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: AppThemeLight.surface,
+                        color: Theme.of(context).colorScheme.surface,
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
                           color: AppThemeLight.primary,
@@ -184,7 +183,7 @@ class _ChallengeDetailsPageState extends State<ChallengeDetailsPage> {
                             text: TextSpan(
                               style: textTheme.bodyMedium?.copyWith(
                                 fontSize: 16,
-                                color: AppThemeLight.textDark,
+                                color: AppThemeLight.textPrimary,
                               ),
                               children: [
                                 TextSpan(text: displayDesc),
@@ -370,8 +369,9 @@ class _ChallengeDetailsPageState extends State<ChallengeDetailsPage> {
                                                             url,
                                                           ) => Container(
                                                             color:
-                                                                Colors
-                                                                    .grey[300],
+                                                                Theme.of(
+                                                                  context,
+                                                                ).dividerColor,
                                                             child: const Center(
                                                               child:
                                                                   CircularProgressIndicator(),
@@ -383,14 +383,21 @@ class _ChallengeDetailsPageState extends State<ChallengeDetailsPage> {
                                                             url,
                                                             error,
                                                           ) =>
-                                                              _buildVideoPlaceholder(),
+                                                              _buildVideoPlaceholder(
+                                                                context,
+                                                              ),
                                                     )
-                                                    : _buildVideoPlaceholder(),
+                                                    : _buildVideoPlaceholder(
+                                                      context,
+                                                    ),
                                                 // Play icon overlay
-                                                const Center(
+                                                Center(
                                                   child: Icon(
                                                     Icons.play_circle_fill,
-                                                    color: Colors.white70,
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .onPrimary
+                                                        .withOpacity(0.7),
                                                     size: 48,
                                                   ),
                                                 ),
@@ -403,7 +410,10 @@ class _ChallengeDetailsPageState extends State<ChallengeDetailsPage> {
                                               height: 180,
                                               placeholder:
                                                   (context, url) => Container(
-                                                    color: Colors.grey[300],
+                                                    color:
+                                                        Theme.of(
+                                                          context,
+                                                        ).dividerColor,
                                                     width: double.infinity,
                                                     height: 180,
                                                     child: const Center(
@@ -412,19 +422,28 @@ class _ChallengeDetailsPageState extends State<ChallengeDetailsPage> {
                                                     ),
                                                   ),
                                               errorWidget:
-                                                  (context, url, error) =>
-                                                      Container(
-                                                        color: Colors.grey[300],
-                                                        width: double.infinity,
-                                                        height: 180,
-                                                        child: const Center(
-                                                          child: Icon(
-                                                            Icons.broken_image,
-                                                            size: 48,
-                                                            color: Colors.grey,
-                                                          ),
-                                                        ),
+                                                  (
+                                                    context,
+                                                    url,
+                                                    error,
+                                                  ) => Container(
+                                                    color:
+                                                        Theme.of(
+                                                          context,
+                                                        ).dividerColor,
+                                                    width: double.infinity,
+                                                    height: 180,
+                                                    child: Center(
+                                                      child: Icon(
+                                                        Icons.broken_image,
+                                                        color: Theme.of(context)
+                                                            .colorScheme
+                                                            .onSurface
+                                                            .withOpacity(0.6),
+                                                        size: 48,
                                                       ),
+                                                    ),
+                                                  ),
                                             ),
                                   ),
                                 );
@@ -452,13 +471,16 @@ class _ChallengeDetailsPageState extends State<ChallengeDetailsPage> {
           );
         },
         backgroundColor: AppThemeLight.primary,
-        icon: const Icon(Icons.emoji_events, color: Colors.white),
-        label: const Text(
+        icon: Icon(
+          Icons.emoji_events,
+          color: Theme.of(context).colorScheme.onPrimary,
+        ),
+        label: Text(
           'Take Part',
           style: TextStyle(
             fontWeight: FontWeight.w600,
             fontSize: 17,
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.onPrimary,
           ),
         ),
       ),
@@ -471,10 +493,14 @@ String _formatDate(DateTime date) {
   return DateFormat('dd MMM yyyy').format(date);
 }
 
-Widget _buildVideoPlaceholder() {
+Widget _buildVideoPlaceholder(BuildContext context) {
   return Container(
-    color: Colors.grey[200],
-    child: const Icon(Icons.videocam, color: Colors.grey, size: 40),
+    color: Theme.of(context).colorScheme.surface,
+    child: Icon(
+      Icons.videocam,
+      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+      size: 40,
+    ),
   );
 }
 
@@ -489,7 +515,7 @@ class _InfoBox extends StatelessWidget {
       width: 90,
       padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 6),
       decoration: BoxDecoration(
-        color: AppThemeLight.background,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppThemeLight.primary, width: 1.5),
         boxShadow: [
@@ -505,7 +531,7 @@ class _InfoBox extends StatelessWidget {
         children: [
           Text(
             label + ': ',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 15,
               color: AppThemeLight.primary,
               fontWeight: FontWeight.w600,
@@ -514,10 +540,10 @@ class _InfoBox extends StatelessWidget {
           Flexible(
             child: Text(
               value,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.bold,
-                color: AppThemeLight.textDark,
+                color: AppThemeLight.textPrimary,
               ),
               textAlign: TextAlign.left,
               overflow: TextOverflow.ellipsis,

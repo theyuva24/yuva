@@ -60,6 +60,7 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
   final ValueNotifier<bool> _replyBoxFocused = ValueNotifier(false);
   final ScrollController _scrollController = ScrollController();
   final FocusNode _commentFieldFocusNode = FocusNode();
+  bool _isAnonymous = false; // <-- Add this line
 
   @override
   void initState() {
@@ -133,13 +134,18 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
         });
   }
 
-  Future<void> _handleCommentReply(String parentId, String replyText) async {
+  Future<void> _handleCommentReply(
+    String parentId,
+    String replyText, [
+    bool isAnonymous = false,
+  ]) async {
     if (replyText.trim().isEmpty) return;
     try {
       await _postService.addComment(
         widget.postId,
         replyText.trim(),
         parentCommentId: parentId,
+        isAnonymous: isAnonymous,
       );
       // Optionally show a snackbar or update UI
     } catch (e) {
@@ -159,17 +165,21 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
       await _postService.addComment(
         widget.postId,
         _commentController.text.trim(),
+        isAnonymous: _isAnonymous, // <-- Pass anonymous flag
       );
+      if (!mounted) return;
       _commentController.clear();
       FocusScope.of(context).unfocus(); // Close the keyboard
       scaffoldMessenger.showSnackBar(
         const SnackBar(content: Text('Comment added successfully!')),
       );
     } catch (e) {
+      if (!mounted) return;
       scaffoldMessenger.showSnackBar(
         SnackBar(content: Text('Failed to add comment: $e')),
       );
     } finally {
+      if (!mounted) return;
       setState(() {
         _isPostingComment = false;
       });
@@ -223,13 +233,18 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
             if (_loadingComments)
               const Center(child: CircularProgressIndicator()),
             if (_commentsError != null)
-              Text(_commentsError!, style: const TextStyle(color: Colors.red)),
+              Text(
+                _commentsError!,
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
             if (!_loadingComments && _comments.isEmpty)
               const Text('No comments yet. Be the first to comment!'),
             if (!_loadingComments && _comments.isNotEmpty)
               comment.CommentTree(
                 comments: _comments,
-                onReply: _handleCommentReply,
+                onReply:
+                    (parentId, replyText, [isAnonymous = false]) =>
+                        _handleCommentReply(parentId, replyText, isAnonymous),
                 postId: widget.postId,
                 onAnyReplyFocusChanged: (focused) {
                   _replyBoxFocused.value = focused;
@@ -278,6 +293,27 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
                     ),
                   ),
                   const SizedBox(width: 8),
+                  // Anonymous toggle
+                  Row(
+                    children: [
+                      Text('Anon', style: TextStyle(fontSize: 12)),
+                      Switch(
+                        value: _isAnonymous,
+                        onChanged: (val) {
+                          setState(() {
+                            _isAnonymous = val;
+                          });
+                        },
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        activeColor: Theme.of(context).dividerColor,
+                        inactiveThumbColor:
+                            Theme.of(context).colorScheme.primary,
+                        inactiveTrackColor: Theme.of(
+                          context,
+                        ).colorScheme.primary.withOpacity(0.2),
+                      ),
+                    ],
+                  ),
                   _isPostingComment
                       ? const SizedBox(
                         width: 28,
@@ -285,9 +321,9 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                       : IconButton(
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.send_rounded,
-                          color: Color(0xFF00F6FF),
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                         onPressed: _handleAddComment,
                       ),

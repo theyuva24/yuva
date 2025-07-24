@@ -50,7 +50,7 @@ dev_dependencies:
 flutter_icons:
   android: true
   ios: true
-  image_path: "assets/app_icon.png"
+  image_path: "assets/logo.png"
 
 flutter:
   uses-material-design: true
@@ -60,4 +60,6 @@ flutter:
     - assets/pg_courses.json
     - assets/interests.json
     - assets/colleges.json
+    - assets/logo.png
+    
     

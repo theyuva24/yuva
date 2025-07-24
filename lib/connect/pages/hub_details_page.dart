@@ -98,18 +98,20 @@ class _HubDetailsPageState extends State<HubDetailsPage> {
                       fit: BoxFit.cover,
                       placeholder:
                           (context, url) => Container(
-                            color: Colors.grey[200],
+                            color: Theme.of(context).colorScheme.surface,
                             child: const Center(
                               child: CircularProgressIndicator(),
                             ),
                           ),
                       errorWidget:
                           (context, url, error) => Container(
-                            color: Colors.grey[200],
-                            child: const Center(
+                            color: Theme.of(context).colorScheme.surface,
+                            child: Center(
                               child: Icon(
                                 Icons.broken_image,
-                                color: Colors.grey,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withOpacity(0.6),
                                 size: 48,
                               ),
                             ),
@@ -125,17 +127,24 @@ class _HubDetailsPageState extends State<HubDetailsPage> {
                   child: Row(
                     children: [
                       IconButton(
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.arrow_back,
-                          color: Colors.white,
+                          color: Theme.of(context).colorScheme.onPrimary,
                           size: 26,
                           shadows: [
-                            Shadow(blurRadius: 2, color: Colors.black26),
+                            Shadow(
+                              blurRadius: 2,
+                              color: Theme.of(
+                                context,
+                              ).shadowColor.withOpacity(0.1),
+                            ),
                           ],
                         ),
                         onPressed: () => Navigator.of(context).pop(),
                         splashRadius: 22,
-                        color: Colors.white.withAlpha(128),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onPrimary.withAlpha(128),
                       ),
                       // Removed hub name overlay here
                     ],
@@ -157,7 +166,7 @@ class _HubDetailsPageState extends State<HubDetailsPage> {
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: AppThemeLight.textDark,
+                      color: AppThemeLight.textPrimary,
                       fontSize: 20,
                     ),
                   ),
@@ -166,7 +175,7 @@ class _HubDetailsPageState extends State<HubDetailsPage> {
                     widget.hub.description,
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppThemeLight.textLight,
+                      color: AppThemeLight.textSecondary,
                       fontSize: 14,
                     ),
                     maxLines: 3,
@@ -293,19 +302,25 @@ class _HubDetailsPageState extends State<HubDetailsPage> {
                             Icon(
                               Icons.forum_outlined,
                               size: 64,
-                              color: AppThemeLight.textLight,
+                              color: AppThemeLight.textSecondary,
                             ),
                             const SizedBox(height: 16),
                             Text(
                               'No posts in this hub yet.',
-                              style: Theme.of(context).textTheme.labelLarge
-                                  ?.copyWith(color: AppThemeLight.textLight),
+                              style: Theme.of(
+                                context,
+                              ).textTheme.labelLarge?.copyWith(
+                                color: AppThemeLight.textSecondary,
+                              ),
                             ),
                             const SizedBox(height: 8),
                             Text(
                               'Be the first to share something!',
-                              style: Theme.of(context).textTheme.bodyMedium
-                                  ?.copyWith(color: AppThemeLight.textLight),
+                              style: Theme.of(
+                                context,
+                              ).textTheme.bodyMedium?.copyWith(
+                                color: AppThemeLight.textSecondary,
+                              ),
                             ),
                           ],
                         ),

@@ -4,6 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/gestures.dart';
+import '../../connect/service/notification_service.dart';
+import '../../universal/theme/app_theme.dart';
 
 // --- MODEL ---
 class ChallengeComment {
@@ -160,6 +162,35 @@ class ChallengeCommentService {
         .collection('challenge_submission')
         .doc(submissionId)
         .update({'commentCount': FieldValue.increment(1)});
+
+    // Send notification to submission owner only for direct comments (not replies)
+    if (parentCommentId == null) {
+      final submissionDoc =
+          await firestore
+              .collection('challenges')
+              .doc(challengeId)
+              .collection('challenge_submission')
+              .doc(submissionId)
+              .get();
+      final submissionOwnerId = submissionDoc.data()?['userId'];
+      if (submissionOwnerId != null && submissionOwnerId != user.uid) {
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .get()
+            .then((userDoc) async {
+              final senderName = userDoc.data()?['fullName'] ?? 'Someone';
+              await NotificationService().addNotification(
+                recipientId: submissionOwnerId,
+                type: 'comment',
+                postId: submissionId,
+                senderId: user.uid,
+                senderName: senderName,
+                commentText: commentContent,
+              );
+            });
+      }
+    }
   }
 
   // Fetch comments for a challenge submission
@@ -458,10 +489,10 @@ class _ChallengeCommentCardState extends State<_ChallengeCommentCard> {
     final service = ChallengeCommentService();
     // Subtle background color based on nesting level
     final List<Color> bgColors = [
-      Colors.white,
-      Colors.grey.shade50,
-      Colors.grey.shade100,
-      Colors.grey.shade200,
+      AppThemeLight.surface,
+      AppThemeLight.textSecondary.withOpacity(0.05),
+      AppThemeLight.textSecondary.withOpacity(0.1),
+      AppThemeLight.textSecondary.withOpacity(0.2),
     ];
     final bgColor = bgColors[nestingLevel % bgColors.length];
     final totalReplies = _countAllReplies(comment);
@@ -469,12 +500,12 @@ class _ChallengeCommentCardState extends State<_ChallengeCommentCard> {
       padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 8),
       child: Container(
         decoration: BoxDecoration(
-          color: nestingLevel == 0 ? Colors.white : bgColor,
+          color: nestingLevel == 0 ? AppThemeLight.surface : bgColor,
           border:
               nestingLevel > 0
                   ? Border(
                     left: BorderSide(
-                      color: Colors.blue.withOpacity(
+                      color: Theme.of(context).colorScheme.primary.withOpacity(
                         0.10 + 0.08 * (nestingLevel % 3),
                       ),
                       width: 3,
@@ -520,7 +551,7 @@ class _ChallengeCommentCardState extends State<_ChallengeCommentCard> {
                           Text(
                             _formatTimeAgo(comment.timestamp),
                             style: Theme.of(context).textTheme.bodySmall
-                                ?.copyWith(color: Theme.of(context).hintColor),
+                                ?.copyWith(color: AppThemeLight.textSecondary),
                           ),
                         ],
                       ),
@@ -574,7 +605,10 @@ class _ChallengeCommentCardState extends State<_ChallengeCommentCard> {
                             IconButton(
                               icon: Icon(
                                 liked ? Icons.favorite : Icons.favorite_border,
-                                color: liked ? Colors.red : Colors.grey,
+                                color:
+                                    liked
+                                        ? Theme.of(context).colorScheme.error
+                                        : Theme.of(context).iconTheme.color,
                                 size: 20,
                               ),
                               onPressed: () {
@@ -597,7 +631,9 @@ class _ChallengeCommentCardState extends State<_ChallengeCommentCard> {
                               likeCount > 0 ? likeCount.toString() : '',
                               style: TextStyle(
                                 fontSize: 12,
-                                color: Colors.grey,
+                                color: AppThemeLight.textSecondary.withOpacity(
+                                  0.6,
+                                ),
                               ),
                             ),
                           ],
@@ -616,7 +652,7 @@ class _ChallengeCommentCardState extends State<_ChallengeCommentCard> {
                   child: Text(
                     'See replies ($totalReplies)',
                     style: TextStyle(
-                      color: Colors.blueAccent,
+                      color: Theme.of(context).colorScheme.primary,
                       fontSize: 13,
                       fontWeight: FontWeight.bold,
                       decoration: TextDecoration.underline,
@@ -717,7 +753,7 @@ class _ExpandableCommentTextState extends State<_ExpandableCommentText> {
                 child: Text(
                   'Show less',
                   style: TextStyle(
-                    color: Colors.blueAccent,
+                    color: Theme.of(context).colorScheme.primary,
                     fontSize: 13,
                     fontWeight: FontWeight.bold,
                     decoration: TextDecoration.underline,
@@ -742,7 +778,7 @@ class _ExpandableCommentTextState extends State<_ExpandableCommentText> {
           TextSpan(
             text: '... Read more',
             style: TextStyle(
-              color: Colors.blueAccent,
+              color: Theme.of(context).colorScheme.primary,
               fontSize: 13,
               fontWeight: FontWeight.bold,
               decoration: TextDecoration.underline,
@@ -832,10 +868,10 @@ class _CommentInputFieldState extends State<_CommentInputField> {
                   const SizedBox(width: 8),
                   GestureDetector(
                     onTap: widget.onCancelReply,
-                    child: const Icon(
+                    child: Icon(
                       Icons.close,
                       size: 16,
-                      color: Colors.grey,
+                      color: Theme.of(context).iconTheme.color,
                     ),
                   ),
                 ],

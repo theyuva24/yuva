@@ -25,30 +25,30 @@ class SubmissionCard extends StatelessWidget {
                           fit: BoxFit.cover,
                           placeholder:
                               (context, url) => Container(
-                                color: Colors.grey[200],
+                                color: Theme.of(context).dividerColor.withAlpha(51),
                                 child: const Center(
                                   child: CircularProgressIndicator(),
                                 ),
                               ),
                           errorWidget:
                               (context, url, error) => Container(
-                                color: Colors.grey[200],
-                                child: const Center(
+                                color: Theme.of(context).dividerColor.withAlpha(102),
+                                child: Center(
                                   child: Icon(
                                     Icons.broken_image,
-                                    color: Colors.grey,
+                                    color: Theme.of(context).colorScheme.onSurface.withAlpha(153),
                                     size: 48,
                                   ),
                                 ),
                               ),
                         )
-                        : _buildVideoPlaceholder(),
+                        : _buildVideoPlaceholder(context),
                     // Play icon overlay
-                    const Positioned.fill(
+                    Positioned.fill(
                       child: Center(
                         child: Icon(
                           Icons.play_circle_fill,
-                          color: Colors.white70,
+                          color: Theme.of(context).colorScheme.onPrimary.withAlpha(179),
                           size: 24,
                         ),
                       ),
@@ -62,16 +62,16 @@ class SubmissionCard extends StatelessWidget {
                   height: 180,
                   placeholder:
                       (context, url) => Container(
-                        color: Colors.grey[200],
+                        color: Theme.of(context).dividerColor.withAlpha(51),
                         child: const Center(child: CircularProgressIndicator()),
                       ),
                   errorWidget:
                       (context, url, error) => Container(
-                        color: Colors.grey[200],
-                        child: const Center(
+                        color: Theme.of(context).dividerColor.withAlpha(102),
+                        child: Center(
                           child: Icon(
                             Icons.broken_image,
-                            color: Colors.grey,
+                            color: Theme.of(context).colorScheme.onSurface.withAlpha(153),
                             size: 48,
                           ),
                         ),
@@ -83,12 +83,16 @@ class SubmissionCard extends StatelessWidget {
     );
   }
 
-  Widget _buildVideoPlaceholder() {
+  Widget _buildVideoPlaceholder(BuildContext context) {
     return Container(
       width: 56,
       height: 56,
-      color: Colors.grey[200],
-      child: const Icon(Icons.videocam, color: Colors.grey, size: 24),
+      color: Theme.of(context).dividerColor.withAlpha(204),
+      child: Icon(
+        Icons.videocam,
+        color: Theme.of(context).colorScheme.onSurface.withAlpha(153),
+        size: 24,
+      ),
     );
   }
 }

@@ -3,6 +3,7 @@ import '../connect/service/hub_service.dart';
 import '../connect/models/hub_model.dart';
 import '../connect/pages/hub_details_page.dart';
 import '../registration/widgets/profile_image_picker.dart';
+import '../universal/theme/app_theme.dart';
 
 class HubAdminPage extends StatefulWidget {
   const HubAdminPage({super.key});
@@ -81,126 +82,137 @@ class _HubAdminPageState extends State<HubAdminPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Hub Admin')),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Card(
-              elevation: 2,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    ProfileImagePicker(
-                      imagePath: imagePath ?? editingHub?.imageUrl,
-                      onImagePicked: (path) => setState(() => imagePath = path),
-                    ),
-                    const SizedBox(height: 16),
-                    TextField(
-                      controller: nameController,
-                      decoration: const InputDecoration(
-                        labelText: 'Hub Name',
-                        border: OutlineInputBorder(),
+    return Theme(
+      data: Theme.of(context).brightness == Brightness.dark
+          ? AppThemeDark.theme
+          : AppThemeLight.theme,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Hub Admin'),
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          iconTheme: IconThemeData(color: Theme.of(context).colorScheme.primary),
+          titleTextStyle: Theme.of(context).textTheme.titleLarge,
+        ),
+        backgroundColor: Theme.of(context).colorScheme.background,
+        body: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Card(
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      ProfileImagePicker(
+                        imagePath: imagePath ?? editingHub?.imageUrl,
+                        onImagePicked: (path) => setState(() => imagePath = path),
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    TextField(
-                      controller: descriptionController,
-                      decoration: const InputDecoration(
-                        labelText: 'Description',
-                        border: OutlineInputBorder(),
-                      ),
-                      maxLines: 3,
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        ElevatedButton(
-                          onPressed: isLoading ? null : _submit,
-                          child:
-                              isLoading
-                                  ? const SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                    ),
-                                  )
-                                  : Text(
-                                    editingHub == null
-                                        ? 'Create Hub'
-                                        : 'Save Changes',
-                                  ),
+                      const SizedBox(height: 16),
+                      TextField(
+                        controller: nameController,
+                        decoration: const InputDecoration(
+                          labelText: 'Hub Name',
+                          border: OutlineInputBorder(),
                         ),
-                        const SizedBox(width: 12),
-                        if (editingHub != null)
-                          TextButton(
-                            onPressed: isLoading ? null : _resetForm,
-                            child: const Text('Cancel'),
+                      ),
+                      const SizedBox(height: 16),
+                      TextField(
+                        controller: descriptionController,
+                        decoration: const InputDecoration(
+                          labelText: 'Description',
+                          border: OutlineInputBorder(),
+                        ),
+                        maxLines: 3,
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          ElevatedButton(
+                            onPressed: isLoading ? null : _submit,
+                            child:
+                                isLoading
+                                    ? const SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                    : Text(
+                                      editingHub == null
+                                          ? 'Create Hub'
+                                          : 'Save Changes',
+                                    ),
                           ),
-                      ],
-                    ),
-                  ],
+                          const SizedBox(width: 12),
+                          if (editingHub != null)
+                            TextButton(
+                              onPressed: isLoading ? null : _resetForm,
+                              child: const Text('Cancel'),
+                            ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-          Expanded(
-            child: StreamBuilder<List<Hub>>(
-              stream: hubService.getHubsStream(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                if (snapshot.hasError) {
-                  return Center(child: Text('Error loading hubs'));
-                }
-                final hubs = snapshot.data ?? [];
-                if (hubs.isEmpty) {
-                  return const Center(child: Text('No hubs available.'));
-                }
-                return ListView.builder(
-                  itemCount: hubs.length,
-                  itemBuilder: (context, index) {
-                    final hub = hubs[index];
-                    return Card(
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      child: ListTile(
-                        leading: CircleAvatar(
-                          backgroundImage: NetworkImage(hub.imageUrl),
+            Expanded(
+              child: StreamBuilder<List<Hub>>(
+                stream: hubService.getHubsStream(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (snapshot.hasError) {
+                    return Center(child: Text('Error loading hubs'));
+                  }
+                  final hubs = snapshot.data ?? [];
+                  if (hubs.isEmpty) {
+                    return const Center(child: Text('No hubs available.'));
+                  }
+                  return ListView.builder(
+                    itemCount: hubs.length,
+                    itemBuilder: (context, index) {
+                      final hub = hubs[index];
+                      return Card(
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
                         ),
-                        title: Text(hub.name),
-                        subtitle: Text(hub.description),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => HubDetailsPage(hub: hub),
-                            ),
-                          );
-                        },
-                        trailing: IconButton(
-                          icon: Icon(Icons.edit),
-                          tooltip: 'Edit Hub',
-                          onPressed: () => _startEdit(hub),
+                        child: ListTile(
+                          leading: CircleAvatar(
+                            backgroundImage: NetworkImage(hub.imageUrl),
+                          ),
+                          title: Text(hub.name),
+                          subtitle: Text(hub.description),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => HubDetailsPage(hub: hub),
+                              ),
+                            );
+                          },
+                          trailing: IconButton(
+                            icon: Icon(Icons.edit),
+                            tooltip: 'Edit Hub',
+                            onPressed: () => _startEdit(hub),
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                );
-              },
+                      );
+                    },
+                  );
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

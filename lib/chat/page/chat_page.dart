@@ -41,20 +41,18 @@ class _ChatPageState extends State<ChatPage> {
           iconTheme: const IconThemeData(color: AppThemeLight.primary),
           title: Text(
             'Chat',
-            style: GoogleFonts.orbitron(
-              textStyle: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: AppThemeLight.primary,
-                letterSpacing: 2,
-                shadows: [
-                  Shadow(
-                    blurRadius: 8,
-                    color: AppThemeLight.primary,
-                    offset: Offset(0, 0),
-                  ),
-                ],
-              ),
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: AppThemeLight.primary,
+              letterSpacing: 2,
+              shadows: [
+                Shadow(
+                  blurRadius: 8,
+                  color: AppThemeLight.primary,
+                  offset: Offset(0, 0),
+                ),
+              ],
             ),
           ),
         ),
@@ -109,7 +107,7 @@ class _ChatPageState extends State<ChatPage> {
                           child: Text(
                             msg.text,
                             style: TextStyle(
-                              color: AppThemeLight.textDark,
+                              color: AppThemeLight.textPrimary,
                               fontSize: 16,
                             ),
                           ),
@@ -127,11 +125,11 @@ class _ChatPageState extends State<ChatPage> {
                   Expanded(
                     child: TextField(
                       controller: _controller,
-                      style: const TextStyle(color: AppThemeLight.textDark),
+                      style: const TextStyle(color: AppThemeLight.textPrimary),
                       decoration: InputDecoration(
                         hintText: 'Type a message...',
                         hintStyle: const TextStyle(
-                          color: AppThemeLight.textLight,
+                          color: AppThemeLight.textSecondary,
                         ),
                         filled: true,
                         fillColor: AppThemeLight.surface,

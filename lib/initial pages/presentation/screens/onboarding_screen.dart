@@ -70,7 +70,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           width: 180.w,
                           height: 180.w,
                           decoration: BoxDecoration(
-                            color: Colors.transparent,
+                            color: AppThemeLight.transparent,
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
@@ -106,7 +106,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           _pages[index]['subtitle']!,
                           style: TextStyle(
                             fontSize: 18.sp,
-                            color: AppThemeLight.textDark,
+                            color: AppThemeLight.textPrimary,
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -128,7 +128,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     color:
                         _currentPage == index
                             ? AppThemeLight.primary
-                            : Colors.white24,
+                            : AppThemeLight.white24,
                     borderRadius: BorderRadius.circular(4.r),
                     boxShadow:
                         _currentPage == index

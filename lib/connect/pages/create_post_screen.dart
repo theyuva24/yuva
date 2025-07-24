@@ -318,7 +318,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         side:
             selected
                 ? BorderSide(color: colorScheme.primary, width: 2)
-                : BorderSide(color: AppThemeLight.border, width: 1),
+                : BorderSide(color: AppThemeLight.divider, width: 1),
       ),
       onPressed: () {
         setState(() {
@@ -347,7 +347,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
             offset: const Offset(0, 4),
           ),
         ],
-        border: Border.all(color: AppThemeLight.border),
+        border: Border.all(color: AppThemeLight.divider),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -407,9 +407,9 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                         _pollOptionControllers.length > 1
                             ? IconButton(
                               key: ValueKey('remove_$idx'),
-                              icon: const Icon(
+                              icon: Icon(
                                 Icons.remove_circle,
-                                color: Colors.redAccent,
+                                color: Theme.of(context).colorScheme.error,
                                 size: 28,
                               ),
                               onPressed: () {
@@ -603,11 +603,11 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                   backgroundColor:
                       _canPost && !_isLoading
                           ? colorScheme.primary
-                          : Colors.transparent,
+                          : AppThemeLight.transparent,
                   foregroundColor:
                       _canPost && !_isLoading
                           ? colorScheme.onPrimary
-                          : colorScheme.onSurface.withAlpha(102),
+                          : colorScheme.onSurface.withAlpha(153),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -633,7 +633,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                             color:
                                 _canPost && !_isLoading
                                     ? colorScheme.onPrimary
-                                    : colorScheme.onSurface.withAlpha(102),
+                                    : colorScheme.onSurface.withAlpha(153),
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -790,7 +790,10 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                                           child: Text(
                                             'Image selected',
                                             style: TextStyle(
-                                              color: Colors.green[700],
+                                              color:
+                                                  Theme.of(
+                                                    context,
+                                                  ).colorScheme.secondary,
                                             ),
                                           ),
                                         ),
@@ -802,7 +805,10 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                                       child: Text(
                                         'No image selected',
                                         style: TextStyle(
-                                          color: Colors.grey[600],
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSurface
+                                              .withAlpha(153),
                                         ),
                                       ),
                                     ),

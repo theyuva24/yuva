@@ -12,6 +12,7 @@ import 'package:video_compress/video_compress.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
 import 'package:path_provider/path_provider.dart';
 import '../service/background_submission_service.dart';
+import '../../universal/theme/app_theme.dart';
 
 class SubmitEntryPage extends StatefulWidget {
   final Challenge challenge;
@@ -211,11 +212,13 @@ class _SubmitEntryPageState extends State<SubmitEntryPage> {
                         : Container(
                           height: 150.h,
                           width: double.infinity,
-                          color: Colors.grey[200],
+                          color: Theme.of(context).dividerColor,
                           child: Icon(
                             Icons.add_a_photo,
                             size: 40.sp,
-                            color: Colors.grey,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withOpacity(0.6),
                           ),
                         ),
               ),
@@ -234,7 +237,7 @@ class _SubmitEntryPageState extends State<SubmitEntryPage> {
                             Icon(
                               Icons.videocam,
                               size: 40.sp,
-                              color: Colors.deepPurple,
+                              color: Theme.of(context).colorScheme.primary,
                             ),
                             SizedBox(width: 12.w),
                             Expanded(
@@ -245,11 +248,13 @@ class _SubmitEntryPageState extends State<SubmitEntryPage> {
                         : Container(
                           height: 60.h,
                           width: double.infinity,
-                          color: Colors.grey[200],
+                          color: Theme.of(context).dividerColor,
                           child: Icon(
                             Icons.add_to_photos,
                             size: 40.sp,
-                            color: Colors.grey,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withOpacity(0.6),
                           ),
                         ),
               ),
@@ -279,7 +284,7 @@ class _SubmitEntryPageState extends State<SubmitEntryPage> {
                             height: 24.w,
                             child: const CircularProgressIndicator(
                               strokeWidth: 2,
-                              color: Colors.white,
+                              color: AppThemeLight.surface,
                             ),
                           )
                           : Text(

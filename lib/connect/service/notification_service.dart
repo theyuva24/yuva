@@ -8,11 +8,14 @@ class NotificationService {
   // Add a notification for a user
   Future<void> addNotification({
     required String recipientId,
-    required String type, // 'like' or 'comment'
+    required String type, // 'like', 'comment', or 'milestone'
     required String postId,
     required String senderId,
     required String senderName,
     String? commentText,
+    int? milestone, // Add milestone for milestone notifications
+    String?
+    challengeId, // Add challengeId for challenge submission notifications
   }) async {
     final notificationData = {
       'recipientId': recipientId,
@@ -21,6 +24,8 @@ class NotificationService {
       'senderId': senderId,
       'senderName': senderName,
       'commentText': commentText,
+      'milestone': milestone, // Store milestone if present
+      'challengeId': challengeId, // Store challengeId if present
       'timestamp': FieldValue.serverTimestamp(),
       'read': false,
     };

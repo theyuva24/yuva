@@ -36,6 +36,10 @@ class FullScreenFunctionality {
       final submissionSnap = await transaction.get(submissionRef);
       if (!submissionSnap.exists) throw Exception('Submission does not exist');
       int likeCount = submissionSnap.data()?['likeCount'] ?? 0;
+      List<dynamic> notifiedMilestones =
+          submissionSnap.data()?['notifiedMilestones'] ?? [];
+      final List<int> milestones = [5, 10, 25, 50, 100, 250, 500, 1000];
+      int? newMilestone;
       if (likeSnap.exists) {
         // Unlike
         transaction.delete(likeRef);
@@ -47,8 +51,30 @@ class FullScreenFunctionality {
           'likeTime': FieldValue.serverTimestamp(),
         });
         likeCount++;
-        // Send notification if not self
-        if (submissionOwnerId != user.uid) {
+        // Milestone logic
+        for (final m in milestones) {
+          if (likeCount >= m && !notifiedMilestones.contains(m)) {
+            newMilestone = m;
+          }
+        }
+        // Send milestone notification if needed
+        if (newMilestone != null && submissionOwnerId != user.uid) {
+          await _notificationService.addNotification(
+            recipientId: submissionOwnerId,
+            type: 'milestone',
+            postId: submissionId,
+            senderId: user.uid,
+            senderName: '',
+            milestone: newMilestone,
+            commentText: null,
+            challengeId: challengeId, // Pass challengeId for navigation
+          );
+          notifiedMilestones.add(newMilestone);
+          transaction.update(submissionRef, {
+            'notifiedMilestones': notifiedMilestones,
+          });
+        } else if (submissionOwnerId != user.uid) {
+          // Send normal like notification if not a milestone
           final userDoc =
               await _firestore.collection('users').doc(user.uid).get();
           final senderName = userDoc.data()?['fullName'] ?? 'Someone';
@@ -58,6 +84,7 @@ class FullScreenFunctionality {
             postId: submissionId,
             senderId: user.uid,
             senderName: senderName,
+            challengeId: challengeId, // Pass challengeId for navigation
           );
         }
       }

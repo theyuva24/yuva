@@ -24,6 +24,7 @@ class Comment {
   final List<Comment> replies;
   final bool edited;
   final bool deleted;
+  final bool isAnonymous;
 
   Comment({
     required this.id,
@@ -39,6 +40,7 @@ class Comment {
     this.replies = const [],
     this.edited = false,
     this.deleted = false,
+    this.isAnonymous = false,
   });
 
   factory Comment.fromFirestore(
@@ -49,8 +51,14 @@ class Comment {
     return Comment(
       id: id,
       userId: data['userId'] ?? '',
-      userName: data['userName'] ?? 'Anonymous',
-      userProfileImage: data['userProfileImage'] ?? '',
+      userName:
+          (data['isAnonymous'] ?? false)
+              ? 'Anonymous'
+              : (data['userName'] ?? 'Anonymous'),
+      userProfileImage:
+          (data['isAnonymous'] ?? false)
+              ? ''
+              : (data['userProfileImage'] ?? ''),
       content: data['commentContent'] ?? '',
       timestamp:
           (data['commentTime'] as Timestamp?)?.toDate() ?? DateTime.now(),
@@ -61,6 +69,7 @@ class Comment {
       replies: replies,
       edited: data['edited'] ?? false,
       deleted: data['deleted'] ?? false,
+      isAnonymous: data['isAnonymous'] ?? false,
     );
   }
 
@@ -77,6 +86,7 @@ class Comment {
       'parentCommentId': parentCommentId,
       'edited': edited,
       'deleted': deleted,
+      'isAnonymous': isAnonymous,
     };
   }
 }
@@ -107,6 +117,7 @@ List<Comment> buildCommentTree(List<Comment> flatComments) {
       replies: replies.map(attachReplies).toList(),
       edited: comment.edited,
       deleted: comment.deleted,
+      isAnonymous: comment.isAnonymous,
     );
   }
 
@@ -123,6 +134,7 @@ class CommentService {
     String postId,
     String commentContent, {
     String? parentCommentId,
+    bool isAnonymous = false,
   }) async {
     final user = _auth.currentUser;
     if (user == null) throw Exception('User not authenticated');
@@ -134,6 +146,7 @@ class CommentService {
       'downvotes': 0,
       'score': 0,
       'parentCommentId': parentCommentId,
+      'isAnonymous': isAnonymous,
     };
     await firestore
         .collection('posts')
@@ -185,7 +198,8 @@ class CommentService {
 // --- UI WIDGETS ---
 class CommentTree extends StatelessWidget {
   final List<Comment> comments;
-  final void Function(String parentId, String replyText)? onReply;
+  final void Function(String parentId, String replyText, bool isAnonymous)?
+  onReply;
   final void Function(Comment comment)? onEdit;
   final void Function(Comment comment)? onDelete;
   final void Function(Comment comment)? onReport;
@@ -235,7 +249,8 @@ class CommentCard extends StatefulWidget {
   final Comment comment;
   final int depth;
   final List<bool> isLastList;
-  final void Function(String parentId, String replyText)? onReply;
+  final void Function(String parentId, String replyText, bool isAnonymous)?
+  onReply;
   final void Function(Comment comment)? onEdit;
   final void Function(Comment comment)? onDelete;
   final void Function(Comment comment)? onReport;
@@ -268,6 +283,7 @@ class _CommentCardState extends State<CommentCard> {
   final FocusNode _replyFocusNode = FocusNode();
   late final KeyboardVisibilityController _keyboardVisibilityController;
   late final StreamSubscription<bool> _keyboardSubscription;
+  bool _isReplyAnonymous = false;
 
   @override
   void dispose() {
@@ -318,7 +334,11 @@ class _CommentCardState extends State<CommentCard> {
     final isEdited = comment.edited;
     void handleReplySubmit() async {
       if (replyController.text.trim().isEmpty || widget.onReply == null) return;
-      widget.onReply!(comment.id, replyController.text.trim());
+      widget.onReply!(
+        comment.id,
+        replyController.text.trim(),
+        _isReplyAnonymous,
+      );
       replyController.clear();
       setState(() => showReplyField = false);
       if (widget.onAnyReplyFocusChanged != null) {
@@ -336,7 +356,7 @@ class _CommentCardState extends State<CommentCard> {
             height: double.infinity,
             margin: const EdgeInsets.only(right: 8),
             decoration: BoxDecoration(
-              color: Colors.grey[400],
+              color: Theme.of(context).dividerColor,
               borderRadius: BorderRadius.circular(1),
             ),
           );
@@ -350,7 +370,7 @@ class _CommentCardState extends State<CommentCard> {
         height: double.infinity,
         margin: const EdgeInsets.only(right: 8),
         decoration: BoxDecoration(
-          color: Colors.grey[400],
+          color: Theme.of(context).dividerColor,
           borderRadius: BorderRadius.circular(1),
         ),
       );
@@ -370,7 +390,8 @@ class _CommentCardState extends State<CommentCard> {
                 height: double.infinity,
                 margin: const EdgeInsets.only(right: 8),
                 decoration: BoxDecoration(
-                  color: Colors.grey[400], // Thin, light grey line
+                  color:
+                      Theme.of(context).dividerColor, // Thin, light grey line
                   borderRadius: BorderRadius.circular(1),
                 ),
               ),
@@ -378,7 +399,7 @@ class _CommentCardState extends State<CommentCard> {
             Expanded(
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.grey[widget.depth == 0 ? 50 : 100],
+                  color: Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 padding: const EdgeInsets.symmetric(
@@ -414,19 +435,23 @@ class _CommentCardState extends State<CommentCard> {
                         const SizedBox(width: 8),
                         Text(
                           _formatTimeAgo(comment.timestamp),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 11,
-                            color: Colors.grey,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withOpacity(0.6),
                           ),
                         ),
                         if (isEdited)
-                          const Padding(
-                            padding: EdgeInsets.only(left: 4),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 4),
                             child: Text(
                               '(edited)',
                               style: TextStyle(
                                 fontSize: 10,
-                                color: Colors.grey,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withOpacity(0.6),
                               ),
                             ),
                           ),
@@ -436,11 +461,13 @@ class _CommentCardState extends State<CommentCard> {
                     if (!isDeleted)
                       _buildTruncatedComment(context, comment.content)
                     else
-                      const Text(
+                      Text(
                         '[deleted]',
                         style: TextStyle(
                           fontStyle: FontStyle.italic,
-                          color: Colors.grey,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withOpacity(0.6),
                         ),
                       ),
                     Row(
@@ -480,10 +507,7 @@ class _CommentCardState extends State<CommentCard> {
                                       }
                                     }
                                   }),
-                          child: const Text(
-                            'Reply',
-                            style: TextStyle(fontSize: 12),
-                          ),
+                          child: Text('Reply', style: TextStyle(fontSize: 12)),
                         ),
                         if (widget.onEdit != null && !isDeleted)
                           IconButton(
@@ -533,6 +557,28 @@ class _CommentCardState extends State<CommentCard> {
                                 textInputAction: TextInputAction.send,
                                 onSubmitted: (_) => handleReplySubmit(),
                               ),
+                            ),
+                            Row(
+                              children: [
+                                Text('Anon', style: TextStyle(fontSize: 12)),
+                                Switch(
+                                  value: _isReplyAnonymous,
+                                  onChanged: (val) {
+                                    setState(() {
+                                      _isReplyAnonymous = val;
+                                    });
+                                  },
+                                  materialTapTargetSize:
+                                      MaterialTapTargetSize.shrinkWrap,
+                                  activeColor:
+                                      Theme.of(context).colorScheme.secondary,
+                                  inactiveThumbColor:
+                                      Theme.of(context).colorScheme.primary,
+                                  inactiveTrackColor: Theme.of(
+                                    context,
+                                  ).colorScheme.primary.withOpacity(0.2),
+                                ),
+                              ],
                             ),
                             IconButton(
                               icon: const Icon(Icons.send, size: 18),
@@ -597,11 +643,14 @@ class _CommentCardState extends State<CommentCard> {
           if (isOverflowing)
             GestureDetector(
               onTap: () => setState(() => expanded = false),
-              child: const Padding(
-                padding: EdgeInsets.only(top: 2),
+              child: Padding(
+                padding: const EdgeInsets.only(top: 2),
                 child: Text(
                   'Show less',
-                  style: TextStyle(color: Colors.blue, fontSize: 13),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontSize: 13,
+                  ),
                 ),
               ),
             ),
@@ -619,11 +668,14 @@ class _CommentCardState extends State<CommentCard> {
           ),
           GestureDetector(
             onTap: () => setState(() => expanded = true),
-            child: const Padding(
-              padding: EdgeInsets.only(top: 2),
+            child: Padding(
+              padding: const EdgeInsets.only(top: 2),
               child: Text(
                 'Read more',
-                style: TextStyle(color: Colors.blue, fontSize: 13),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.primary,
+                  fontSize: 13,
+                ),
               ),
             ),
           ),

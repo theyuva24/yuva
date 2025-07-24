@@ -33,7 +33,9 @@ class ProfileHeader extends StatelessWidget {
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: AppThemeLight.primary.withAlpha(179),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withAlpha(179),
                       blurRadius: 18.r,
                       spreadRadius: 2.r,
                     ),
@@ -65,16 +67,21 @@ class ProfileHeader extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.background,
                         shape: BoxShape.circle,
                         boxShadow: [
-                          BoxShadow(color: Colors.black12, blurRadius: 2),
+                          BoxShadow(
+                            color: Theme.of(
+                              context,
+                            ).shadowColor.withOpacity(0.1),
+                            blurRadius: 2,
+                          ),
                         ],
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.edit,
                         size: 26,
-                        color: Color(0xFF6C63FF),
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
                   ),
@@ -89,14 +96,17 @@ class ProfileHeader extends StatelessWidget {
             style: TextStyle(
               fontSize: 32.sp,
               fontWeight: FontWeight.bold,
-              color: Colors.black,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
         ),
         Center(
           child: Text(
             profile.location,
-            style: TextStyle(fontSize: 18.sp, color: Colors.black54),
+            style: TextStyle(
+              fontSize: 18.sp,
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+            ),
           ),
         ),
       ],

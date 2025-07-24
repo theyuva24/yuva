@@ -3,10 +3,9 @@ import 'package:provider/provider.dart';
 import '../controller/registration_controller.dart';
 import '../widgets/id_card_picker.dart';
 import '../../universal/theme/app_theme.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../widgets/college_autocomplete_field.dart';
 import '../widgets/course_autocomplete_field.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class Step2EducationInfo extends StatelessWidget {
   const Step2EducationInfo({super.key});
@@ -44,17 +43,17 @@ class Step2EducationInfo extends StatelessWidget {
             //       textStyle: const TextStyle(
             //         fontSize: 56,
             //         fontWeight: FontWeight.bold,
-            //         color: Color(0xFF00F6FF),
+            //         color: AppThemeLight.accent, // was Color(0xFF00F6FF)
             //         letterSpacing: 4,
             //         shadows: [
             //           Shadow(
             //             blurRadius: 32,
-            //             color: Color(0xFF00F6FF),
+            //             color: AppThemeLight.accent, // was Color(0xFF00F6FF)
             //             offset: Offset(0, 0),
             //           ),
             //           Shadow(
             //             blurRadius: 8,
-            //             color: Color(0xFF00F6FF),
+            //             color: AppThemeLight.accent, // was Color(0xFF00F6FF)
             //             offset: Offset(0, 0),
             //           ),
             //         ],
@@ -67,7 +66,7 @@ class Step2EducationInfo extends StatelessWidget {
               child: Text(
                 'Academic Information',
                 style: TextStyle(
-                  color: AppThemeLight.textDark, // Changed to darker color
+                  color: AppThemeLight.textPrimary, // Changed to darker color
                   fontSize: 20.sp,
                   fontWeight: FontWeight.w400,
                   letterSpacing: 0.5.w,
@@ -119,7 +118,7 @@ class Step2EducationInfo extends StatelessWidget {
                           child: Text(
                             y,
                             style: Theme.of(context).textTheme.bodyLarge
-                                ?.copyWith(color: AppThemeLight.textDark),
+                                ?.copyWith(color: AppThemeLight.textPrimary),
                           ),
                         ),
                       )
@@ -130,11 +129,11 @@ class Step2EducationInfo extends StatelessWidget {
               decoration: InputDecoration(
                 hintText: 'Year',
                 hintStyle: TextStyle(
-                  color: AppThemeLight.textDark, // Changed to darker color
+                  color: AppThemeLight.textPrimary, // Changed to darker color
                   fontWeight: FontWeight.w500,
                 ),
                 labelStyle: TextStyle(
-                  color: AppThemeLight.textDark, // Ensure label is also dark
+                  color: AppThemeLight.textPrimary, // Ensure label is also dark
                   fontWeight: FontWeight.w500,
                 ),
                 filled: true,
@@ -150,7 +149,7 @@ class Step2EducationInfo extends StatelessWidget {
               ),
               style: Theme.of(
                 context,
-              ).textTheme.bodyLarge?.copyWith(color: AppThemeLight.textDark),
+              ).textTheme.bodyLarge?.copyWith(color: AppThemeLight.textPrimary),
               dropdownColor: AppThemeLight.surface,
             ),
             SizedBox(height: 20.h),
@@ -158,7 +157,7 @@ class Step2EducationInfo extends StatelessWidget {
             Text(
               'College ID Image',
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: AppThemeLight.textDark,
+                color: AppThemeLight.textPrimary,
                 fontWeight: FontWeight.bold,
               ),
             ),

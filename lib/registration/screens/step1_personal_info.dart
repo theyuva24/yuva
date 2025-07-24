@@ -30,17 +30,17 @@ class Step1PersonalInfo extends StatelessWidget {
             //       textStyle: const TextStyle(
             //         fontSize: 56,
             //         fontWeight: FontWeight.bold,
-            //         color: Color(0xFF00F6FF),
+            //         color: AppThemeLight.accent, // was Color(0xFF00F6FF)
             //         letterSpacing: 4,
             //         shadows: [
             //           Shadow(
             //             blurRadius: 32,
-            //             color: Color(0xFF00F6FF),
+            //             color: AppThemeLight.accent, // was Color(0xFF00F6FF)
             //             offset: Offset(0, 0),
             //           ),
             //           Shadow(
             //             blurRadius: 8,
-            //             color: Color(0xFF00F6FF),
+            //             color: AppThemeLight.accent, // was Color(0xFF00F6FF)
             //             offset: Offset(0, 0),
             //           ),
             //         ],
@@ -53,9 +53,7 @@ class Step1PersonalInfo extends StatelessWidget {
               child: Text(
                 'Create your account',
                 style: TextStyle(
-                  color:
-                      AppThemeLight
-                          .textDark, // Changed from Colors.grey[300] to darker color
+                  color: AppThemeLight.textPrimary,
                   fontSize: 20.sp,
                   fontWeight: FontWeight.w400,
                   letterSpacing: 0.5.w,
@@ -68,12 +66,7 @@ class Step1PersonalInfo extends StatelessWidget {
                 padding: EdgeInsets.all(4.w),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(
-                    color:
-                        AppThemeLight
-                            .accent, // Changed to a darker accent color
-                    width: 3.w,
-                  ),
+                  border: Border.all(color: AppThemeLight.accent, width: 3.w),
                   // boxShadow removed to eliminate radiant glow
                 ),
                 child: ProfileImagePicker(
@@ -95,11 +88,12 @@ class Step1PersonalInfo extends StatelessWidget {
                 hintText: 'Full Name',
                 labelText: 'Full Name',
                 hintStyle: TextStyle(
-                  color: AppThemeLight.textLight, // Dimmer color before input
+                  color:
+                      AppThemeLight.textSecondary, // Dimmer color before input
                   fontWeight: FontWeight.w500,
                 ),
                 labelStyle: TextStyle(
-                  color: AppThemeLight.textDark, // Ensure label is also dark
+                  color: AppThemeLight.textPrimary, // Ensure label is also dark
                   fontWeight: FontWeight.w500,
                 ),
                 filled: true,
@@ -115,7 +109,7 @@ class Step1PersonalInfo extends StatelessWidget {
               ),
               style: Theme.of(
                 context,
-              ).textTheme.bodyLarge?.copyWith(color: AppThemeLight.textDark),
+              ).textTheme.bodyLarge?.copyWith(color: AppThemeLight.textPrimary),
               onChanged: controller.updateName,
             ),
             SizedBox(height: 20.h),
@@ -149,13 +143,11 @@ class Step1PersonalInfo extends StatelessWidget {
                 ),
                 hintText: 'Date of Birth',
                 hintStyle: TextStyle(
-                  color:
-                      AppThemeLight
-                          .textDark, // Changed from textLight to textDark
+                  color: AppThemeLight.textPrimary, // Ensure label is also dark
                   fontWeight: FontWeight.w500,
                 ),
                 labelStyle: TextStyle(
-                  color: AppThemeLight.textDark, // Ensure label is also dark
+                  color: AppThemeLight.textPrimary, // Ensure label is also dark
                   fontWeight: FontWeight.w500,
                 ),
                 filled: true,
@@ -171,7 +163,7 @@ class Step1PersonalInfo extends StatelessWidget {
               ),
               style: Theme.of(
                 context,
-              ).textTheme.bodyLarge?.copyWith(color: AppThemeLight.textDark),
+              ).textTheme.bodyLarge?.copyWith(color: AppThemeLight.textPrimary),
             ),
             SizedBox(height: 20.h),
             // Gender dropdown (already styled above)
@@ -187,7 +179,7 @@ class Step1PersonalInfo extends StatelessWidget {
                       Text(
                         'Male',
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: AppThemeLight.textDark,
+                          color: AppThemeLight.textPrimary,
                         ),
                       ),
                     ],
@@ -202,7 +194,7 @@ class Step1PersonalInfo extends StatelessWidget {
                       Text(
                         'Female',
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: AppThemeLight.textDark,
+                          color: AppThemeLight.textPrimary,
                         ),
                       ),
                     ],
@@ -220,7 +212,7 @@ class Step1PersonalInfo extends StatelessWidget {
                       Text(
                         'Other',
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: AppThemeLight.textDark,
+                          color: AppThemeLight.textPrimary,
                         ),
                       ),
                     ],
@@ -237,13 +229,11 @@ class Step1PersonalInfo extends StatelessWidget {
                 ),
                 hintText: 'Gender',
                 hintStyle: TextStyle(
-                  color:
-                      AppThemeLight
-                          .textDark, // Changed from textLight to textDark
+                  color: AppThemeLight.textPrimary, // Ensure label is also dark
                   fontWeight: FontWeight.w500,
                 ),
                 labelStyle: TextStyle(
-                  color: AppThemeLight.textDark, // Ensure label is also dark
+                  color: AppThemeLight.textPrimary, // Ensure label is also dark
                   fontWeight: FontWeight.w500,
                 ),
                 filled: true,
@@ -259,7 +249,7 @@ class Step1PersonalInfo extends StatelessWidget {
               ),
               style: Theme.of(
                 context,
-              ).textTheme.bodyLarge?.copyWith(color: AppThemeLight.textDark),
+              ).textTheme.bodyLarge?.copyWith(color: AppThemeLight.textPrimary),
               dropdownColor: AppThemeLight.surface,
             ),
             SizedBox(height: 20.h),

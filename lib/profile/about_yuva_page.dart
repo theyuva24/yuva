@@ -12,17 +12,23 @@ class AboutYuvaPage extends StatelessWidget {
         backgroundColor: AppThemeLight.background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: Icon(
+            Icons.arrow_back,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text('About YUVA', style: TextStyle(color: Colors.black)),
+        title: Text(
+          'About YUVA',
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+        ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
+            children: [
               Text(
                 'About YUVA',
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
@@ -30,7 +36,12 @@ class AboutYuvaPage extends StatelessWidget {
               SizedBox(height: 8),
               Text(
                 'Last Updated: July 22, 2025',
-                style: TextStyle(fontSize: 14, color: Colors.grey),
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withOpacity(0.7),
+                ),
               ),
               SizedBox(height: 20),
               Divider(),
@@ -307,7 +318,12 @@ class AboutYuvaPage extends StatelessWidget {
               SizedBox(height: 8),
               Text(
                 '© 2025 YUVA Tech Pvt. Ltd. • All rights reserved.',
-                style: TextStyle(fontSize: 14, color: Colors.grey),
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withOpacity(0.7),
+                ),
               ),
             ],
           ),

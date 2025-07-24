@@ -153,7 +153,10 @@ class _CourseAutocompleteFieldState extends State<CourseAutocompleteField> {
             padding: const EdgeInsets.only(left: 12.0, top: 4.0),
             child: Text(
               _errorText!,
-              style: TextStyle(color: Colors.red, fontSize: 12),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.error,
+                fontSize: 12,
+              ),
             ),
           ),
       ],

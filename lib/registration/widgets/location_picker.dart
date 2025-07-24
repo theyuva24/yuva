@@ -80,7 +80,7 @@ class _LocationPickerState extends State<LocationPicker> {
                     : const Text('Detect'),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppThemeLight.primary,
-              foregroundColor: Colors.white,
+              foregroundColor: Theme.of(context).colorScheme.onPrimary,
               minimumSize: const Size(80, 40),
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
               textStyle: const TextStyle(fontWeight: FontWeight.bold),
@@ -93,7 +93,7 @@ class _LocationPickerState extends State<LocationPicker> {
         ),
         hintText: 'City',
         hintStyle: const TextStyle(
-          color: AppThemeLight.textLight,
+          color: AppThemeLight.textSecondary,
           fontWeight: FontWeight.w500,
         ),
         filled: true,
@@ -107,7 +107,7 @@ class _LocationPickerState extends State<LocationPicker> {
           horizontal: 20,
         ),
       ),
-      style: const TextStyle(color: AppThemeLight.textDark, fontSize: 18),
+      style: const TextStyle(color: AppThemeLight.textPrimary, fontSize: 18),
       onChanged: widget.onLocationPicked,
     );
   }

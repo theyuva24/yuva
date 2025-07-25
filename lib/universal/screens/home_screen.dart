@@ -177,7 +177,10 @@ class HomeScreenState extends State<HomeScreen> {
                   });
                 },
                 selectedItemColor: Theme.of(context).colorScheme.primary,
-                unselectedItemColor: Theme.of(context).colorScheme.secondary,
+                unselectedItemColor:
+                    Theme.of(context).brightness == Brightness.dark
+                        ? AppThemeDark.navIconUnselected
+                        : AppThemeLight.navIconUnselected,
                 backgroundColor: Theme.of(context).colorScheme.surface,
                 elevation: 12,
                 selectedLabelStyle: TextStyle(
@@ -187,7 +190,10 @@ class HomeScreenState extends State<HomeScreen> {
                 ),
                 unselectedLabelStyle: TextStyle(
                   letterSpacing: 1,
-                  color: Theme.of(context).colorScheme.secondary,
+                  color:
+                      Theme.of(context).brightness == Brightness.dark
+                          ? AppThemeDark.navIconUnselected
+                          : AppThemeLight.navIconUnselected,
                 ),
                 items: const [
                   BottomNavigationBarItem(
@@ -256,7 +262,9 @@ class HomeScreenState extends State<HomeScreen> {
                         selectedItemColor:
                             Theme.of(context).colorScheme.primary,
                         unselectedItemColor:
-                            Theme.of(context).colorScheme.secondary,
+                            Theme.of(context).brightness == Brightness.dark
+                                ? AppThemeDark.navIconUnselected
+                                : AppThemeLight.navIconUnselected,
                         backgroundColor: Theme.of(context).colorScheme.surface,
                         elevation: 12,
                         selectedLabelStyle: TextStyle(
@@ -266,7 +274,10 @@ class HomeScreenState extends State<HomeScreen> {
                         ),
                         unselectedLabelStyle: TextStyle(
                           letterSpacing: 1,
-                          color: Theme.of(context).colorScheme.secondary,
+                          color:
+                              Theme.of(context).brightness == Brightness.dark
+                                  ? AppThemeDark.navIconUnselected
+                                  : AppThemeLight.navIconUnselected,
                         ),
                         items: [
                           const BottomNavigationBarItem(

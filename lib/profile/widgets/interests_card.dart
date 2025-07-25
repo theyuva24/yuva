@@ -8,11 +8,14 @@ class InterestsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: AppThemeLight.surface,
+      color: Theme.of(context).colorScheme.surface,
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: const BorderSide(color: AppThemeLight.primary, width: 1.5),
+        side: BorderSide(
+          color: Theme.of(context).colorScheme.primary,
+          width: 1.5,
+        ),
       ),
       elevation: 4,
       child: Padding(
@@ -28,12 +31,16 @@ class InterestsCard extends StatelessWidget {
                         interest,
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
-                      backgroundColor: AppThemeLight.primary.withAlpha(38),
-                      labelStyle: const TextStyle(color: AppThemeLight.primary),
+                      backgroundColor: Theme.of(
+                        context,
+                      ).colorScheme.primary.withAlpha(38),
+                      labelStyle: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(24),
-                        side: const BorderSide(
-                          color: AppThemeLight.primary,
+                        side: BorderSide(
+                          color: Theme.of(context).colorScheme.primary,
                           width: 1.5,
                         ),
                       ),

@@ -39,16 +39,20 @@ class _PublicProfilePageState extends State<PublicProfilePage> {
         builder: (context, controller, _) {
           if (controller.isLoading || controller.profile == null) {
             return Scaffold(
-              backgroundColor: AppThemeLight.background,
-              body: const Center(child: CircularProgressIndicator()),
+              backgroundColor: Theme.of(context).colorScheme.background,
+              body: Center(
+                child: CircularProgressIndicator(
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
             );
           }
           final profile = controller.profile!;
           final isCurrentUser = profile.uid == widget.uid;
           return Scaffold(
-            backgroundColor: AppThemeLight.background,
+            backgroundColor: Theme.of(context).colorScheme.background,
             appBar: AppBar(
-              backgroundColor: AppThemeLight.background,
+              backgroundColor: Theme.of(context).colorScheme.background,
               elevation: 0,
               leading: IconButton(
                 icon: Icon(

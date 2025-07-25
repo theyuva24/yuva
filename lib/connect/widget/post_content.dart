@@ -202,14 +202,27 @@ class _PostContentState extends State<PostContent> {
     int start = 0;
     urlRegex.allMatches(text).forEach((match) {
       if (match.start > start) {
-        spans.add(TextSpan(text: text.substring(start, match.start)));
+        spans.add(
+          TextSpan(
+            text: text.substring(start, match.start),
+            style: TextStyle(
+              color:
+                  Theme.of(context).brightness == Brightness.dark
+                      ? AppThemeDark.textPrimary
+                      : AppThemeLight.textPrimary,
+            ),
+          ),
+        );
       }
       final url = match.group(0)!;
       spans.add(
         TextSpan(
           text: url,
           style: TextStyle(
-            color: Theme.of(context).colorScheme.primary,
+            color:
+                Theme.of(context).brightness == Brightness.dark
+                    ? AppThemeDark.ctaText
+                    : AppThemeLight.ctaText,
             decoration: TextDecoration.underline,
           ),
           recognizer:
@@ -222,7 +235,17 @@ class _PostContentState extends State<PostContent> {
       start = match.end;
     });
     if (start < text.length) {
-      spans.add(TextSpan(text: text.substring(start)));
+      spans.add(
+        TextSpan(
+          text: text.substring(start),
+          style: TextStyle(
+            color:
+                Theme.of(context).brightness == Brightness.dark
+                    ? AppThemeDark.textPrimary
+                    : AppThemeLight.textPrimary,
+          ),
+        ),
+      );
     }
     if (!widget.brief) {
       // Full mode: show all text
@@ -230,7 +253,13 @@ class _PostContentState extends State<PostContent> {
         padding: const EdgeInsets.symmetric(vertical: 8.0),
         child: Text.rich(
           TextSpan(children: spans),
-          style: const TextStyle(fontSize: 13),
+          style: TextStyle(
+            fontSize: 13,
+            color:
+                Theme.of(context).brightness == Brightness.dark
+                    ? AppThemeDark.textPrimary
+                    : AppThemeLight.textPrimary,
+          ),
         ),
       );
     } else {
@@ -357,7 +386,10 @@ class _PostContentState extends State<PostContent> {
         child: Text(
           urlString,
           style: TextStyle(
-            color: Theme.of(context).colorScheme.primary,
+            color:
+                Theme.of(context).brightness == Brightness.dark
+                    ? AppThemeDark.ctaText
+                    : AppThemeLight.ctaText,
             decoration: TextDecoration.underline,
             fontSize: 14,
           ),
@@ -377,7 +409,16 @@ class _PostContentState extends State<PostContent> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Poll:', style: TextStyle(fontWeight: FontWeight.bold)),
+          Text(
+            'Poll:',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color:
+                  Theme.of(context).brightness == Brightness.dark
+                      ? AppThemeDark.textPrimary
+                      : AppThemeLight.textPrimary,
+            ),
+          ),
           ...List.generate(
             options.length,
             (idx) => Padding(
@@ -431,7 +472,13 @@ class _PostContentState extends State<PostContent> {
                       Expanded(
                         child: Text(
                           options[idx],
-                          style: const TextStyle(fontSize: 13),
+                          style: TextStyle(
+                            fontSize: 13,
+                            color:
+                                Theme.of(context).brightness == Brightness.dark
+                                    ? AppThemeDark.textPrimary
+                                    : AppThemeLight.textPrimary,
+                          ),
                         ),
                       ),
                       if (votes.isNotEmpty)
@@ -439,9 +486,14 @@ class _PostContentState extends State<PostContent> {
                           ' (${votes[idx]})',
                           style: TextStyle(
                             fontSize: 12,
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurface.withOpacity(0.6),
+                            color:
+                                Theme.of(context).brightness == Brightness.dark
+                                    ? AppThemeDark.textSecondary.withOpacity(
+                                      0.6,
+                                    )
+                                    : AppThemeLight.textSecondary.withOpacity(
+                                      0.6,
+                                    ),
                           ),
                         ),
                       if (_userVotedOptionIdx != null && totalVotes > 0)
@@ -478,7 +530,12 @@ class _PostContentState extends State<PostContent> {
               padding: const EdgeInsets.only(top: 8.0),
               child: Text(
                 'You have voted.',
-                style: TextStyle(color: Theme.of(context).colorScheme.primary),
+                style: TextStyle(
+                  color:
+                      Theme.of(context).brightness == Brightness.dark
+                          ? AppThemeDark.ctaText
+                          : AppThemeLight.ctaText,
+                ),
               ),
             ),
         ],
@@ -544,7 +601,10 @@ class _BriefTextWithReadMoreState extends State<_BriefTextWithReadMore> {
                 child: Text(
                   'Read more',
                   style: TextStyle(
-                    color: Theme.of(context).colorScheme.primary,
+                    color:
+                        Theme.of(context).brightness == Brightness.dark
+                            ? AppThemeDark.ctaText
+                            : AppThemeLight.ctaText,
                     fontSize: 13,
                     fontWeight: FontWeight.bold,
                   ),

@@ -130,9 +130,9 @@ class HubsPage extends StatelessWidget {
               builder: (context, joinedHubsSnapshot) {
                 if (joinedHubsSnapshot.connectionState ==
                     ConnectionState.waiting) {
-                  return const Center(
+                  return Center(
                     child: CircularProgressIndicator(
-                      color: AppThemeLight.primary,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   );
                 }

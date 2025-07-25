@@ -63,7 +63,7 @@ class SplashScreen extends StatelessWidget {
               width: 120.w,
               height: 120.w,
               decoration: BoxDecoration(
-                color: AppThemeLight.transparent,
+                color: Colors.transparent,
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(

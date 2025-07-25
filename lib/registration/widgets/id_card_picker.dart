@@ -49,10 +49,10 @@ class IdCardPicker extends StatelessWidget {
         width: double.infinity,
         height: 160,
         decoration: BoxDecoration(
-          color: AppThemeLight.surface,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: AppThemeLight.primary,
+            color: Theme.of(context).colorScheme.primary,
             width: 2,
             style: BorderStyle.solid,
           ),
@@ -99,13 +99,13 @@ class IdCardPicker extends StatelessWidget {
                     Icon(
                       Icons.cloud_upload,
                       size: 48,
-                      color: AppThemeLight.primary,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                     const SizedBox(height: 12),
                     Text(
                       'Click here to upload ID',
-                      style: TextStyle(
-                        color: AppThemeLight.textPrimary,
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontWeight: FontWeight.bold,
                         fontSize: 18,
                       ),

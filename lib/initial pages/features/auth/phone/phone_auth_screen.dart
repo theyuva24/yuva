@@ -336,7 +336,7 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: AppThemeLight.background,
+      backgroundColor: Theme.of(context).colorScheme.background,
       body: SafeArea(
         child: Stack(
           children: [
@@ -353,13 +353,15 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                         'YUVA',
                         style: GoogleFonts.orbitron(
                           textStyle: theme.textTheme.displaySmall?.copyWith(
-                            color: AppThemeLight.primary,
+                            color: Theme.of(context).colorScheme.primary,
                             fontWeight: FontWeight.bold,
                             letterSpacing: 4,
                             shadows: [
                               Shadow(
                                 blurRadius: 8,
-                                color: AppThemeLight.primary.withAlpha(76),
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.primary.withAlpha(76),
                                 offset: Offset(0, 0),
                               ),
                             ],
@@ -371,7 +373,9 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                     Text(
                       'Login to explore opportunities',
                       style: theme.textTheme.bodyLarge?.copyWith(
-                        color: AppThemeLight.textSecondary,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withOpacity(0.7),
                         fontWeight: FontWeight.w400,
                         letterSpacing: 0.5,
                       ),
@@ -457,7 +461,7 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                           hintText: 'Enter your phone number',
                           prefixIcon: Icon(
                             Icons.phone,
-                            color: AppThemeLight.primary,
+                            color: Theme.of(context).colorScheme.primary,
                           ),
                         ),
                         style: theme.textTheme.bodyLarge,
@@ -493,7 +497,9 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                               Text(
                                 'By continuing, you agree to YUVA’s ',
                                 style: TextStyle(
-                                  color: AppThemeLight.textSecondary,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface.withOpacity(0.7),
                                   fontSize: 13,
                                 ),
                               ),
@@ -510,7 +516,8 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                                 child: Text(
                                   'Terms & Conditions',
                                   style: TextStyle(
-                                    color: AppThemeLight.primary,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
                                     decoration: TextDecoration.underline,
                                     fontWeight: FontWeight.w500,
                                     fontSize: 13,
@@ -520,7 +527,9 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                               Text(
                                 ' and ',
                                 style: TextStyle(
-                                  color: AppThemeLight.textSecondary,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface.withOpacity(0.7),
                                   fontSize: 13,
                                 ),
                               ),
@@ -537,7 +546,8 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                                 child: Text(
                                   'Privacy Policy',
                                   style: TextStyle(
-                                    color: AppThemeLight.primary,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
                                     decoration: TextDecoration.underline,
                                     fontWeight: FontWeight.w500,
                                     fontSize: 13,
@@ -547,7 +557,9 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                               Text(
                                 '.',
                                 style: TextStyle(
-                                  color: AppThemeLight.textSecondary,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface.withOpacity(0.7),
                                   fontSize: 13,
                                 ),
                               ),
@@ -563,7 +575,7 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                             Text(
                               'Enter the OTP code',
                               style: theme.textTheme.titleMedium?.copyWith(
-                                color: AppThemeLight.textPrimary,
+                                color: Theme.of(context).colorScheme.onSurface,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
@@ -571,7 +583,9 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                             Text(
                               'Sent to $_currentPhoneNumber',
                               style: theme.textTheme.bodyMedium?.copyWith(
-                                color: AppThemeLight.textSecondary,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withOpacity(0.7),
                               ),
                             ),
                           ],
@@ -591,16 +605,17 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                           borderRadius: BorderRadius.circular(16),
                           fieldHeight: 60,
                           fieldWidth: 50,
-                          activeColor: AppThemeLight.primary,
-                          selectedColor: AppThemeLight.secondary,
-                          inactiveColor: AppThemeLight.divider,
-                          activeFillColor: AppThemeLight.transparent,
-                          selectedFillColor: AppThemeLight.transparent,
-                          inactiveFillColor: AppThemeLight.transparent,
+                          activeColor: Theme.of(context).colorScheme.primary,
+                          selectedColor:
+                              Theme.of(context).colorScheme.secondary,
+                          inactiveColor: Theme.of(context).dividerColor,
+                          activeFillColor: Colors.transparent,
+                          selectedFillColor: Colors.transparent,
+                          inactiveFillColor: Colors.transparent,
                           borderWidth: 2,
                         ),
                         textStyle: theme.textTheme.headlineMedium?.copyWith(
-                          color: AppThemeLight.textPrimary,
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontWeight: FontWeight.bold,
                         ),
                         enableActiveFill: false,
@@ -632,7 +647,9 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                                 ? 'Resend code in 00: ${_resendTimer.toString().padLeft(2, '0')}'
                                 : 'Resend code',
                             style: theme.textTheme.bodyLarge?.copyWith(
-                              color: AppThemeLight.textSecondary,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withOpacity(0.7),
                             ),
                           ),
                         ),

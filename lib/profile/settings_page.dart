@@ -20,9 +20,9 @@ class SettingsPage extends StatelessWidget {
         .endsWith('9876543210');
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Settings',
-          style: TextStyle(color: null), // Remove static color
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
         ),
         backgroundColor: Theme.of(context).colorScheme.surface,
         iconTheme: IconThemeData(
@@ -37,9 +37,9 @@ class SettingsPage extends StatelessWidget {
               Icons.info,
               color: Theme.of(context).colorScheme.onSurface,
             ),
-            title: const Text(
+            title: Text(
               'About Yuva',
-              style: TextStyle(color: null), // Remove static color
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
             ),
             onTap: () {
               Navigator.of(context).push(
@@ -52,9 +52,9 @@ class SettingsPage extends StatelessWidget {
               Icons.privacy_tip,
               color: Theme.of(context).colorScheme.onSurface,
             ),
-            title: const Text(
+            title: Text(
               'Privacy Policy',
-              style: TextStyle(color: null), // Remove static color
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
             ),
             onTap: () {
               Navigator.of(context).push(
@@ -69,9 +69,9 @@ class SettingsPage extends StatelessWidget {
               Icons.article,
               color: Theme.of(context).colorScheme.onSurface,
             ),
-            title: const Text(
+            title: Text(
               'Terms & Conditions',
-              style: TextStyle(color: null), // Remove static color
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
             ),
             onTap: () {
               Navigator.of(context).push(

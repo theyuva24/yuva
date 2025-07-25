@@ -521,14 +521,16 @@ class _VotingBarState extends State<VotingBar> {
                     : () => _handleVote('upvote'),
             icon:
                 _isUpvoted
-                    ? const Icon(
+                    ? Icon(
                       Icons.arrow_upward,
-                      color: AppThemeLight.primary,
+                      color: Theme.of(context).colorScheme.primary,
                       size: 22,
                     )
-                    : const Icon(
+                    : Icon(
                       Icons.arrow_upward_outlined,
-                      color: AppThemeLight.textSecondary,
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withOpacity(0.6),
                       size: 22,
                     ),
             tooltip: _isUpvoted ? 'You upvoted' : 'Upvote',
@@ -540,7 +542,14 @@ class _VotingBarState extends State<VotingBar> {
           padding: const EdgeInsets.symmetric(horizontal: 2.0),
           child: Text(
             '$_score',
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 15,
+              color:
+                  Theme.of(context).brightness == Brightness.dark
+                      ? AppThemeDark.textPrimary
+                      : AppThemeLight.textPrimary,
+            ),
           ),
         ),
         Semantics(
@@ -553,14 +562,20 @@ class _VotingBarState extends State<VotingBar> {
                     : () => _handleVote('downvote'),
             icon:
                 _isDownvoted
-                    ? const Icon(
+                    ? Icon(
                       Icons.arrow_downward,
-                      color: AppThemeLight.primary,
+                      color:
+                          Theme.of(context).brightness == Brightness.dark
+                              ? AppThemeDark.ctaText
+                              : AppThemeLight.ctaText,
                       size: 22,
                     )
-                    : const Icon(
+                    : Icon(
                       Icons.arrow_downward_outlined,
-                      color: AppThemeLight.textSecondary,
+                      color:
+                          Theme.of(context).brightness == Brightness.dark
+                              ? AppThemeDark.textSecondary
+                              : AppThemeLight.textSecondary,
                       size: 22,
                     ),
             tooltip: _isDownvoted ? 'You downvoted' : 'Downvote',
@@ -577,14 +592,20 @@ class _VotingBarState extends State<VotingBar> {
                 children: [
                   Icon(
                     Icons.error,
-                    color: Theme.of(context).colorScheme.error,
+                    color:
+                        Theme.of(context).brightness == Brightness.dark
+                            ? AppThemeDark.errorText
+                            : AppThemeLight.errorText,
                     size: 18,
                   ),
                   const SizedBox(width: 4),
                   Text(
                     _voteError!,
                     style: TextStyle(
-                      color: Theme.of(context).colorScheme.error,
+                      color:
+                          Theme.of(context).brightness == Brightness.dark
+                              ? AppThemeDark.errorText
+                              : AppThemeLight.errorText,
                       fontSize: 12,
                     ),
                   ),

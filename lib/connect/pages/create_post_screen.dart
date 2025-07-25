@@ -24,8 +24,9 @@ class GradientButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = AppThemeLight.theme;
+    final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         padding: const EdgeInsets.symmetric(vertical: 16),
@@ -35,7 +36,7 @@ class GradientButton extends StatelessWidget {
       onPressed: onTap,
       child: Text(
         text,
-        style: theme.textTheme.labelLarge?.copyWith(
+        style: textTheme.labelLarge?.copyWith(
           color: colorScheme.onPrimary,
           fontWeight: FontWeight.bold,
         ),
@@ -293,6 +294,9 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   }
 
   Widget _buildTypeSelector() {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
@@ -306,8 +310,9 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
   Widget _buildTypeButton(String type, IconData icon, String label) {
     final selected = _postType == type;
-    final theme = AppThemeLight.theme;
+    final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
     return ElevatedButton.icon(
       style: ElevatedButton.styleFrom(
         backgroundColor: selected ? colorScheme.primary : colorScheme.surface,
@@ -318,7 +323,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         side:
             selected
                 ? BorderSide(color: colorScheme.primary, width: 2)
-                : BorderSide(color: AppThemeLight.divider, width: 1),
+                : BorderSide(color: colorScheme.outline, width: 1),
       ),
       onPressed: () {
         setState(() {
@@ -331,7 +336,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   }
 
   Widget _buildPollOptions() {
-    final theme = AppThemeLight.theme;
+    final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final textTheme = theme.textTheme;
     return Container(
@@ -347,7 +352,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
             offset: const Offset(0, 4),
           ),
         ],
-        border: Border.all(color: AppThemeLight.divider),
+        border: Border.all(color: colorScheme.outline),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -457,7 +462,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   }
 
   Widget _buildHubSelector() {
-    final theme = AppThemeLight.theme;
+    final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final textTheme = theme.textTheme;
     return Column(
@@ -575,7 +580,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = AppThemeLight.theme;
+    final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final textTheme = theme.textTheme;
     return Theme(
@@ -603,7 +608,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                   backgroundColor:
                       _canPost && !_isLoading
                           ? colorScheme.primary
-                          : AppThemeLight.transparent,
+                          : Colors.transparent,
                   foregroundColor:
                       _canPost && !_isLoading
                           ? colorScheme.onPrimary

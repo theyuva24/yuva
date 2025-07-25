@@ -27,29 +27,31 @@ class RegistrationFlow extends StatelessWidget {
               leading:
                   controller.currentStep > 0
                       ? IconButton(
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.arrow_back,
-                          color: AppThemeLight.primary,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                         onPressed: () {
                           controller.prevStep();
                         },
                       )
                       : null,
-              backgroundColor: AppThemeLight.surface,
+              backgroundColor: Theme.of(context).colorScheme.surface,
               title: Text(
                 isAuthenticated ? 'Complete Registration' : 'Create Account',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: AppThemeLight.primary,
+                  color: Theme.of(context).colorScheme.primary,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 2,
                 ),
               ),
               centerTitle: true,
               elevation: 0,
-              iconTheme: const IconThemeData(color: AppThemeLight.primary),
+              iconTheme: IconThemeData(
+                color: Theme.of(context).colorScheme.primary,
+              ),
             ),
-            backgroundColor: AppThemeLight.background,
+            backgroundColor: Theme.of(context).colorScheme.background,
             body: Column(
               children: [
                 const SizedBox(height: 16),
@@ -90,14 +92,14 @@ class _StepProgress extends StatelessWidget {
           decoration: BoxDecoration(
             color:
                 i <= currentStep
-                    ? AppThemeLight.primary
-                    : AppThemeLight.divider,
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).dividerColor,
             borderRadius: BorderRadius.circular(4),
             boxShadow:
                 i == currentStep
                     ? [
-                      const BoxShadow(
-                        color: AppThemeLight.primary,
+                      BoxShadow(
+                        color: Theme.of(context).colorScheme.primary,
                         blurRadius: 12,
                         spreadRadius: 2,
                       ),

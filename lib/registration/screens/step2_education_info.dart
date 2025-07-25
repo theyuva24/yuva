@@ -65,8 +65,8 @@ class Step2EducationInfo extends StatelessWidget {
             Center(
               child: Text(
                 'Academic Information',
-                style: TextStyle(
-                  color: AppThemeLight.textPrimary, // Changed to darker color
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontSize: 20.sp,
                   fontWeight: FontWeight.w400,
                   letterSpacing: 0.5.w,
@@ -117,8 +117,11 @@ class Step2EducationInfo extends StatelessWidget {
                           value: y,
                           child: Text(
                             y,
-                            style: Theme.of(context).textTheme.bodyLarge
-                                ?.copyWith(color: AppThemeLight.textPrimary),
+                            style: Theme.of(
+                              context,
+                            ).textTheme.bodyLarge?.copyWith(
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
                           ),
                         ),
                       )
@@ -129,15 +132,21 @@ class Step2EducationInfo extends StatelessWidget {
               decoration: InputDecoration(
                 hintText: 'Year',
                 hintStyle: TextStyle(
-                  color: AppThemeLight.textPrimary, // Changed to darker color
+                  color:
+                      Theme.of(
+                        context,
+                      ).colorScheme.onSurface, // Changed to darker color
                   fontWeight: FontWeight.w500,
                 ),
                 labelStyle: TextStyle(
-                  color: AppThemeLight.textPrimary, // Ensure label is also dark
+                  color:
+                      Theme.of(
+                        context,
+                      ).colorScheme.onSurface, // Ensure label is also dark
                   fontWeight: FontWeight.w500,
                 ),
                 filled: true,
-                fillColor: AppThemeLight.surface,
+                fillColor: Theme.of(context).colorScheme.surface,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14.r),
                   borderSide: BorderSide.none,
@@ -147,17 +156,17 @@ class Step2EducationInfo extends StatelessWidget {
                   horizontal: 20.w,
                 ),
               ),
-              style: Theme.of(
-                context,
-              ).textTheme.bodyLarge?.copyWith(color: AppThemeLight.textPrimary),
-              dropdownColor: AppThemeLight.surface,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+              dropdownColor: Theme.of(context).colorScheme.surface,
             ),
             SizedBox(height: 20.h),
             // College ID Image
             Text(
               'College ID Image',
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: AppThemeLight.textPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontWeight: FontWeight.bold,
               ),
             ),

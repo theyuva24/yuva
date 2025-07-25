@@ -378,9 +378,11 @@ class _ProfileTabsState extends State<ProfileTabs> {
           Container(
             color: Theme.of(context).colorScheme.surface,
             child: TabBar(
-              indicatorColor: AppThemeLight.primary,
-              labelColor: AppThemeLight.textPrimary,
-              unselectedLabelColor: AppThemeLight.textSecondary,
+              indicatorColor: Theme.of(context).colorScheme.primary,
+              labelColor: Theme.of(context).colorScheme.onSurface,
+              unselectedLabelColor: Theme.of(
+                context,
+              ).colorScheme.onSurface.withOpacity(0.6),
               labelStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               unselectedLabelStyle: TextStyle(
                 fontWeight: FontWeight.normal,

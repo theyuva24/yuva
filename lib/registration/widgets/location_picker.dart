@@ -64,7 +64,10 @@ class _LocationPickerState extends State<LocationPicker> {
     return TextFormField(
       controller: _controller,
       decoration: InputDecoration(
-        prefixIcon: const Icon(Icons.location_on, color: AppThemeLight.primary),
+        prefixIcon: Icon(
+          Icons.location_on,
+          color: Theme.of(context).colorScheme.primary,
+        ),
         suffixIcon: Padding(
           padding: const EdgeInsets.only(right: 8.0),
           child: ElevatedButton.icon(
@@ -79,7 +82,7 @@ class _LocationPickerState extends State<LocationPicker> {
                     )
                     : const Text('Detect'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppThemeLight.primary,
+              backgroundColor: Theme.of(context).colorScheme.primary,
               foregroundColor: Theme.of(context).colorScheme.onPrimary,
               minimumSize: const Size(80, 40),
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
@@ -92,12 +95,12 @@ class _LocationPickerState extends State<LocationPicker> {
           ),
         ),
         hintText: 'City',
-        hintStyle: const TextStyle(
-          color: AppThemeLight.textSecondary,
+        hintStyle: TextStyle(
+          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
           fontWeight: FontWeight.w500,
         ),
         filled: true,
-        fillColor: AppThemeLight.surface,
+        fillColor: Theme.of(context).colorScheme.surface,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide.none,
@@ -107,7 +110,10 @@ class _LocationPickerState extends State<LocationPicker> {
           horizontal: 20,
         ),
       ),
-      style: const TextStyle(color: AppThemeLight.textPrimary, fontSize: 18),
+      style: TextStyle(
+        color: Theme.of(context).colorScheme.onSurface,
+        fontSize: 18,
+      ),
       onChanged: widget.onLocationPicked,
     );
   }

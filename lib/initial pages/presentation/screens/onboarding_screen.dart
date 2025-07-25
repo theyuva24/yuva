@@ -49,7 +49,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     });
 
     return Scaffold(
-      backgroundColor: AppThemeLight.background,
+      backgroundColor: Theme.of(context).colorScheme.background,
       body: SafeArea(
         child: Column(
           children: [
@@ -70,23 +70,25 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           width: 180.w,
                           height: 180.w,
                           decoration: BoxDecoration(
-                            color: AppThemeLight.transparent,
+                            color: Colors.transparent,
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: AppThemeLight.primary.withAlpha(51),
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.primary.withAlpha(51),
                                 blurRadius: 32.r,
                                 spreadRadius: 8.r,
                               ),
                             ],
                             border: Border.all(
-                              color: AppThemeLight.primary,
+                              color: Theme.of(context).colorScheme.primary,
                               width: 4.w,
                             ),
                           ),
                           child: Icon(
                             Icons.auto_stories,
-                            color: AppThemeLight.primary,
+                            color: Theme.of(context).colorScheme.primary,
                             size: 100.sp,
                           ),
                         ),
@@ -96,7 +98,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           style: TextStyle(
                             fontSize: 28.sp,
                             fontWeight: FontWeight.bold,
-                            color: AppThemeLight.primary,
+                            color: Theme.of(context).colorScheme.primary,
                             letterSpacing: 2.w,
                           ),
                           textAlign: TextAlign.center,
@@ -106,7 +108,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           _pages[index]['subtitle']!,
                           style: TextStyle(
                             fontSize: 18.sp,
-                            color: AppThemeLight.textPrimary,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -127,14 +129,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   decoration: BoxDecoration(
                     color:
                         _currentPage == index
-                            ? AppThemeLight.primary
-                            : AppThemeLight.white24,
+                            ? Theme.of(context).colorScheme.primary
+                            : Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withOpacity(0.24),
                     borderRadius: BorderRadius.circular(4.r),
                     boxShadow:
                         _currentPage == index
                             ? [
                               BoxShadow(
-                                color: AppThemeLight.primary.withAlpha(51),
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.primary.withAlpha(51),
                                 blurRadius: 12.r,
                                 spreadRadius: 2.r,
                               ),

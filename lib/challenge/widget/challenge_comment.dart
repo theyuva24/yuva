@@ -489,10 +489,13 @@ class _ChallengeCommentCardState extends State<_ChallengeCommentCard> {
     final service = ChallengeCommentService();
     // Subtle background color based on nesting level
     final List<Color> bgColors = [
-      AppThemeLight.surface,
-      AppThemeLight.textSecondary.withOpacity(0.05),
-      AppThemeLight.textSecondary.withOpacity(0.1),
-      AppThemeLight.textSecondary.withOpacity(0.2),
+      Theme.of(context).colorScheme.surface,
+      Theme.of(context).textTheme.bodySmall?.color?.withOpacity(0.05) ??
+          Colors.grey.withOpacity(0.05),
+      Theme.of(context).textTheme.bodySmall?.color?.withOpacity(0.1) ??
+          Colors.grey.withOpacity(0.1),
+      Theme.of(context).textTheme.bodySmall?.color?.withOpacity(0.2) ??
+          Colors.grey.withOpacity(0.2),
     ];
     final bgColor = bgColors[nestingLevel % bgColors.length];
     final totalReplies = _countAllReplies(comment);
@@ -500,7 +503,10 @@ class _ChallengeCommentCardState extends State<_ChallengeCommentCard> {
       padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 8),
       child: Container(
         decoration: BoxDecoration(
-          color: nestingLevel == 0 ? AppThemeLight.surface : bgColor,
+          color:
+              nestingLevel == 0
+                  ? Theme.of(context).colorScheme.surface
+                  : bgColor,
           border:
               nestingLevel > 0
                   ? Border(
@@ -550,8 +556,7 @@ class _ChallengeCommentCardState extends State<_ChallengeCommentCard> {
                           const SizedBox(width: 8),
                           Text(
                             _formatTimeAgo(comment.timestamp),
-                            style: Theme.of(context).textTheme.bodySmall
-                                ?.copyWith(color: AppThemeLight.textSecondary),
+                            style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ],
                       ),
@@ -631,9 +636,10 @@ class _ChallengeCommentCardState extends State<_ChallengeCommentCard> {
                               likeCount > 0 ? likeCount.toString() : '',
                               style: TextStyle(
                                 fontSize: 12,
-                                color: AppThemeLight.textSecondary.withOpacity(
-                                  0.6,
-                                ),
+                                color:
+                                    Theme.of(context).textTheme.bodySmall?.color
+                                        ?.withOpacity(0.6) ??
+                                    Colors.grey.withOpacity(0.6),
                               ),
                             ),
                           ],

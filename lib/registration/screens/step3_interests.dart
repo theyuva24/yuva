@@ -26,7 +26,7 @@ class _Step3InterestsState extends State<Step3Interests> {
           children: [
             Text(
               'Choose your interests (max 5):',
-              style: TextStyle(
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: Theme.of(context).colorScheme.onPrimary,
                 fontSize: 16.sp,

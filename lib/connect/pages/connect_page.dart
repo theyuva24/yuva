@@ -92,17 +92,19 @@ class _ConnectPageState extends State<ConnectPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppThemeLight.transparent,
+      backgroundColor: Theme.of(context).colorScheme.background,
       body: SafeArea(
         child: Column(
           children: [
             Container(
-              color: AppThemeLight.surface,
+              color: Theme.of(context).colorScheme.surface,
               child: TabBar(
                 controller: _tabController,
-                labelColor: AppThemeLight.textPrimary,
-                unselectedLabelColor: AppThemeLight.textSecondary,
-                indicatorColor: AppThemeLight.primary,
+                labelColor: Theme.of(context).colorScheme.onSurface,
+                unselectedLabelColor: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withOpacity(0.6),
+                indicatorColor: Theme.of(context).colorScheme.primary,
                 indicatorWeight: 4.h,
                 labelStyle: const TextStyle(
                   fontWeight: FontWeight.bold,
@@ -123,7 +125,7 @@ class _ConnectPageState extends State<ConnectPage>
                   // Trending Tab with pull-to-refresh and optimized sorting
                   RefreshIndicator(
                     onRefresh: _onRefresh,
-                    color: AppThemeLight.primary,
+                    color: Theme.of(context).colorScheme.primary,
                     child: StreamBuilder<List<Post>>(
                       stream: postService.getPostsStream(),
                       builder: (context, snapshot) {
@@ -144,13 +146,21 @@ class _ConnectPageState extends State<ConnectPage>
                                 Icon(
                                   Icons.error_outline,
                                   size: 64.w,
-                                  color: AppThemeLight.error,
+                                  color:
+                                      Theme.of(context).brightness ==
+                                              Brightness.dark
+                                          ? AppThemeDark.errorText
+                                          : AppThemeLight.errorText,
                                 ),
                                 SizedBox(height: 16.h),
                                 Text(
                                   'Error loading posts',
                                   style: TextStyle(
-                                    color: AppThemeLight.primary,
+                                    color:
+                                        Theme.of(context).brightness ==
+                                                Brightness.dark
+                                            ? AppThemeDark.textPrimary
+                                            : AppThemeLight.textPrimary,
                                     fontSize: 16.sp,
                                   ),
                                 ),
@@ -163,7 +173,11 @@ class _ConnectPageState extends State<ConnectPage>
                                     child: Text(
                                       snapshot.error.toString(),
                                       style: TextStyle(
-                                        color: AppThemeLight.error,
+                                        color:
+                                            Theme.of(context).brightness ==
+                                                    Brightness.dark
+                                                ? AppThemeDark.errorText
+                                                : AppThemeLight.errorText,
                                         fontSize: 12.sp,
                                       ),
                                       textAlign: TextAlign.center,
@@ -188,13 +202,21 @@ class _ConnectPageState extends State<ConnectPage>
                                 Icon(
                                   Icons.forum_outlined,
                                   size: 64.w,
-                                  color: AppThemeLight.textSecondary,
+                                  color:
+                                      Theme.of(context).brightness ==
+                                              Brightness.dark
+                                          ? AppThemeDark.textSecondary
+                                          : AppThemeLight.textSecondary,
                                 ),
                                 SizedBox(height: 16.h),
                                 Text(
                                   'No posts yet',
                                   style: TextStyle(
-                                    color: AppThemeLight.textSecondary,
+                                    color:
+                                        Theme.of(context).brightness ==
+                                                Brightness.dark
+                                            ? AppThemeDark.textSecondary
+                                            : AppThemeLight.textSecondary,
                                     fontSize: 16.sp,
                                   ),
                                 ),
@@ -270,7 +292,7 @@ class _ConnectPageState extends State<ConnectPage>
                   // My Feed Tab with pull-to-refresh and optimized filtering
                   RefreshIndicator(
                     onRefresh: _onRefresh,
-                    color: AppThemeLight.primary,
+                    color: Theme.of(context).colorScheme.primary,
                     child: StreamBuilder<List<String>>(
                       stream: _hubService.getJoinedHubsStream(),
                       builder: (context, hubSnapshot) {
@@ -304,13 +326,20 @@ class _ConnectPageState extends State<ConnectPage>
                                       Icons.error_outline,
                                       size: 64.w,
                                       color:
-                                          Theme.of(context).colorScheme.error,
+                                          Theme.of(context).brightness ==
+                                                  Brightness.dark
+                                              ? AppThemeDark.errorText
+                                              : AppThemeLight.errorText,
                                     ),
                                     SizedBox(height: 16.h),
                                     Text(
                                       'Error loading feed',
                                       style: TextStyle(
-                                        color: AppThemeLight.primary,
+                                        color:
+                                            Theme.of(context).brightness ==
+                                                    Brightness.dark
+                                                ? AppThemeDark.textPrimary
+                                                : AppThemeLight.textPrimary,
                                         fontSize: 16.sp,
                                       ),
                                     ),
@@ -339,7 +368,11 @@ class _ConnectPageState extends State<ConnectPage>
                                     Icon(
                                       Icons.rss_feed_outlined,
                                       size: 64.w,
-                                      color: AppThemeLight.textSecondary,
+                                      color:
+                                          Theme.of(context).brightness ==
+                                                  Brightness.dark
+                                              ? AppThemeDark.textSecondary
+                                              : AppThemeLight.textSecondary,
                                     ),
                                     SizedBox(height: 16.h),
                                     Text(
@@ -347,7 +380,11 @@ class _ConnectPageState extends State<ConnectPage>
                                           ? 'Join some hubs to see posts here'
                                           : 'No posts in your hubs yet',
                                       style: TextStyle(
-                                        color: AppThemeLight.textSecondary,
+                                        color:
+                                            Theme.of(context).brightness ==
+                                                    Brightness.dark
+                                                ? AppThemeDark.textSecondary
+                                                : AppThemeLight.textSecondary,
                                         fontSize: 16.sp,
                                       ),
                                     ),
@@ -448,8 +485,8 @@ class _ConnectPageState extends State<ConnectPage>
             MaterialPageRoute(builder: (context) => const CreatePostScreen()),
           );
         },
-        backgroundColor: AppThemeLight.primary,
-        child: const Icon(Icons.add, color: AppThemeLight.surface),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        child: Icon(Icons.add, color: Theme.of(context).colorScheme.onPrimary),
       ),
     );
   }

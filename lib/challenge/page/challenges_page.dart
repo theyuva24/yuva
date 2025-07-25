@@ -35,7 +35,7 @@ class _ChallengesPageState extends State<ChallengesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppThemeLight.background,
+      backgroundColor: Theme.of(context).colorScheme.background,
       // Removed the AppBar as requested
       body: RefreshIndicator(
         onRefresh: () async => _refreshChallenges(),
@@ -50,14 +50,16 @@ class _ChallengesPageState extends State<ChallengesPage> {
                     child: Center(
                       child: Column(
                         children: [
-                          const CircularProgressIndicator(
-                            color: AppThemeLight.primary,
+                          CircularProgressIndicator(
+                            color: Theme.of(context).colorScheme.primary,
                           ),
                           SizedBox(height: 16.h),
                           Text(
                             'Loading challenges...',
-                            style: TextStyle(
-                              color: AppThemeLight.primary,
+                            style: Theme.of(
+                              context,
+                            ).textTheme.bodyLarge?.copyWith(
+                              color: Theme.of(context).colorScheme.primary,
                               fontSize: 16.sp,
                             ),
                           ),
@@ -76,16 +78,18 @@ class _ChallengesPageState extends State<ChallengesPage> {
                     child: Center(
                       child: Column(
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.error_outline,
-                            color: AppThemeLight.primary,
+                            color: Theme.of(context).colorScheme.primary,
                             size: 48,
                           ),
                           SizedBox(height: 16.h),
                           Text(
                             'Error: ${snapshot.error}',
-                            style: TextStyle(
-                              color: AppThemeLight.primary,
+                            style: Theme.of(
+                              context,
+                            ).textTheme.bodyLarge?.copyWith(
+                              color: Theme.of(context).colorScheme.primary,
                               fontSize: 16.sp,
                             ),
                           ),
@@ -95,7 +99,7 @@ class _ChallengesPageState extends State<ChallengesPage> {
                             child: Text(
                               'Retry',
                               style: TextStyle(
-                                color: AppThemeLight.primary,
+                                color: Theme.of(context).colorScheme.primary,
                                 fontSize: 15.sp,
                               ),
                             ),
@@ -116,17 +120,19 @@ class _ChallengesPageState extends State<ChallengesPage> {
                     child: Center(
                       child: Column(
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.emoji_events_outlined,
-                            color: AppThemeLight.primary,
+                            color: Theme.of(context).colorScheme.primary,
                             size: 48,
                           ),
                           SizedBox(height: 16.h),
                           Text(
                             'No challenges available yet.',
-                            style: TextStyle(
+                            style: Theme.of(
+                              context,
+                            ).textTheme.bodyLarge?.copyWith(
                               fontSize: 18.sp,
-                              color: AppThemeLight.primary,
+                              color: Theme.of(context).colorScheme.primary,
                             ),
                           ),
                         ],

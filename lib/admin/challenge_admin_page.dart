@@ -68,11 +68,31 @@ class _ChallengeAdminPageState extends State<ChallengeAdminPage> {
               return const Center(child: CircularProgressIndicator());
             }
             if (snapshot.hasError) {
-              return Center(child: Text('Error loading challenges'));
+              return Center(
+                child: Text(
+                  'Error loading challenges',
+                  style: TextStyle(
+                    color:
+                        Theme.of(context).brightness == Brightness.dark
+                            ? AppThemeDark.errorText
+                            : AppThemeLight.errorText,
+                  ),
+                ),
+              );
             }
             final challenges = snapshot.data ?? [];
             if (challenges.isEmpty) {
-              return const Center(child: Text('No challenges available.'));
+              return Center(
+                child: Text(
+                  'No challenges available.',
+                  style: TextStyle(
+                    color:
+                        Theme.of(context).brightness == Brightness.dark
+                            ? AppThemeDark.textSecondary
+                            : AppThemeLight.textSecondary,
+                  ),
+                ),
+              );
             }
             return ListView.separated(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -82,8 +102,24 @@ class _ChallengeAdminPageState extends State<ChallengeAdminPage> {
                 final challenge = challenges[index];
                 return Card(
                   child: ListTile(
-                    title: Text(challenge.title),
-                    subtitle: Text(challenge.description),
+                    title: Text(
+                      challenge.title,
+                      style: TextStyle(
+                        color:
+                            Theme.of(context).brightness == Brightness.dark
+                                ? AppThemeDark.textPrimary
+                                : AppThemeLight.textPrimary,
+                      ),
+                    ),
+                    subtitle: Text(
+                      challenge.description,
+                      style: TextStyle(
+                        color:
+                            Theme.of(context).brightness == Brightness.dark
+                                ? AppThemeDark.textSecondary
+                                : AppThemeLight.textSecondary,
+                      ),
+                    ),
                     onTap: () => _openChallengeForm(challenge: challenge),
                   ),
                 );

@@ -76,6 +76,7 @@ class _ChatsPageState extends State<ChatsPage> with RouteAware {
         'otherUserId': otherUserId,
       });
     }
+
     // Fetch hub chats
     final userDoc =
         await FirebaseFirestore.instance.collection('users').doc(userId).get();
@@ -109,8 +110,10 @@ class _ChatsPageState extends State<ChatsPage> with RouteAware {
         'lastMsgTime': lastMsgTime,
       });
     }
+
     // Remove chats with no lastMsgTime (optional)
     unified.removeWhere((c) => c['lastMsgTime'] == null);
+
     // Sort by lastMsgTime descending
     unified.sort(
       (a, b) => (b['lastMsgTime'] as DateTime).compareTo(
@@ -144,281 +147,294 @@ class _ChatsPageState extends State<ChatsPage> with RouteAware {
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
-      return const Center(
+      return Center(
         child: Text(
           'Not logged in',
-          style: TextStyle(color: AppThemeLight.textPrimary),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
         ),
       );
     }
-    return Theme(
-      data: AppThemeLight.theme,
-      child: Scaffold(
-        backgroundColor: AppThemeLight.background,
-        body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-          stream:
-              FirebaseFirestore.instance
-                  .collection('chats')
-                  .where('participants', arrayContains: user.uid)
-                  .orderBy('lastMessageTime', descending: true)
-                  .snapshots(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return const Center(
-                child: CircularProgressIndicator(color: AppThemeLight.primary),
-              );
-            }
-            final chatDocs = snapshot.data!.docs;
-            if (chatDocs.isEmpty) {
-              return const Center(
-                child: Padding(
-                  padding: EdgeInsets.only(top: 64),
-                  child: Text(
-                    'No chats yet',
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: AppThemeLight.primary,
-                    ),
+    return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.background,
+      body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+        stream:
+            FirebaseFirestore.instance
+                .collection('chats')
+                .where('participants', arrayContains: user.uid)
+                .orderBy('lastMessageTime', descending: true)
+                .snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return Center(
+              child: CircularProgressIndicator(
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            );
+          }
+          final chatDocs = snapshot.data!.docs;
+          if (chatDocs.isEmpty) {
+            return Center(
+              child: Padding(
+                padding: EdgeInsets.only(top: 64),
+                child: Text(
+                  'No chats yet',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
+              ),
+            );
+          }
+          return ListView.builder(
+            itemCount: chatDocs.length,
+            itemBuilder: (context, index) {
+              final chatDoc = chatDocs[index];
+              final chatData = chatDoc.data();
+              final chatId = chatDoc.id;
+              final participants = List<String>.from(
+                chatData['participants'] ?? [],
               );
-            }
-            return ListView.builder(
-              itemCount: chatDocs.length,
-              itemBuilder: (context, index) {
-                final chatDoc = chatDocs[index];
-                final chatData = chatDoc.data();
-                final chatId = chatDoc.id;
-                final participants = List<String>.from(
-                  chatData['participants'] ?? [],
-                );
-                final otherUserId = participants.firstWhere(
-                  (id) => id != user.uid,
-                  orElse: () => user.uid,
-                );
-                return FutureBuilder<Map<String, dynamic>?>(
-                  future: fetchUserProfile(otherUserId),
-                  builder: (context, userProfileSnapshot) {
-                    final userProfile = userProfileSnapshot.data;
-                    final currentUserId = user.uid;
-                    return StreamBuilder<
-                      DocumentSnapshot<Map<String, dynamic>>
-                    >(
-                      stream:
-                          FirebaseFirestore.instance
-                              .collection('chats')
-                              .doc(chatId)
-                              .snapshots(),
-                      builder: (context, chatDocSnapshot) {
-                        if (!chatDocSnapshot.hasData ||
-                            chatDocSnapshot.data == null) {
-                          return const SizedBox.shrink();
-                        }
-                        final chatData = chatDocSnapshot.data!.data();
-                        final lastReadTimestamps =
-                            chatData?['lastReadTimestamps'] ?? {};
-                        final lastRead =
-                            lastReadTimestamps[currentUserId] != null &&
-                                    lastReadTimestamps[currentUserId]
-                                        is Timestamp
-                                ? (lastReadTimestamps[currentUserId]
-                                        as Timestamp)
-                                    .toDate()
-                                : DateTime.fromMillisecondsSinceEpoch(0);
-                        return StreamBuilder<
-                          QuerySnapshot<Map<String, dynamic>>
-                        >(
-                          stream:
-                              FirebaseFirestore.instance
-                                  .collection('chats')
-                                  .doc(chatId)
-                                  .collection('messages')
-                                  .orderBy('timestamp', descending: true)
-                                  .limit(1)
-                                  .snapshots(),
-                          builder: (context, latestMsgSnapshot) {
-                            String lastMsg = '';
-                            DateTime? lastMsgTime;
-                            if (latestMsgSnapshot.hasData &&
-                                latestMsgSnapshot.data!.docs.isNotEmpty) {
-                              final msgDoc = latestMsgSnapshot.data!.docs.first;
-                              lastMsg = msgDoc['text'] ?? '';
-                              final ts = msgDoc['timestamp'];
-                              if (ts is Timestamp) lastMsgTime = ts.toDate();
-                            }
-                            return StreamBuilder<
-                              QuerySnapshot<Map<String, dynamic>>
-                            >(
-                              stream:
-                                  FirebaseFirestore.instance
-                                      .collection('chats')
-                                      .doc(chatId)
-                                      .collection('messages')
-                                      .where(
-                                        'timestamp',
-                                        isGreaterThan: lastRead,
-                                      )
-                                      .where('timestamp', isNotEqualTo: null)
-                                      .where(
-                                        'senderId',
-                                        isNotEqualTo: currentUserId,
-                                      )
-                                      .snapshots(),
-                              builder: (context, unreadSnapshot) {
-                                int unreadCount = 0;
-                                if (unreadSnapshot.hasData) {
-                                  unreadCount =
-                                      unreadSnapshot.data!.docs.length;
-                                }
-                                return ListTile(
-                                  tileColor: AppThemeLight.surface,
-                                  leading:
-                                      userProfile != null &&
-                                              (userProfile['profilePicUrl'] ??
-                                                      '')
-                                                  .isNotEmpty
-                                          ? Container(
-                                            decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              border: Border.all(
-                                                color: AppThemeLight.primary,
-                                                width: 2,
-                                              ),
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: AppThemeLight.primary
-                                                      .withAlpha(29),
-                                                  blurRadius: 8,
-                                                  spreadRadius: 1,
-                                                ),
-                                              ],
-                                            ),
-                                            child: CircleAvatar(
-                                              backgroundImage: NetworkImage(
-                                                userProfile['profilePicUrl'],
-                                              ),
-                                              backgroundColor:
-                                                  AppThemeLight.surface,
-                                            ),
-                                          )
-                                          : Container(
-                                            decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              border: Border.all(
-                                                color: AppThemeLight.primary,
-                                                width: 2,
-                                              ),
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: AppThemeLight.primary
-                                                      .withAlpha(29),
-                                                  blurRadius: 8,
-                                                  spreadRadius: 1,
-                                                ),
-                                              ],
-                                            ),
-                                            child: CircleAvatar(
-                                              backgroundColor:
-                                                  AppThemeLight.surface,
-                                              child: Icon(
-                                                Icons.person,
-                                                color: AppThemeLight.primary,
-                                              ),
-                                            ),
-                                          ),
-                                  title: Text(
-                                    userProfile?['fullName'] ?? 'Unknown',
-                                    style: const TextStyle(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.bold,
-                                      color: AppThemeLight.primary,
-                                      letterSpacing: 2,
-                                      shadows: [
-                                        Shadow(
-                                          blurRadius: 8,
-                                          color: AppThemeLight.primary,
-                                          offset: Offset(0, 0),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  subtitle: Text(
-                                    lastMsg,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      color: AppThemeLight.textSecondary,
-                                    ),
-                                  ),
-                                  trailing: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      if (lastMsgTime != null)
-                                        Text(
-                                          TimeOfDay.fromDateTime(
-                                            lastMsgTime,
-                                          ).format(context),
-                                          style: const TextStyle(
-                                            fontSize: 12,
-                                            color: AppThemeLight.primary,
-                                          ),
-                                        ),
-                                      if (unreadCount > 0)
-                                        Container(
-                                          margin: const EdgeInsets.only(
-                                            left: 8,
-                                          ),
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 8,
-                                            vertical: 2,
-                                          ),
+              final otherUserId = participants.firstWhere(
+                (id) => id != user.uid,
+                orElse: () => user.uid,
+              );
+              return FutureBuilder<Map<String, dynamic>?>(
+                future: fetchUserProfile(otherUserId),
+                builder: (context, userProfileSnapshot) {
+                  final userProfile = userProfileSnapshot.data;
+                  final currentUserId = user.uid;
+                  return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+                    stream:
+                        FirebaseFirestore.instance
+                            .collection('chats')
+                            .doc(chatId)
+                            .snapshots(),
+                    builder: (context, chatDocSnapshot) {
+                      if (!chatDocSnapshot.hasData ||
+                          chatDocSnapshot.data == null) {
+                        return const SizedBox.shrink();
+                      }
+                      final chatData = chatDocSnapshot.data!.data();
+                      final lastReadTimestamps =
+                          chatData?['lastReadTimestamps'] ?? {};
+                      final lastRead =
+                          lastReadTimestamps[currentUserId] != null &&
+                                  lastReadTimestamps[currentUserId] is Timestamp
+                              ? (lastReadTimestamps[currentUserId] as Timestamp)
+                                  .toDate()
+                              : DateTime.fromMillisecondsSinceEpoch(0);
+                      return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                        stream:
+                            FirebaseFirestore.instance
+                                .collection('chats')
+                                .doc(chatId)
+                                .collection('messages')
+                                .orderBy('timestamp', descending: true)
+                                .limit(1)
+                                .snapshots(),
+                        builder: (context, latestMsgSnapshot) {
+                          String lastMsg = '';
+                          DateTime? lastMsgTime;
+                          if (latestMsgSnapshot.hasData &&
+                              latestMsgSnapshot.data!.docs.isNotEmpty) {
+                            final msgDoc = latestMsgSnapshot.data!.docs.first;
+                            lastMsg = msgDoc['text'] ?? '';
+                            final ts = msgDoc['timestamp'];
+                            if (ts is Timestamp) lastMsgTime = ts.toDate();
+                          }
+                          return StreamBuilder<
+                            QuerySnapshot<Map<String, dynamic>>
+                          >(
+                            stream:
+                                FirebaseFirestore.instance
+                                    .collection('chats')
+                                    .doc(chatId)
+                                    .collection('messages')
+                                    .where('timestamp', isGreaterThan: lastRead)
+                                    .where('timestamp', isNotEqualTo: null)
+                                    .where(
+                                      'senderId',
+                                      isNotEqualTo: currentUserId,
+                                    )
+                                    .snapshots(),
+                            builder: (context, unreadSnapshot) {
+                              int unreadCount = 0;
+                              if (unreadSnapshot.hasData) {
+                                unreadCount = unreadSnapshot.data!.docs.length;
+                              }
+                              return ListTile(
+                                tileColor:
+                                    Theme.of(context).colorScheme.surface,
+                                leading:
+                                    userProfile != null &&
+                                            (userProfile['profilePicUrl'] ?? '')
+                                                .isNotEmpty
+                                        ? Container(
                                           decoration: BoxDecoration(
-                                            color:
-                                                Theme.of(
-                                                  context,
-                                                ).colorScheme.error,
-                                            borderRadius: BorderRadius.circular(
-                                              12,
-                                            ),
-                                          ),
-                                          child: Text(
-                                            unreadCount.toString(),
-                                            style: TextStyle(
+                                            shape: BoxShape.circle,
+                                            border: Border.all(
                                               color:
                                                   Theme.of(
                                                     context,
-                                                  ).colorScheme.onPrimary,
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.bold,
+                                                  ).colorScheme.primary,
+                                              width: 2,
+                                            ),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .primary
+                                                    .withAlpha(29),
+                                                blurRadius: 8,
+                                                spreadRadius: 1,
+                                              ),
+                                            ],
+                                          ),
+                                          child: CircleAvatar(
+                                            backgroundImage: NetworkImage(
+                                              userProfile['profilePicUrl'],
+                                            ),
+                                            backgroundColor:
+                                                Theme.of(
+                                                  context,
+                                                ).colorScheme.surface,
+                                          ),
+                                        )
+                                        : Container(
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            border: Border.all(
+                                              color:
+                                                  Theme.of(
+                                                    context,
+                                                  ).colorScheme.primary,
+                                              width: 2,
+                                            ),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .primary
+                                                    .withAlpha(29),
+                                                blurRadius: 8,
+                                                spreadRadius: 1,
+                                              ),
+                                            ],
+                                          ),
+                                          child: CircleAvatar(
+                                            backgroundColor:
+                                                Theme.of(
+                                                  context,
+                                                ).colorScheme.surface,
+                                            child: Icon(
+                                              Icons.person,
+                                              color:
+                                                  Theme.of(
+                                                    context,
+                                                  ).colorScheme.primary,
                                             ),
                                           ),
                                         ),
+                                title: Text(
+                                  userProfile?['fullName'] ?? 'Unknown',
+                                  style: TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                    letterSpacing: 2,
+                                    shadows: [
+                                      Shadow(
+                                        blurRadius: 8,
+                                        color:
+                                            Theme.of(
+                                              context,
+                                            ).colorScheme.primary,
+                                        offset: Offset(0, 0),
+                                      ),
                                     ],
                                   ),
-                                  onTap: () {
-                                    Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder:
-                                            (context) => ChatPage(
-                                              chatId: chatId,
-                                              otherUserId: otherUserId,
-                                            ),
+                                ),
+                                subtitle: Text(
+                                  lastMsg,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface.withOpacity(0.7),
+                                  ),
+                                ),
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    if (lastMsgTime != null)
+                                      Text(
+                                        TimeOfDay.fromDateTime(
+                                          lastMsgTime,
+                                        ).format(context),
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color:
+                                              Theme.of(
+                                                context,
+                                              ).colorScheme.primary,
+                                        ),
                                       ),
-                                    );
-                                  },
-                                );
-                              },
-                            );
-                          },
-                        );
-                      },
-                    );
-                  },
-                );
-              },
-            );
-          },
-        ),
+                                    if (unreadCount > 0)
+                                      Container(
+                                        margin: const EdgeInsets.only(left: 8),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 2,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color:
+                                              Theme.of(
+                                                context,
+                                              ).colorScheme.error,
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          unreadCount.toString(),
+                                          style: TextStyle(
+                                            color:
+                                                Theme.of(
+                                                  context,
+                                                ).colorScheme.onPrimary,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                                onTap: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) => ChatPage(
+                                            chatId: chatId,
+                                            otherUserId: otherUserId,
+                                          ),
+                                    ),
+                                  );
+                                },
+                              );
+                            },
+                          );
+                        },
+                      );
+                    },
+                  );
+                },
+              );
+            },
+          );
+        },
       ),
     );
   }

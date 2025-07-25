@@ -136,14 +136,16 @@ class _InterestsPickerState extends State<InterestsPicker> {
             labelText: 'Search interests',
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
-              borderSide: BorderSide(color: AppThemeLight.divider),
+              borderSide: BorderSide(color: Theme.of(context).dividerColor),
             ),
-            labelStyle: TextStyle(color: AppThemeLight.primary),
+            labelStyle: TextStyle(color: Theme.of(context).colorScheme.primary),
             filled: true,
-            fillColor: AppThemeLight.surface,
-            hintStyle: TextStyle(color: AppThemeLight.textSecondary),
+            fillColor: Theme.of(context).colorScheme.surface,
+            hintStyle: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+            ),
           ),
-          style: TextStyle(color: AppThemeLight.textPrimary),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
         ),
         const SizedBox(height: 12),
         if (_selected.isNotEmpty)
@@ -155,8 +157,10 @@ class _InterestsPickerState extends State<InterestsPicker> {
                     .map(
                       (interest) => Chip(
                         label: Text(interest),
-                        backgroundColor: AppThemeLight.primary,
-                        labelStyle: TextStyle(color: AppThemeLight.surface),
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        labelStyle: TextStyle(
+                          color: Theme.of(context).colorScheme.surface,
+                        ),
                         deleteIcon: const Icon(Icons.close, size: 18),
                         onDeleted: () => _removeInterest(interest),
                       ),
@@ -172,12 +176,17 @@ class _InterestsPickerState extends State<InterestsPicker> {
               (interest) => FilterChip(
                 label: Text(
                   interest,
-                  style: TextStyle(color: AppThemeLight.textPrimary),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                 ),
                 selected: false,
-                backgroundColor: AppThemeLight.surface,
-                side: BorderSide(color: AppThemeLight.divider, width: 2),
-                checkmarkColor: AppThemeLight.primary,
+                backgroundColor: Theme.of(context).colorScheme.surface,
+                side: BorderSide(
+                  color: Theme.of(context).dividerColor,
+                  width: 2,
+                ),
+                checkmarkColor: Theme.of(context).colorScheme.primary,
                 onSelected: (_) => _addInterest(interest),
               ),
             ),
@@ -185,11 +194,16 @@ class _InterestsPickerState extends State<InterestsPicker> {
               FilterChip(
                 label: Text(
                   'Add "$query"',
-                  style: TextStyle(color: AppThemeLight.primary),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
                 ),
                 selected: false,
-                backgroundColor: AppThemeLight.surface,
-                side: BorderSide(color: AppThemeLight.primary, width: 2),
+                backgroundColor: Theme.of(context).colorScheme.surface,
+                side: BorderSide(
+                  color: Theme.of(context).colorScheme.primary,
+                  width: 2,
+                ),
                 onSelected: (_) => _addInterest(query),
               ),
           ],

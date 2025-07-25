@@ -51,7 +51,7 @@ class _ChallengeDetailsPageState extends State<ChallengeDetailsPage> {
             : desc;
 
     return Scaffold(
-      backgroundColor: AppThemeLight.background,
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
@@ -59,21 +59,19 @@ class _ChallengeDetailsPageState extends State<ChallengeDetailsPage> {
         centerTitle: true,
         title: Text(
           challenge.title,
-          style:
-              textTheme.titleLarge?.copyWith(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.primary,
-                letterSpacing: 2,
-                shadows: [
-                  Shadow(
-                    blurRadius: 4,
-                    color: Theme.of(context).shadowColor.withOpacity(0.1),
-                    offset: Offset(0, 0),
-                  ),
-                ],
-              ) ??
-              TextStyle(),
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.primary,
+            letterSpacing: 2,
+            shadows: [
+              Shadow(
+                blurRadius: 4,
+                color: Theme.of(context).shadowColor.withOpacity(0.1),
+                offset: Offset(0, 0),
+              ),
+            ],
+          ),
         ),
       ),
       body: Stack(
@@ -123,8 +121,9 @@ class _ChallengeDetailsPageState extends State<ChallengeDetailsPage> {
                         LinearProgressIndicator(
                           value: progress,
                           minHeight: 8,
-                          backgroundColor:
-                              Theme.of(context).colorScheme.surface,
+                          backgroundColor: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withOpacity(0.12),
                           valueColor: AlwaysStoppedAnimation<Color>(
                             progress < 1.0
                                 ? Theme.of(context).colorScheme.primary
@@ -137,16 +136,20 @@ class _ChallengeDetailsPageState extends State<ChallengeDetailsPage> {
                           children: [
                             Text(
                               'Start: ${_formatDate(startDate)}',
-                              style: textTheme.bodySmall?.copyWith(
+                              style: Theme.of(
+                                context,
+                              ).textTheme.bodySmall?.copyWith(
                                 fontSize: 12,
-                                color: AppThemeLight.primary,
+                                color: Theme.of(context).colorScheme.primary,
                               ),
                             ),
                             Text(
                               'End: ${_formatDate(endDate)}',
-                              style: textTheme.bodySmall?.copyWith(
+                              style: Theme.of(
+                                context,
+                              ).textTheme.bodySmall?.copyWith(
                                 fontSize: 12,
-                                color: AppThemeLight.primary,
+                                color: Theme.of(context).colorScheme.primary,
                               ),
                             ),
                           ],
@@ -163,12 +166,14 @@ class _ChallengeDetailsPageState extends State<ChallengeDetailsPage> {
                         color: Theme.of(context).colorScheme.surface,
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
-                          color: AppThemeLight.primary,
+                          color: Theme.of(context).colorScheme.primary,
                           width: 2,
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: AppThemeLight.primary.withAlpha(15),
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.primary.withAlpha(15),
                             blurRadius: 8,
                             spreadRadius: 1,
                           ),
@@ -181,9 +186,11 @@ class _ChallengeDetailsPageState extends State<ChallengeDetailsPage> {
                           // Description and Read More inline
                           RichText(
                             text: TextSpan(
-                              style: textTheme.bodyMedium?.copyWith(
+                              style: Theme.of(
+                                context,
+                              ).textTheme.bodyMedium?.copyWith(
                                 fontSize: 16,
-                                color: AppThemeLight.textPrimary,
+                                color: Theme.of(context).colorScheme.onSurface,
                               ),
                               children: [
                                 TextSpan(text: displayDesc),
@@ -203,8 +210,13 @@ class _ChallengeDetailsPageState extends State<ChallengeDetailsPage> {
                                           _isExpanded
                                               ? 'Read Less'
                                               : 'Read More',
-                                          style: textTheme.labelLarge?.copyWith(
-                                            color: AppThemeLight.primary,
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.labelLarge?.copyWith(
+                                            color:
+                                                Theme.of(
+                                                  context,
+                                                ).colorScheme.primary,
                                             fontWeight: FontWeight.bold,
                                             fontSize: 16,
                                           ),
@@ -295,7 +307,7 @@ class _ChallengeDetailsPageState extends State<ChallengeDetailsPage> {
                               style: Theme.of(
                                 context,
                               ).textTheme.titleMedium?.copyWith(
-                                color: AppThemeLight.primary,
+                                color: Theme.of(context).colorScheme.primary,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -470,14 +482,14 @@ class _ChallengeDetailsPageState extends State<ChallengeDetailsPage> {
             ),
           );
         },
-        backgroundColor: AppThemeLight.primary,
+        backgroundColor: Theme.of(context).colorScheme.primary,
         icon: Icon(
           Icons.emoji_events,
           color: Theme.of(context).colorScheme.onPrimary,
         ),
         label: Text(
           'Take Part',
-          style: TextStyle(
+          style: Theme.of(context).textTheme.labelLarge?.copyWith(
             fontWeight: FontWeight.w600,
             fontSize: 17,
             color: Theme.of(context).colorScheme.onPrimary,
@@ -517,10 +529,13 @@ class _InfoBox extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppThemeLight.primary, width: 1.5),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.primary,
+          width: 1.5,
+        ),
         boxShadow: [
           BoxShadow(
-            color: AppThemeLight.primary.withAlpha(10),
+            color: Theme.of(context).colorScheme.primary.withAlpha(10),
             blurRadius: 6,
             spreadRadius: 1,
           ),
@@ -531,19 +546,19 @@ class _InfoBox extends StatelessWidget {
         children: [
           Text(
             label + ': ',
-            style: TextStyle(
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               fontSize: 15,
-              color: AppThemeLight.primary,
+              color: Theme.of(context).colorScheme.primary,
               fontWeight: FontWeight.w600,
             ),
           ),
           Flexible(
             child: Text(
               value,
-              style: TextStyle(
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 fontSize: 15,
                 fontWeight: FontWeight.bold,
-                color: AppThemeLight.textPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
               textAlign: TextAlign.left,
               overflow: TextOverflow.ellipsis,

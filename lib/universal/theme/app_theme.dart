@@ -10,12 +10,23 @@ class AppThemeLight {
   // Neutrals & Greyscale
   static const Color light1 = Color(0xFFFFFFFF); // Page background
   static const Color light2 = Color(0xFFF5F5F5); // Card & field background
-  static const Color light3 = Color(0xFF888888); // Placeholder text
-  static const Color light4 = Color(0xFFD1D1D1); // Secondary text
-  static const Color dark1 = Color(0xFF000000); // Primary text
-  static const Color dark2 = Color(0xFF222222); // Subtle dark text
+  static const Color dark1 = Color(
+    0xFF1A1A1A,
+  ); // Primary text (titles, main labels)
+  static const Color dark2 = Color(0xFF222222); // Alt primary text
+  static const Color textSecondary = Color(
+    0xFF5C5C7B,
+  ); // Secondary text (subtitles, placeholders)
+  static const Color textTertiary = Color(
+    0xFF7878A3,
+  ); // Tertiary text (hint/disabled)
   static const Color dark3 = Color(0xFF2E2E2E); // Divider
   static const Color dark4 = Color(0xFF3A3A3A); // Secondary divider
+  static const Color ctaText = Color(0xFF877EFF); // CTA/links
+  static const Color errorText = Color(0xFFFF5A5A); // Error text
+  static const Color navIconUnselected = Color(
+    0xFF9E9E9E,
+  ); // Unselected nav icon (light theme)
 
   // Status & Semantic
   static const Color red = Color(0xFFFF5A5A); // Error states
@@ -34,7 +45,6 @@ class AppThemeLight {
   static const Color background = light1;
   static const Color surface = light2;
   static const Color textPrimary = dark1;
-  static const Color textSecondary = light4;
   static const Color divider = light2;
   static const Color transparent = Colors.transparent;
   static const Color white24 = Colors.white24;
@@ -72,7 +82,7 @@ class AppThemeLight {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: surface,
-        hintStyle: const TextStyle(color: light3),
+        hintStyle: const TextStyle(color: textSecondary),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(14)),
           borderSide: const BorderSide(color: divider),
@@ -88,9 +98,23 @@ class AppThemeLight {
         prefixIconColor: primary500,
       ),
       textTheme: const TextTheme(
-        bodyLarge: TextStyle(color: dark1, fontSize: 18),
-        bodyMedium: TextStyle(color: light4, fontSize: 16),
-        labelLarge: TextStyle(color: primary500, fontWeight: FontWeight.w500),
+        bodyLarge: TextStyle(color: dark1, fontSize: 18), // Primary text
+        bodyMedium: TextStyle(
+          color: textSecondary,
+          fontSize: 16,
+        ), // Secondary text
+        bodySmall: TextStyle(
+          color: textTertiary,
+          fontSize: 14,
+        ), // Tertiary text
+        labelLarge: TextStyle(
+          color: ctaText,
+          fontWeight: FontWeight.w500,
+        ), // CTA/links
+        labelSmall: TextStyle(
+          color: errorText,
+          fontWeight: FontWeight.w500,
+        ), // Error text
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ButtonStyle(
@@ -150,14 +174,23 @@ class AppThemeDark {
   static const Color blue = Color(0xFF0095F6);
 
   // Neutrals & Greyscale
-  static const Color light1 = Color(0xFFFFFFFF); // Text
+  static const Color light1 = Color(0xFFFFFFFF); // Primary text (white)
+  static const Color textSecondary = Color(
+    0xFFB0B0B0,
+  ); // Secondary text (soft gray)
+  static const Color textTertiary = Color(
+    0xFF7878A3,
+  ); // Tertiary text (muted purple-gray)
   static const Color light2 = Color(0xFFEFEFEF); // Borders
-  static const Color light3 = Color(0xFFD1D1D1); // Secondary text
-  static const Color light4 = Color(0xFF888888); // Muted text
   static const Color dark1 = Color(0xFF000000); // Background
   static const Color dark2 = Color(0xFF0A0A0A); // Dark surface
   static const Color dark3 = Color(0xFF161017); // Cards
   static const Color dark4 = Color(0xFF1A111F); // Panels
+  static const Color ctaText = Color(0xFF877EFF); // CTA/links
+  static const Color errorText = Color(0xFFFF5A5A); // Error text
+  static const Color navIconUnselected = Color(
+    0xFFA1A1A1,
+  ); // Unselected nav icon (dark theme)
 
   // Status & Semantic
   static const Color red = Color(0xFFFF5A5A);
@@ -175,7 +208,6 @@ class AppThemeDark {
   static const Color background = dark2;
   static const Color surface = dark3;
   static const Color textPrimary = light1;
-  static const Color textSecondary = light3;
   static const Color divider = dark4;
   static const Color transparent = Colors.transparent;
   static const Color white24 = Colors.white24;
@@ -213,7 +245,7 @@ class AppThemeDark {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: surface,
-        hintStyle: const TextStyle(color: light4),
+        hintStyle: const TextStyle(color: textSecondary),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(14)),
           borderSide: const BorderSide(color: divider),
@@ -229,9 +261,23 @@ class AppThemeDark {
         prefixIconColor: primary500,
       ),
       textTheme: const TextTheme(
-        bodyLarge: TextStyle(color: light1, fontSize: 18),
-        bodyMedium: TextStyle(color: light4, fontSize: 16),
-        labelLarge: TextStyle(color: primary500, fontWeight: FontWeight.w500),
+        bodyLarge: TextStyle(color: light1, fontSize: 18), // Primary text
+        bodyMedium: TextStyle(
+          color: textSecondary,
+          fontSize: 16,
+        ), // Secondary text
+        bodySmall: TextStyle(
+          color: textTertiary,
+          fontSize: 14,
+        ), // Tertiary text
+        labelLarge: TextStyle(
+          color: ctaText,
+          fontWeight: FontWeight.w500,
+        ), // CTA/links
+        labelSmall: TextStyle(
+          color: errorText,
+          fontWeight: FontWeight.w500,
+        ), // Error text
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ButtonStyle(

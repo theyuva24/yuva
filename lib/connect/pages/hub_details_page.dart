@@ -194,6 +194,11 @@ class _HubDetailsPageState extends State<HubDetailsPage> {
                               color: AppThemeLight.primary,
                             ),
                           )
+                          : _isJoined
+                          ? Icon(
+                            Icons.check,
+                            color: Theme.of(context).colorScheme.primary,
+                          )
                           : ElevatedButton(
                             onPressed: _isJoined ? _leaveHub : _joinHub,
                             child: Text(_isJoined ? 'Leave' : 'Join'),
@@ -201,15 +206,17 @@ class _HubDetailsPageState extends State<HubDetailsPage> {
                       if (_isJoined) ...[
                         const SizedBox(width: 12),
                         ElevatedButton.icon(
-                          icon: const Icon(
+                          icon: Icon(
                             Icons.message,
-                            color: AppThemeLight.primary,
+                            color: Theme.of(context).colorScheme.primary,
                             size: 18,
                           ),
                           label: const Text('Message'),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppThemeLight.surface,
-                            foregroundColor: AppThemeLight.primary,
+                            backgroundColor:
+                                Theme.of(context).colorScheme.surface,
+                            foregroundColor:
+                                Theme.of(context).colorScheme.primary,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),

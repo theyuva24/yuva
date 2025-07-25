@@ -79,14 +79,26 @@ class _CollegeAdminPageState extends State<CollegeAdminPage> {
                       final doc = docs[index];
                       final name = doc['name'];
                       return ListTile(
-                        title: Text(name),
+                        title: Text(
+                          name,
+                          style: TextStyle(
+                            color:
+                                Theme.of(context).brightness == Brightness.dark
+                                    ? AppThemeDark.textPrimary
+                                    : AppThemeLight.textPrimary,
+                          ),
+                        ),
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             IconButton(
                               icon: Icon(
                                 Icons.check,
-                                color: AppThemeLight.success,
+                                color:
+                                    Theme.of(context).brightness ==
+                                            Brightness.dark
+                                        ? AppThemeDark.success
+                                        : AppThemeLight.success,
                               ),
                               onPressed: () async {
                                 await FirebaseFirestore.instance
@@ -96,7 +108,14 @@ class _CollegeAdminPageState extends State<CollegeAdminPage> {
                               },
                             ),
                             IconButton(
-                              icon: Icon(Icons.edit, color: AppThemeLight.info),
+                              icon: Icon(
+                                Icons.edit,
+                                color:
+                                    Theme.of(context).brightness ==
+                                            Brightness.dark
+                                        ? AppThemeDark.info
+                                        : AppThemeLight.info,
+                              ),
                               onPressed: () async {
                                 final controller = TextEditingController(
                                   text: name,
@@ -141,7 +160,11 @@ class _CollegeAdminPageState extends State<CollegeAdminPage> {
                             IconButton(
                               icon: Icon(
                                 Icons.close,
-                                color: AppThemeLight.error,
+                                color:
+                                    Theme.of(context).brightness ==
+                                            Brightness.dark
+                                        ? AppThemeDark.errorText
+                                        : AppThemeLight.errorText,
                               ),
                               onPressed: () async {
                                 await doc.reference.delete();

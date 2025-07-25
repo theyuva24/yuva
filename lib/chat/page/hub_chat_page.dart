@@ -49,7 +49,17 @@ class _HubChatPageState extends State<HubChatPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('${widget.hubName} Chat')),
+      backgroundColor: Theme.of(context).colorScheme.background,
+      appBar: AppBar(
+        title: Text(
+          '${widget.hubName} Chat',
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+        ),
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        iconTheme: IconThemeData(
+          color: Theme.of(context).colorScheme.onSurface,
+        ),
+      ),
       body: Column(
         children: [
           Expanded(
@@ -57,11 +67,24 @@ class _HubChatPageState extends State<HubChatPage> {
               stream: _messagesStream(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
-                  return const Center(child: CircularProgressIndicator());
+                  return Center(
+                    child: CircularProgressIndicator(
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  );
                 }
                 final messages = snapshot.data!.docs;
                 if (messages.isEmpty) {
-                  return const Center(child: Text('No messages yet'));
+                  return Center(
+                    child: Text(
+                      'No messages yet',
+                      style: TextStyle(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withOpacity(0.7),
+                      ),
+                    ),
+                  );
                 }
                 return ListView.builder(
                   padding: const EdgeInsets.all(8),
@@ -82,16 +105,26 @@ class _HubChatPageState extends State<HubChatPage> {
                               profilePic.isNotEmpty
                                   ? CircleAvatar(
                                     backgroundImage: NetworkImage(profilePic),
+                                    backgroundColor:
+                                        Theme.of(context).colorScheme.surface,
                                   )
-                                  : const CircleAvatar(
-                                    child: Icon(Icons.person),
+                                  : CircleAvatar(
+                                    backgroundColor:
+                                        Theme.of(context).colorScheme.surface,
+                                    child: Icon(
+                                      Icons.person,
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
+                                    ),
                                   ),
                           title: Row(
                             children: [
                               Text(
                                 name,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontWeight: FontWeight.bold,
+                                  color:
+                                      Theme.of(context).colorScheme.onSurface,
                                 ),
                               ),
                               const SizedBox(width: 8),
@@ -102,12 +135,19 @@ class _HubChatPageState extends State<HubChatPage> {
                                   ).format(context),
                                   style: TextStyle(
                                     fontSize: 12,
-                                    color: AppThemeLight.textSecondary,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface.withOpacity(0.7),
                                   ),
                                 ),
                             ],
                           ),
-                          subtitle: Text(text),
+                          subtitle: Text(
+                            text,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
+                          ),
                         );
                       },
                     );
@@ -123,13 +163,34 @@ class _HubChatPageState extends State<HubChatPage> {
                 Expanded(
                   child: TextField(
                     controller: _controller,
-                    decoration: const InputDecoration(
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                    decoration: InputDecoration(
                       hintText: 'Type a message...',
+                      hintStyle: TextStyle(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withOpacity(0.6),
+                      ),
+                      filled: true,
+                      fillColor: Theme.of(context).colorScheme.surface,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: BorderSide.none,
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        vertical: 16,
+                        horizontal: 16,
+                      ),
                     ),
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.send),
+                  icon: Icon(
+                    Icons.send,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
                   onPressed: () async {
                     final text = _controller.text.trim();
                     if (text.isNotEmpty) {

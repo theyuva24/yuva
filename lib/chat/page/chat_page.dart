@@ -31,134 +31,141 @@ class _ChatPageState extends State<ChatPage> {
   @override
   Widget build(BuildContext context) {
     final currentUserId = AuthService().currentUser?.uid;
-    return Theme(
-      data: AppThemeLight.theme,
-      child: Scaffold(
-        backgroundColor: AppThemeLight.background,
-        appBar: AppBar(
-          backgroundColor: AppThemeLight.surface,
-          elevation: 0,
-          iconTheme: const IconThemeData(color: AppThemeLight.primary),
-          title: Text(
-            'Chat',
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: AppThemeLight.primary,
-              letterSpacing: 2,
-              shadows: [
-                Shadow(
-                  blurRadius: 8,
-                  color: AppThemeLight.primary,
-                  offset: Offset(0, 0),
+    return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.background,
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        elevation: 0,
+        iconTheme: IconThemeData(color: Theme.of(context).colorScheme.primary),
+        title: Text(
+          'Chat',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.primary,
+            letterSpacing: 2,
+            shadows: [
+              Shadow(
+                blurRadius: 8,
+                color: Theme.of(context).colorScheme.primary,
+                offset: Offset(0, 0),
+              ),
+            ],
+          ),
+        ),
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: StreamBuilder<List<MessageModel>>(
+              stream: _chatService.getMessages(widget.chatId),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return Center(
+                    child: CircularProgressIndicator(
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  );
+                }
+                final messages = snapshot.data!;
+                return ListView.builder(
+                  padding: const EdgeInsets.all(8),
+                  itemCount: messages.length,
+                  itemBuilder: (context, index) {
+                    final msg = messages[index];
+                    final isMe = msg.senderId != widget.otherUserId;
+                    return Align(
+                      alignment:
+                          isMe ? Alignment.centerRight : Alignment.centerLeft,
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color:
+                              isMe
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Theme.of(context).colorScheme.surface,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow:
+                              isMe
+                                  ? [
+                                    BoxShadow(
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.primary.withAlpha(51),
+                                      blurRadius: 8,
+                                      spreadRadius: 1,
+                                    ),
+                                  ]
+                                  : [],
+                        ),
+                        child: Text(
+                          msg.text,
+                          style: TextStyle(
+                            color:
+                                isMe
+                                    ? Theme.of(context).colorScheme.onPrimary
+                                    : Theme.of(context).colorScheme.onSurface,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _controller,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: 'Type a message...',
+                      hintStyle: TextStyle(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withOpacity(0.6),
+                      ),
+                      filled: true,
+                      fillColor: Theme.of(context).colorScheme.surface,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: BorderSide.none,
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        vertical: 16,
+                        horizontal: 16,
+                      ),
+                    ),
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(
+                    Icons.send,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  onPressed: () async {
+                    final text = _controller.text.trim();
+                    if (text.isNotEmpty) {
+                      _controller.clear();
+                      await _chatService.sendMessage(widget.chatId, text);
+                    }
+                  },
                 ),
               ],
             ),
           ),
-        ),
-        body: Column(
-          children: [
-            Expanded(
-              child: StreamBuilder<List<MessageModel>>(
-                stream: _chatService.getMessages(widget.chatId),
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData) {
-                    return const Center(
-                      child: CircularProgressIndicator(
-                        color: AppThemeLight.primary,
-                      ),
-                    );
-                  }
-                  final messages = snapshot.data!;
-                  return ListView.builder(
-                    padding: const EdgeInsets.all(8),
-                    itemCount: messages.length,
-                    itemBuilder: (context, index) {
-                      final msg = messages[index];
-                      final isMe = msg.senderId != widget.otherUserId;
-                      return Align(
-                        alignment:
-                            isMe ? Alignment.centerRight : Alignment.centerLeft,
-                        child: Container(
-                          margin: const EdgeInsets.symmetric(vertical: 2),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 8,
-                          ),
-                          decoration: BoxDecoration(
-                            color:
-                                isMe
-                                    ? AppThemeLight.primary
-                                    : AppThemeLight.surface,
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow:
-                                isMe
-                                    ? [
-                                      BoxShadow(
-                                        color: AppThemeLight.primary.withAlpha(
-                                          51,
-                                        ),
-                                        blurRadius: 8,
-                                        spreadRadius: 1,
-                                      ),
-                                    ]
-                                    : [],
-                          ),
-                          child: Text(
-                            msg.text,
-                            style: TextStyle(
-                              color: AppThemeLight.textPrimary,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                },
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _controller,
-                      style: const TextStyle(color: AppThemeLight.textPrimary),
-                      decoration: InputDecoration(
-                        hintText: 'Type a message...',
-                        hintStyle: const TextStyle(
-                          color: AppThemeLight.textSecondary,
-                        ),
-                        filled: true,
-                        fillColor: AppThemeLight.surface,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(14),
-                          borderSide: BorderSide.none,
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          vertical: 16,
-                          horizontal: 16,
-                        ),
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.send, color: AppThemeLight.primary),
-                    onPressed: () async {
-                      final text = _controller.text.trim();
-                      if (text.isNotEmpty) {
-                        _controller.clear();
-                        await _chatService.sendMessage(widget.chatId, text);
-                      }
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+        ],
       ),
     );
   }
